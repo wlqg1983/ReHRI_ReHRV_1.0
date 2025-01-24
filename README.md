@@ -17,18 +17,10 @@ rm Install.sh
 
 **2. Script of searching subconfigurations**
 
-MiRI.py -c MiRI.config.ini
-
-or
-
 python bin/MiRI.py -c MiRI.config.ini
 
 
 **3. Draw the map of recombination organelle genome**
-
-MiRIV.py -c MiRIV.config.ini
-
-or
 
 python bin/MiRIV.py -c MiRIV.config.ini
 
