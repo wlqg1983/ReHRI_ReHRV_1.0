@@ -31,21 +31,33 @@
 
 **4. Results**
 
-    The results of genome recombination mediated by different repetitive sequences are stored in a folder named after the project_id.
+    The results of genome recombination mediated by different repeat sequences are stored in a folder named after the project_id.
    
     (1) Core results of MiRI (final_repeat-spanning_results_AR/paired_repeats_recomb-supporting_ratio.tsv)
 ![10](https://github.com/user-attachments/assets/3e620ae4-5afd-47bc-91b2-6398874ddc0f)
+
 fragment_id: The ID of repeat sequence.
+
 length: The ength of repeat sequence.
+
 start: The start position of the repeat sequence in the genome.
+
 end: The end position of the repeat sequence in the genome.
+
 direction: The repeat sequence is in the plus or minus chain of the genome DNA.
+
 chromosome: The chromosome ID of genome.
+
 plus_ratio(s/m): The ratio of the repeat sequence-mediated genome recombination on the plus strand of DNA.
+
 minus_ratio(s/m): The ratio of the repeat sequence-mediated genome recombination on the minus strand of DNA.
+
 combined_ratio: The overall ratio of repeat sequence-mediated genome recombination on the two strands of DNA.
+
 type: The type of repeat sequence (direct or inverted repeat).
+
 paired: Represents the other repeat sequence in a pair of repeat sequences that mediate genome recombination.
+
 
     (2) Results of MiRIV
 ![11](https://github.com/user-attachments/assets/1ec93ffe-37a4-4141-8404-8dbe526af301)
