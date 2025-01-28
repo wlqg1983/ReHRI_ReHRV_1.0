@@ -54,24 +54,20 @@ paired: Represents the other repeat sequence in a pair of repeat sequences that 
 ![15](https://github.com/user-attachments/assets/48fbbf6d-1c14-491e-bdc6-d617fd68ac81)
 ![nine_squares_VV](https://github.com/user-attachments/assets/b12e443b-68a5-4512-b64b-a00874525c67)
 
+
 **5. Core configuration parameters in the configuration file**
+  
     (1) Core configuration file of MiRI
 ![1 2 3](https://github.com/user-attachments/assets/1b8531bb-2afd-4f75-ae68-b9abf7bbb8d2)
 ![4](https://github.com/user-attachments/assets/cbee84a6-757f-40c1-8be3-319695dff202)
 ![5 6 7](https://github.com/user-attachments/assets/1c3031b7-8d18-486c-8c2d-259a46075ae9)
 
 ① Set project ID.
-
 ② Organelle genome sequence.
-
 ③ Circular or linear genome.
-
 ④ Set the length of repeat sequence.
-
 ⑤ Set the NGS reads (single or paired).
-
 ⑥ Set thr TGS reads.
-
 ⑦ The type of sequencing platform (pacbio or ont) of TGS reads.
 
 
