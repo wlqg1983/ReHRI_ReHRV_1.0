@@ -858,8 +858,8 @@ def main():
         if arrange == "Y" or arrange == "YES":
             os.system(f"python bin/collage.py -i fig_layout_{project_id}.tsv -o {arr_folder}/nine_squares_{project_id} -fs {font_size_arr} -dpi {image_dpi_arr}")
         
-        #if os.path.exists(f"fig_layout_{project_id}.tsv"):
-        #    os.remove(f"fig_layout_{project_id}.tsv")
+        if os.path.exists(f"fig_layout_{project_id}.tsv"):
+            os.remove(f"fig_layout_{project_id}.tsv")
             
         if os.path.exists(f"{arr_folder}") and os.path.exists(f"{project_id}"):        #  结果重新归档
             shutil.move(f"{arr_folder}", f"{project_id}")
