@@ -72,7 +72,7 @@ The grid of nine squares.
 ③ Circular or linear genome.  
 ④ Set the length of repeat sequence.  
 ⑤ Set the NGS reads (single or paired).  
-⑥ Set thr TGS reads.  
+⑥ Set the TGS reads.  
 ⑦ The type of sequencing platform (pacbio or ont) of TGS reads.
 
 
