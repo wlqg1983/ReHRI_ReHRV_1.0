@@ -27,40 +27,9 @@
     
     MiRIV.py: The main program for drawing genome recombination maps.
     MiRIV.config.ini: The configuration file for drawing genome recombination maps.
-
-
-**4. Results**
-
-    The results of genome recombination mediated by different repeat sequences are stored in a folder named after the project_id.
     
-(1) Core results of MiRI (final_repeat-spanning_results_AR/paired_repeats_recomb-supporting_ratio.tsv)
-![10](https://github.com/user-attachments/assets/3e620ae4-5afd-47bc-91b2-6398874ddc0f)
 
-① fragment_id: The ID of repeat sequence. 
-② length: The length of repeat sequence.
-③ start: The start positin of repeat sequence in the genome.
-④ end: The end positin of repeat sequence in the genome.
-⑤ direction: The postion in plus or minus strand of DNA.
-⑥ chromosome: The name of chromosome in genome.
-⑦ plus_ratio(s/m): The probability of repeat sequence-mediated genome recombination on the plus strand of DNA.
-⑧ minus_ratio(s/m): The probability of repeat sequence-mediated genome recombination on the minus strand of DNA.
-⑨ combined_ratio: The overall ratio of repeat sequence-mediated genome recombination on the two strands of DNA.
-⑩ type: The type of repeat (direct or inverse repeat).
-○11 paired: Represents the other repeat sequence in a pair of repeat sequences that mediate genome recombination.
-
-
-    (2) Results of MiRIV
-![13](https://github.com/user-attachments/assets/06688f10-42a7-4e49-8e91-6d97ed34acce)
-![14](https://github.com/user-attachments/assets/7c131b36-61fd-4fbc-a7a7-4100dd7dcc81)
-
-Linear genome.
-![15](https://github.com/user-attachments/assets/48fbbf6d-1c14-491e-bdc6-d617fd68ac81)
-
-The grid of nine squares.
-![nine_squares_VV](https://github.com/user-attachments/assets/b12e443b-68a5-4512-b64b-a00874525c67)
-
-
-**5. Core configuration parameters in the configuration file**
+**4. Core configuration parameters in the configuration file**
   
     (1) Core configuration file of MiRI
 ![1 2 3](https://github.com/user-attachments/assets/1b8531bb-2afd-4f75-ae68-b9abf7bbb8d2)
@@ -107,18 +76,39 @@ The grid of nine squares.
 ![7](https://github.com/user-attachments/assets/a4d6e947-4562-431c-a993-13268a3d1b97)
 
 
-**6. The core input tsv file of MiRIV**
+**5. The core input tsv file of MiRIV**
 
 Provide the information of each repeat sequence unit.
 
 ![16](https://github.com/user-attachments/assets/f0cdbf80-9173-4a3c-b016-86f9e9981574)
 
 
+**6. Results**
 
-   
+    The results of genome recombination mediated by different repeat sequences are stored in a folder named after the project_id.
+    
+(1) Core results of MiRI (final_repeat-spanning_results_AR/paired_repeats_recomb-supporting_ratio.tsv)
+![10](https://github.com/user-attachments/assets/3e620ae4-5afd-47bc-91b2-6398874ddc0f)
 
+① fragment_id: The ID of repeat sequence. 
+② length: The length of repeat sequence.
+③ start: The start positin of repeat sequence in the genome.
+④ end: The end positin of repeat sequence in the genome.
+⑤ direction: The postion in plus or minus strand of DNA.
+⑥ chromosome: The name of chromosome in genome.
+⑦ plus_ratio(s/m): The probability of repeat sequence-mediated genome recombination on the plus strand of DNA.
+⑧ minus_ratio(s/m): The probability of repeat sequence-mediated genome recombination on the minus strand of DNA.
+⑨ combined_ratio: The overall ratio of repeat sequence-mediated genome recombination on the two strands of DNA.
+⑩ type: The type of repeat (direct or inverse repeat).
+○11 paired: Represents the other repeat sequence in a pair of repeat sequences that mediate genome recombination.
 
+    (2) Results of MiRIV
+![13](https://github.com/user-attachments/assets/06688f10-42a7-4e49-8e91-6d97ed34acce)
+![14](https://github.com/user-attachments/assets/7c131b36-61fd-4fbc-a7a7-4100dd7dcc81)
 
+Linear genome.
+![15](https://github.com/user-attachments/assets/48fbbf6d-1c14-491e-bdc6-d617fd68ac81)
 
-
+The grid of nine squares.
+![nine_squares_VV](https://github.com/user-attachments/assets/b12e443b-68a5-4512-b64b-a00874525c67)
 
