@@ -37,15 +37,25 @@
 ![10](https://github.com/user-attachments/assets/3e620ae4-5afd-47bc-91b2-6398874ddc0f)
 
 fragment_id: The ID of repeat sequence.
+
 length: The ength of repeat sequence.
+
 start: The start position of the repeat sequence in the genome.
+
 end: The end position of the repeat sequence in the genome.
+
 direction: The repeat sequence is in the plus or minus chain of the genome DNA.
+
 chromosome: The chromosome ID of genome.
+
 plus_ratio(s/m): The ratio of the repeat sequence-mediated genome recombination on the plus strand of DNA.
+
 minus_ratio(s/m): The ratio of the repeat sequence-mediated genome recombination on the minus strand of DNA.
+
 combined_ratio: The overall ratio of repeat sequence-mediated genome recombination on the two strands of DNA.
+
 type: The type of repeat sequence (direct or inverted repeat).
+
 paired: Represents the other repeat sequence in a pair of repeat sequences that mediate genome recombination.
 
 
