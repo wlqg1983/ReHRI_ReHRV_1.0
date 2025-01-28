@@ -107,3 +107,18 @@ The grid of nine squares.
 ![7](https://github.com/user-attachments/assets/a4d6e947-4562-431c-a993-13268a3d1b97)
 
 
+**6. The core input tsv file of MiRIV**
+
+Provide the information of each repeat sequence unit.
+
+![16](https://github.com/user-attachments/assets/f0cdbf80-9173-4a3c-b016-86f9e9981574)
+
+
+
+   
+
+
+
+
+
+
