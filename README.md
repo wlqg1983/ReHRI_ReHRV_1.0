@@ -50,7 +50,6 @@ paired: Represents the other repeat sequence in a pair of repeat sequences that 
 
 
     (2) Results of MiRIV
-![12](https://github.com/user-attachments/assets/dc59e651-2d7c-4b4f-9142-9a4b9983bd27)
 ![13](https://github.com/user-attachments/assets/06688f10-42a7-4e49-8e91-6d97ed34acce)
 ![14](https://github.com/user-attachments/assets/7c131b36-61fd-4fbc-a7a7-4100dd7dcc81)
 ![15](https://github.com/user-attachments/assets/48fbbf6d-1c14-491e-bdc6-d617fd68ac81)
@@ -63,33 +62,40 @@ paired: Represents the other repeat sequence in a pair of repeat sequences that 
 ![5 6 7](https://github.com/user-attachments/assets/1c3031b7-8d18-486c-8c2d-259a46075ae9)
 
 ① Set project ID.
+
 ② Organelle genome sequence.
+
 ③ Circular or linear genome.
+
 ④ Set the length of repeat sequence.
+
 ⑤ Set the NGS reads (single or paired).
+
 ⑥ Set thr TGS reads.
+
 ⑦ The type of sequencing platform (pacbio or ont) of TGS reads.
 
 
     (2) Core configuration file of MiRIV
-![1](https://github.com/user-attachments/assets/458090df-cd1f-49ea-8925-b674e7924801)
 ① Set the project ID.
+![1](https://github.com/user-attachments/assets/458090df-cd1f-49ea-8925-b674e7924801)
 
-![2](https://github.com/user-attachments/assets/31c126fc-ad1a-4673-944d-688324011518)
 ② If draw the map of mainconfiguration.
+![2](https://github.com/user-attachments/assets/31c126fc-ad1a-4673-944d-688324011518)
 
-![3](https://github.com/user-attachments/assets/95d695cd-406f-4022-9cc4-e6d9901d573d)
 ③ If draw the map of subconfiguration mediated by IR.
+![3](https://github.com/user-attachments/assets/95d695cd-406f-4022-9cc4-e6d9901d573d)
 
-![4-4](https://github.com/user-attachments/assets/953aac22-3942-4667-ae16-fc6e760c203f)
 ④ If draw the map of subconfiguration mediated by DR (1to2).
+![4-4](https://github.com/user-attachments/assets/953aac22-3942-4667-ae16-fc6e760c203f)
 
-![5](https://github.com/user-attachments/assets/fd8888c0-0cbf-461c-bbc7-2d8e40ca2f94)
 ⑤ If draw the map of subconfiguration mediated by DR (2to1).
+![5](https://github.com/user-attachments/assets/fd8888c0-0cbf-461c-bbc7-2d8e40ca2f94)
 
-![6](https://github.com/user-attachments/assets/4893bb2f-a5d1-4273-835c-484f9904c6fc)
 ⑥ If draw the map of subconfiguration mediated by DR (2to2).
+![6](https://github.com/user-attachments/assets/4893bb2f-a5d1-4273-835c-484f9904c6fc)
 
-![7](https://github.com/user-attachments/assets/a4d6e947-4562-431c-a993-13268a3d1b97)
 ⑦ If arrange the drawed maps in a grid of nine squares.
+![7](https://github.com/user-attachments/assets/a4d6e947-4562-431c-a993-13268a3d1b97)
+
 
