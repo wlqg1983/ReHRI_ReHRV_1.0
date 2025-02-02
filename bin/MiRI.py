@@ -479,8 +479,8 @@ def main():
         print("Invalid 'project_id'. The 'project_id' must consist of letters, numbers, and underscores, and must start with a letter.")
         sys.exit(1)
         
-    mode = config['general'].get('mode', 'A').upper()
-    refilter_mode = config['refilter_results'].get('refilter_mode', 'no').upper()
+    mode = config['general'].get('mode', 'A').upper().strip() or 'A'
+    refilter_mode = config['refilter_results'].get('refilter_mode', 'no').upper().strip() or 'NO'
     
     if refilter_mode not in ['YES','Y','NO','N']:
         print("Invalid paramater 'refilter_mode' in the [refilter_results] section. It must be one of 'yes', 'y', 'no' and 'n'.")
@@ -531,10 +531,10 @@ def main():
             sys.exit(1)
 
         # General parameters
-        genome_type = config['general'].get('genome_type', '').upper()
+        genome_type = config['general'].get('genome_type', 'N').upper().strip() or 'N'
 
-        if genome_type not in ['C', 'L']:
-            logging.error("Invalid paramater 'genome_type' in [general]. It must be 'C' or 'L'.")
+        if genome_type not in ['C', 'L', 'N']:
+            logging.error("Invalid paramater 'genome_type' in [general]. It must be 'C' or 'L' when one sequence is present, or left unconfigured when two or more sequences are present.")
             sys.exit(1)
         
         # 将文件夹内的f"{project_id}"文件及文件夹转移至当前工作目录下
@@ -602,9 +602,9 @@ def main():
 ################################################################################
         inputfasta = config['general']['inputfasta']
         #inputfasta_prefix = '.'.join(inputfasta.split('.')[:-1])
-        output_dir_prefix = config['general'].get('output_directory_prefix', 'final_repeat-spanning_results')
-        redundant_intermediate_results = config['general'].get('redundant_intermediate_results', 'D').upper() 
-        complementary_chain = config['general'].get('complementary_chain', 'Yes').upper()
+        output_dir_prefix = config['general'].get('output_directory_prefix', 'final_repeat-spanning_results').strip() or 'final_repeat-spanning_results'
+        redundant_intermediate_results = config['general'].get('redundant_intermediate_results', 'D').upper().strip() or 'D' 
+        complementary_chain = config['general'].get('complementary_chain', 'Yes').upper().strip() or 'YES'
 
         # Check mandatory parameters in the [general] section  resume
         try:
@@ -642,6 +642,10 @@ def main():
             sys.exit(1)                
         if count == 1:
             logging.info(f"There are {count} sequences in the input fasta file {inputfasta}.")
+            if genome_type not in ['C', 'L']:      # 设置基因组的类型
+                logging.error("Invalid paramater 'genome_type' in [general]. It must be 'C' or 'L' when one sequence is present.")
+                sys.exit(1)
+                
         if count > 1:
             cat_inputfasta_path, headers, lengths = concatenate_fasta(inputfasta, f"cat_inputfasta_{project_id}.fasta")
             logging.info(f"There are {count} sequences in the input fasta file {inputfasta}. They are concatenated into a pseudo-genome for the further process.")
@@ -649,6 +653,11 @@ def main():
             cumulative_length = list(accumulate(lengths)) 
             #logging.info("The chromosomes you provided will be labeled as chr1, chr2, (case sensitive), and so on, based on their order in the FASTA file you provide.")
             time.sleep(5)
+            if genome_type == 'N':
+                genome_type = 'L'
+            else:
+                logging.error("Invalid paramater 'genome_type' in [general]. It should left unconfigured when two or more sequences are present.")
+                sys.exit(1)
             
         sequence_lengths = []
         if  count == 1:
@@ -670,7 +679,7 @@ def main():
 ################################################################################
         # [ROUSFinder] Section
         rous_output_file_prefix = config['ROUSFinder'].get('output_file_prefix')
-        repeat_length_str = config['ROUSFinder'].get('repeat_length', '50:')
+        repeat_length_str = config['ROUSFinder'].get('repeat_length', '50:').strip() or '50:'
         rous_reward = config['ROUSFinder'].getint('reward', 1)
         rous_penalty = config['ROUSFinder'].getint('penalty', 20)
 
@@ -686,7 +695,7 @@ def main():
 ################################################################################
         # [manually_calibrated_repeat_info] Section
         calibrate_flexibility = config['manually_calibrated_repeat_info'].getint('flexibility', 0)    # 预留接口
-        manually_calibrate = config['manually_calibrated_repeat_info'].get('calibrated_repeat_file', '')    # 读取手工修改的重复序列信息文件
+        manually_calibrate = config['manually_calibrated_repeat_info'].get('calibrated_repeat_file', '').strip()     # 读取手工修改的重复序列信息文件
         
         #检查重复序列单元的长度不小于5bp
         if rous_repeat_minlength < 5:
@@ -720,14 +729,14 @@ def main():
 
 ################################################################################
         # [sequencing_depth] Section  
-        seqdepth_alignment_software = config['sequencing_depth'].get('alignment_software', 'minimap2').lower()
-        blast_evalue = config['sequencing_depth'].get('evalue', '1e-5')    
-        seqdepth_single = config['sequencing_depth'].get('NGS_single_end', '')
-        seqdepth_pair = config['sequencing_depth'].get('NGS_pair_ends', '')
-        seqdepth_third = config['sequencing_depth'].get('TGS', '')
-        seqdepth_threads = config['sequencing_depth'].get('threads', '')  
-        seqdepth_type = config['sequencing_depth'].get('TGS_type', '').lower()
-        filter_reads = config['sequencing_depth'].get('filter_reads', 'Y').upper()
+        seqdepth_alignment_software = config['sequencing_depth'].get('alignment_software', 'minimap2').lower().strip() or 'minimap2'
+        blast_evalue = config['sequencing_depth'].get('evalue', '1e-5').strip() or '1e-5'    
+        seqdepth_single = config['sequencing_depth'].get('NGS_single_end', '').strip()
+        seqdepth_pair = config['sequencing_depth'].get('NGS_pair_ends', '').strip()
+        seqdepth_third = config['sequencing_depth'].get('TGS', '').strip()
+        seqdepth_threads = config['sequencing_depth'].get('threads', '').strip()  
+        seqdepth_type = config['sequencing_depth'].get('TGS_type', '').lower().strip()
+        filter_reads = config['sequencing_depth'].get('filter_reads', 'Y').upper().strip() or 'Y'
 
         if seqdepth_alignment_software not in ['minimap2', 'bwa', 'blast']:
             logging.error("The mapping software must be selected 'blast', 'minimap2' or 'bwa'.")
@@ -824,11 +833,11 @@ def main():
 
 ################################################################################
         # [subconfiguration] Section
-        extrsubcon_output_dir_prefix = config['subconfiguration'].get('output_directory_prefix', 'subconfig_repeat-spanned_results')
+        extrsubcon_output_dir_prefix = config['subconfiguration'].get('output_directory_prefix', 'subconfig_repeat-spanned_results').strip() or 'subconfig_repeat-spanned_results'
         extrsubcon_trimmed_length = config['subconfiguration'].getint('flanked_sequence_length', 1000)
 
         # [mainconfiguration] Section
-        extrmaincon_output_dir_prefix = config['mainconfiguration'].get('output_directory_prefix', 'mainconfig_repeat-spanned_results')
+        extrmaincon_output_dir_prefix = config['mainconfiguration'].get('output_directory_prefix', 'mainconfig_repeat-spanned_results').strip() or 'mainconfig_repeat-spanned_results'
         extrmaincon_trimmed_length = config['mainconfiguration'].getint('flanked_sequence_length', 1000)
 
         # 从 [check_spanning_reads] 节获取参数
@@ -1385,7 +1394,7 @@ def main():
 
             subcon_fasta_total = len(subcon_fasta_files)    # 次要构型中需要检测的重复单元个数
             print()
-            logging.info(f"@@@@@@@@@@ Found {subcon_fasta_total} repeat units that may mediate genomic recombination! @@@@@@@@@@")
+            logging.info(f"@@@@@@@@@@ Found {subcon_fasta_total} repeat pairs that may mediate genomic recombination! @@@@@@@@@@")
             time.sleep(5)
 
             file_path_sub = os.path.join(extrsubcon_output_dir_prefix + "_" + project_id, "filter_subconfig_spanned_results.tsv")
@@ -1535,10 +1544,10 @@ def main():
             init(autoreset=True)  
 
             #### mainconfiguration - Process each FASTA file sequentially
-            logging.info(f"@@@@@@@@@@ The {subcon_fasta_total} repeat units that may mediate genomic recombination have been processed completely! @@@@@@@@@@\n")
+            logging.info(f"@@@@@@@@@@ The {subcon_fasta_total} repeat pairs that may mediate genomic recombination have been processed completely! @@@@@@@@@@\n")
             time.sleep(5)
             print()
-            logging.info(f"%%%%%%%%%%%% Start to process the {subcon_fasta_total} repeat units in the mainconfiguration! %%%%%%%%%%%%")
+            logging.info(f"%%%%%%%%%%%% Start to process the {subcon_fasta_total} repeat pairs in the mainconfiguration! %%%%%%%%%%%%")
             logging.info(f"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
             time.sleep(5)
 
@@ -1688,7 +1697,7 @@ def main():
                 os.remove(f"{fasta_pair2}") if os.path.isfile(f"{fasta_pair2}") else None
 
             print()
-            logging.info(f"@@@@@@@@@@ The {subcon_fasta_total} repeat units in the mainconfiguration have been processed completely! @@@@@@@@@@\n\n")
+            logging.info(f"@@@@@@@@@@ The {subcon_fasta_total} repeat pairs in the mainconfiguration have been processed completely! @@@@@@@@@@\n\n")
             time.sleep(5)
             
             if redundant_intermediate_results == "D":    # 将不支持 subconfiguration 的 repeat 对应的 mainconfiguration 的 fasta 序列删除
@@ -1710,7 +1719,7 @@ def main():
 
             logging.info(f"\nPlease check the final confirmed paired repeats in the file 'paired_repeats_for_mapping.tsv'. They can be used to map mitogenomic recombination.")
             logging.info(f"Please check the recombination ratio in the file 'paired_repeats_recomb-supporting_ratio.tsv'. They are the ratio of mitogenomic recombination.")
-            logging.info("Some repeat units from mainconfiguration (mcfg) may be with 'insufficient' spanning reads. If not keep, delete it/them before mapping.")
+            logging.info("Some repeat pairs from mainconfiguration (mcfg) may be with 'insufficient' spanning reads. If not keep, delete it/them before mapping.")
             logging.info("If only header row is displayed in the TSV file, it is because the program don't find paired repeat that can mediate genome recombination.\n")
 
 ########################################################################################################################################################################
@@ -2297,7 +2306,7 @@ def main():
         # 处理项目号
         project_id = config['general']['project_id']
         refilter_id = config['refilter_results']['refilter_id']
-        redundant_intermediate_results = config['refilter_results'].get('redundant_intermediate_results', 'D').upper() 
+        redundant_intermediate_results = config['refilter_results'].get('redundant_intermediate_results', 'D').upper().strip() or 'D'
         
         if redundant_intermediate_results not in ['D','K']:
             logging.error(f"Error: Invalid 'redundant_intermediate_results' '{redundant_intermediate_results}' parameter in the [refilter_results] section. It must be one of 'D' or 'K'.")
@@ -2356,8 +2365,8 @@ def main():
             
         # General parameters
         inputfasta = config['general']['inputfasta']
-        seqdepth_alignment_software = config['sequencing_depth'].get('alignment_software', 'minimap2').lower()
-        redundant_intermediate_results = config['general'].get('redundant_intermediate_results', 'D').upper() 
+        seqdepth_alignment_software = config['sequencing_depth'].get('alignment_software', 'minimap2').lower().strip() or 'minimap2'
+        redundant_intermediate_results = config['general'].get('redundant_intermediate_results', 'D').upper().strip() or 'D'
 
         # 从 [check_spanning_reads] 节获取参数
         check_spanning_length_old = config['check_spanning_reads'].getint('spanning_read_flanking_repeat_length', 5)
@@ -2380,7 +2389,7 @@ def main():
             exit(1)
 
         # 处理线程数
-        seqdepth_threads = config['sequencing_depth'].get('threads', '')
+        seqdepth_threads = config['sequencing_depth'].get('threads', '').strip()
         if seqdepth_threads.strip() == '':
             total_cores = os.cpu_count() or 1  # 处理 os.cpu_count() 可能返回 None 的情况
             seqdepth_threads = max(1, min(total_cores - 1, int(total_cores * 0.95)))
@@ -2444,7 +2453,7 @@ def main():
         # Get the directory of the current path
         dir_path = os.path.dirname(os.path.realpath(__file__))
 
-        complementary_chain = config['general'].get('complementary_chain', 'Yes').upper()
+        complementary_chain = config['general'].get('complementary_chain', 'Yes').upper().strip() or 'YES'
         if complementary_chain not in ['YES','Y','NO','N']:
             logging.error(f"Error: Invalid 'complementary_chain' value '{complementary_chain}'. It must be one of 'Yes', 'Y', 'No' or 'N'.")
             sys.exit(1)
@@ -2461,12 +2470,12 @@ def main():
             logging.error(f"The 'spanning_read_number' in the [refilter_results] section should be >= than that in the [check_spanning_reads] section.")
             sys.exit(1)
 
-        logging.info(f"Next step is to refilter previously identified paired repeat units that support genomic recombination based on the new parameter 'spanning_read_number' {read_number_again} in the [refilter_results] section.")
+        logging.info(f"Next step is to refilter previously identified paired repeat pairs that support genomic recombination based on the new parameter 'spanning_read_number' {read_number_again} in the [refilter_results] section.")
 
 ################################################################################
         # 读取存放结果的路径
-        extrsubcon_output_dir_prefix = config['subconfiguration'].get('output_directory_prefix', 'subconfig_repeat-spanned_results')
-        extrmaincon_output_dir_prefix = config['mainconfiguration'].get('output_directory_prefix', 'mainconfig_repeat-spanned_results')
+        extrsubcon_output_dir_prefix = config['subconfiguration'].get('output_directory_prefix', 'subconfig_repeat-spanned_results').strip() or 'subconfig_repeat-spanned_results'
+        extrmaincon_output_dir_prefix = config['mainconfiguration'].get('output_directory_prefix', 'mainconfig_repeat-spanned_results').strip() or 'mainconfig_repeat-spanned_results'
         final_output_dir_sub = f"{extrsubcon_output_dir_prefix}_{project_id}/filter_subconfig_spanned_results.tsv"
         final_output_dir_main = f"{extrmaincon_output_dir_prefix}_{project_id}/filter_mainconfig_spanned_results.tsv"
         
@@ -2480,7 +2489,7 @@ def main():
             sys.exit(1)
 
         # 为再次过滤的结果建立新的存储文件夹 refilter_id
-        output_dir_prefix_filter = config['refilter_results'].get('output_directory_prefix', 'refiltered_repeat-spanning_results')
+        output_dir_prefix_filter = config['refilter_results'].get('output_directory_prefix', 'refiltered_repeat-spanning_results').strip() or 'refiltered_repeat-spanning_results'
         output_dir_again = output_dir_prefix_filter + "_" + refilter_id       # + "/" 
 
         # 如果存在与 output_dir_again 同名的文件，需要删除该文件以便创建目录
@@ -2566,7 +2575,7 @@ def main():
             # 手工矫正的结果，修改了表头，通过检查格式，输出结果文件名为 adjusted_manual_calibrated_list_{project_id}.tsv
             # 并复制到 ROUSFinder_results 文件夹内，重新过滤结果时，ROUSFinder_results 被转移到了文件夹 project_id 内。
             manually_calibrate_adj = f"ROUSFinder_results_{project_id}/adjusted_manual_calibrated_list.tsv"
-            # manually_calibrate = config['manually_calibrated_repeat_info'].get('calibrated_repeat_file', '')
+            # manually_calibrate = config['manually_calibrated_repeat_info'].get('calibrated_repeat_file', '').strip()
             # 以上 manually_calibrate_adj 对应的文件 adjusted_manual_calibrated_list.tsv
             # 以上 manually_calibrate_reset 对应的文件 adjusted_manual_calibrated_list_{project_id}_calibration_table.txt
             
@@ -2574,7 +2583,7 @@ def main():
             prefix_manual = os.path.splitext(file_name_manual)[0]
             manually_calibrate_reset = f"ROUSFinder_results_{project_id}/{prefix_manual}_{project_id}_calibration_table.txt"
             
-            rous_output_file_prefix = config['ROUSFinder'].get('output_file_prefix')
+            rous_output_file_prefix = config['ROUSFinder'].get('output_file_prefix').strip()
             # Check if rous_output_file_prefix is empty, if so, use the prefix of inputfasta     # rous_output_file_prefix
             if not rous_output_file_prefix:
                 basename_input = os.path.basename(manually_calibrate_adj)  
@@ -2636,7 +2645,7 @@ def main():
 
             logging.info(f"@@@@@@@@@@ There are {map_results_folders_count} repeat pairs that need to be refiltered. @@@@@@@@@@\n\n")
             time.sleep(5)
-            logging.info(f"%%%%%%%%%%%% Start to refilter the {map_results_folders_count} repeat units in the subconfiguration! %%%%%%%%%%%%")
+            logging.info(f"%%%%%%%%%%%% Start to refilter the {map_results_folders_count} repeat pairs in the subconfiguration! %%%%%%%%%%%%")
             logging.info(f"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
             time.sleep(5)
 
@@ -2700,7 +2709,7 @@ def main():
                     spanning_read_file = os.path.join(folder_refilter, "repeat-spanning_read.txt")
                     run_command(["python", os.path.join(dir_path, "count_spanning_reads.py"), "-i", spanning_read_file, "-o", file_path_main])
             
-            logging.info(f"@@@@@@@@@@ The {map_results_folders_count} repeat units in subconfiguration have been refiltered completely! @@@@@@@@@@\n\n")
+            logging.info(f"@@@@@@@@@@ The {map_results_folders_count} repeat pairs in subconfiguration have been refiltered completely! @@@@@@@@@@\n\n")
 
             ####################
             # 对主要构型进行重过滤
@@ -2714,7 +2723,7 @@ def main():
                     file.write(header + '\n')
 
             map_results_folders_count = len(map_results_folders)
-            logging.info(f"%%%%%%%%%%%% Start to refilter the {map_results_folders_count} repeat units in the mainconfiguration! %%%%%%%%%%%%")
+            logging.info(f"%%%%%%%%%%%% Start to refilter the {map_results_folders_count} repeat pairs in the mainconfiguration! %%%%%%%%%%%%")
             logging.info(f"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
             time.sleep(5)
 
@@ -2771,7 +2780,7 @@ def main():
                     spanning_read_file = os.path.join(folder_refilter, "repeat-spanning_read.txt")
                     run_command(["python", os.path.join(dir_path, "count_spanning_reads.py"), "-i", spanning_read_file, "-o", file_path_main])
 
-            logging.info(f"@@@@@@@@@@ The {map_results_folders_count} repeat units in mainconfiguration have been refiltered completely! @@@@@@@@@@\n\n")
+            logging.info(f"@@@@@@@@@@ The {map_results_folders_count} repeat pairs in mainconfiguration have been refiltered completely! @@@@@@@@@@\n\n")
 
              # 对sam文件重新过滤后，再进行一次结果的梳理，形成输出结果的表格
             if count == 1 and mode_old == "A":         # 当 spanning_length 相等时
