@@ -38,7 +38,7 @@
 
 ① Set project ID.  
 ② Organelle genome sequence.  
-③ Circular or linear genome.  
+③ Circular or linear when one chromosome is present.  
 ④ Set the length of repeat sequence.  
 ⑤ Set the NGS reads (single or paired).  
 ⑥ Set the TGS reads.  
