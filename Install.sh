@@ -5,4 +5,3 @@ rm -r bin/plasmidrender
 chmod +x bin/*
 rm MiRI_MiRIV_1.0.yml
 
-To speed up the installation process, you can modify the mirror URLs with a trusted source in the "channels" section of the .yml file. 
