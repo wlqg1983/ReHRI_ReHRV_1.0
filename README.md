@@ -80,29 +80,29 @@
 
 **5. The core input tsv file of MiRIV**
 
-Provide the information of each repeat sequence unit.
+Provide the information of each repeat pair.
 
 ![16](https://github.com/user-attachments/assets/f0cdbf80-9173-4a3c-b016-86f9e9981574)
 
 
 **6. Results**
 
-    The results of genome recombination mediated by different repeat sequences are stored in a folder named after the project_id.
+    The results of genome recombination mediated by different repeat units are stored in a folder named after the project_id.
     
 (1) Core results of MiRI (final_repeat-spanning_results_AR/paired_repeats_recomb-supporting_ratio.tsv)
 ![10](https://github.com/user-attachments/assets/3e620ae4-5afd-47bc-91b2-6398874ddc0f)
 
-① fragment_id: The ID of repeat sequence. 
-② length: The length of repeat sequence.
-③ start: The start positin of repeat sequence in the genome.
-④ end: The end positin of repeat sequence in the genome.
+① fragment_id: The ID of repeat unit. 
+② length: The length of repeat unit.
+③ start: The start positin of repeat unit in the genome.
+④ end: The end positin of repeat unit in the genome.
 ⑤ direction: The postion in plus or minus strand of DNA.
 ⑥ chromosome: The name of chromosome in genome.
-⑦ plus_ratio(s/m): The probability of repeat sequence-mediated genome recombination on the plus strand of DNA.
-⑧ minus_ratio(s/m): The probability of repeat sequence-mediated genome recombination on the minus strand of DNA.
-⑨ combined_ratio: The overall ratio of repeat sequence-mediated genome recombination on the two strands of DNA.
+⑦ plus_ratio(s/m): The probability of repeat-mediated genome recombination on the plus strand of DNA.
+⑧ minus_ratio(s/m): The probability of repeat-mediated genome recombination on the minus strand of DNA.
+⑨ combined_ratio: The overall ratio of repeat-mediated genome recombination on the two strands of DNA.
 ⑩ type: The type of repeat (direct or inverse repeat).
-○11 paired: Represents the other repeat sequence in a pair of repeat sequences that mediate genome recombination.
+○11 paired: Represents the other repeat unit in a pair of repeat units that mediate genome recombination.
 
     (2) Results of MiRIV
 ![13](https://github.com/user-attachments/assets/06688f10-42a7-4e49-8e91-6d97ed34acce)
