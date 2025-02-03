@@ -105,9 +105,10 @@ Provide the information of each repeat pair.
 ○11 paired: Represents the other repeat unit in a pair of repeat units that mediate genome recombination.
 
     (2) Results of MiRIV
-The maps of Direct repeat-mediated recombination genome.
+
 ![13](https://github.com/user-attachments/assets/06688f10-42a7-4e49-8e91-6d97ed34acce)
 ![14](https://github.com/user-attachments/assets/7c131b36-61fd-4fbc-a7a7-4100dd7dcc81)
+The maps of Direct repeat-mediated recombination genome.
 
 Linear genome.
 ![15](https://github.com/user-attachments/assets/48fbbf6d-1c14-491e-bdc6-d617fd68ac81)
