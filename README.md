@@ -11,6 +11,8 @@
     conda activate MiRI_MiRIV_1.0
     sh Install.sh
     rm Install.sh
+    
+    To speed up the installation process, you can modify the mirror URLs with a trusted source in the "channels" section of the .yml file. 
 
 
 **2. Script of searching subconfigurations**
