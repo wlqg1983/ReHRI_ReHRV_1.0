@@ -1344,7 +1344,7 @@ def main():
                 file_format = check_file_format_efficient(fastq1)      # 检查输入文件的数据格式
                 if filter_reads in ['Y','YES']:        ############################################## 开始过滤 reads，提高后面比对的速度。
                     if file_format == 'FASTQ':     #not os.path.isfile(f"{fasta_prefix}.fasta"):    # 当输入文件为 fastq 格式，进行格式转换
-                        logging.info("Converting fastq to fasta ...")
+                        logging.info("Converting fastq (5'-end) to fasta ...")
                         fasta_pair1 = fastq_to_fasta(fastq1, fastq1_prefix + ".fasta")
                         fastq2fasta = True
                     elif file_format == 'FASTA':
@@ -1356,7 +1356,7 @@ def main():
                     fasta_pair1_filter = f"{fasta1_prefix}_{project_id}_filtered.fasta"    # 重新定义用于比对的reads文件，为以上的"blast.filter.sh"产生的文件名
                 elif  filter_reads in ['N','NO']:
                     if file_format == 'FASTQ':     #not os.path.isfile(f"{fasta_prefix}.fasta"):    # 当输入文件为fastq格式，进行格式转换
-                        logging.info("Converting fastq to fasta ...")
+                        logging.info("Converting fastq (5'-end) to fasta ...")
                         fasta_pair1 = fastq_to_fasta(fastq1, fastq1_prefix + ".fasta")
                         fastq2fasta = True
                     elif file_format == 'FASTA':
@@ -1367,7 +1367,7 @@ def main():
                 file_format = check_file_format_efficient(fastq2)      # 检查输入文件的数据格式
                 if filter_reads in ['Y','YES']:
                     if file_format == 'FASTQ':     #not os.path.isfile(f"{fasta_prefix}.fasta"):    # 当输入文件为fastq格式，进行格式转换
-                        logging.info("Converting fastq to fasta ...")
+                        logging.info("Converting fastq (3'-end) to fasta ...")
                         fasta_pair2 = fastq_to_fasta(fastq2, fastq2_prefix + ".fasta")
                         fastq2fasta = True
                     elif file_format == 'FASTA':
@@ -1377,7 +1377,7 @@ def main():
                     fasta_pair2_filter = f"{fasta2_prefix}_{project_id}_filtered.fasta"    # 重新定义用于比对的reads文件，为以上的"blast.filter.sh"产生的文件名
                 elif  filter_reads in ['N','NO']:
                     if file_format == 'FASTQ':     #not os.path.isfile(f"{fasta_prefix}.fasta"):    # 当输入文件为fastq格式，进行格式转换
-                        logging.info("Converting fastq to fasta ...")
+                        logging.info("Converting fastq (3'-end) to fasta ...")
                         fasta_pair2 = fastq_to_fasta(fastq2, fastq2_prefix + ".fasta")
                         fastq2fasta = True
                     elif file_format == 'FASTA':
