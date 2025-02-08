@@ -3,7 +3,7 @@
 
 **1. Install the software**
 
-    Download the software from https://github.com/wlqg1983/MiRI_MiRIV_1.0/archive/refs/heads/main.zip
+    (1) Download and install the software from https://github.com/wlqg1983/MiRI_MiRIV_1.0/archive/refs/heads/main.zip
 
     unzip MiRI_MiRIV_1.0-main.zip
     cd  MiRI_MiRIV_1.0-main
@@ -12,9 +12,9 @@
     sh Install.sh
     rm Install.sh
     
-    To speed up the installation process, you can modify the mirror URLs with a trusted source in the "channels" section of the .yml file. 
+    (2) To speed up the installation process, you can modify the mirror URLs with a trusted source in the "channels" section of the .yml file. 
 
-    Validate install
+    (3) Validate install
 
     python bin/MiRI.py -v
     MiRI 1.0
