@@ -15,6 +15,33 @@
     To speed up the installation process, you can modify the mirror URLs with a trusted source in the "channels" section of the .yml file. 
 
 
+    Validate install
+
+    python bin/MiRI.py -h
+usage: MiRI.py [-h] -c CONFIG [-redo] [-resume] [-v]
+
+MiRI: A tool to check spanning reads for supporting subconfig of your organelle genome.
+
+options:
+  -h, --help     show this help message and exit
+  -c CONFIG      Path to external configuration file.
+  -redo          Delete all previous results and start calculation anew.
+  -resume        Resume from a previous project.
+  -v, --version  Show the version number and exit.
+
+    python bin/MiRIV.py -h
+usage: MiRIV.py [-h] -c CONFIG [-redo] [-v]
+
+MiRIV: A tool to map the confgiure of your organelle genome.
+
+options:
+  -h, --help     show this help message and exit
+  -c CONFIG      Path to external configuration file.
+  -redo          Delete all previous results and start calculation anew.
+  -v, --version  Show the version number and exit.
+
+
+
 **2. Script of searching subconfigurations**
 
     python bin/MiRI.py -c MiRI.config.ini
