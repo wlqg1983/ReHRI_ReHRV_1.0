@@ -137,7 +137,7 @@ The grid of nine squares.
 
 ③ Provide user-defined repeats that may mediate genome recombination.
 
-④ The data format of user-defined repeat information.
+④ The data format (.tsv, 5 or 6 colume tables) of user-defined repeat information.
 
 ![Snipaste_2025-02-15_00-10-09](https://github.com/user-attachments/assets/54e3e909-62a2-4598-ac82-730597730f8a)
 
