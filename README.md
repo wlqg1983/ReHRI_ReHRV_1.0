@@ -100,16 +100,26 @@ Provide the information of each repeat pair.
 (1) Core results of MiRI (final_repeat-spanning_results_AR/paired_repeats_recomb-supporting_ratio.tsv)
 ![10](https://github.com/user-attachments/assets/3e620ae4-5afd-47bc-91b2-6398874ddc0f)
 
-① fragment_id: The ID of repeat unit. 
+① fragment_id: The ID of repeat unit.
+
 ② length: The length of repeat unit.
+
 ③ start: The start positin of repeat unit in the genome.
+
 ④ end: The end positin of repeat unit in the genome.
+
 ⑤ direction: The postion in plus or minus strand of DNA.
+
 ⑥ chromosome: The name of chromosome in genome.
+
 ⑦ plus_ratio(s/m): The probability of repeat-mediated genome recombination on the plus strand of DNA.
+
 ⑧ minus_ratio(s/m): The probability of repeat-mediated genome recombination on the minus strand of DNA.
+
 ⑨ combined_ratio: The overall ratio of repeat-mediated genome recombination on the two strands of DNA.
+
 ⑩ type: The type of repeat (direct or inverse repeat).
+
 ○11 paired: Represents the other repeat unit in a pair of repeat units that mediate genome recombination.
 
     (2) Results of MiRIV
@@ -145,9 +155,14 @@ The prediction of repeats is a challenging task, and different algorithms may ob
 
 (2) Refilter the repeat that can mediate the recombination of organelle genome
 ![20250214232935](https://github.com/user-attachments/assets/b52d3cae-b4d0-4a14-8702-ad8de85a77f0)
+
 ① Set refiter_made=Y to enter the mode of re-filtering results.
+
 ② Set a project ID.
+
 ③ Reset value of spanning_read_flanking_repeat_length.
+
 ④ Reset value of spanning_read_number.
+
 The refiltering operation can filter multiple times based on previous results.
 
