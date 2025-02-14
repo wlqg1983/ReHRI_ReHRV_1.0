@@ -88,7 +88,7 @@
 
 **5. The core input tsv file of MiRIV**
 
-Provide the information of each repeat pair.
+Provide the information of each repeat pair (.tsv).
 
 ![16](https://github.com/user-attachments/assets/f0cdbf80-9173-4a3c-b016-86f9e9981574)
 
