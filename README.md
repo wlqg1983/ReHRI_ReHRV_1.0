@@ -125,3 +125,21 @@ Linear genome.
 The grid of nine squares.
 ![nine_squares_VV](https://github.com/user-attachments/assets/b12e443b-68a5-4512-b64b-a00874525c67)
 
+
+**7. Advanced features of MiRI**
+
+(1) Detect custom repeats for genome recombination
+![Snipaste_2025-02-14_23-37-59](https://github.com/user-attachments/assets/30bea6e6-e8c8-4692-83f5-1b05909f2f58)
+① Set mode=C to enter the mode where the user provides repeated sequences.
+② The complete genome sequence is also required.
+③ Provide user-defined repeats that may mediate genome recombination.
+The prediction of repeats is a challenging task, and different algorithms may obtain different repeats. This model enables users to study the impact of specific repeats on genome recombination.
+
+(2) Refilter the repeat that can mediate the recombination of organelle genome
+![20250214232935](https://github.com/user-attachments/assets/b52d3cae-b4d0-4a14-8702-ad8de85a77f0)
+① Set refiter_made=Y to enter the mode of re-filtering results.
+② Set a project ID.
+③ Reset value of spanning_read_flanking_repeat_length.
+④ Reset value of spanning_read_number.
+The refiltering operation can filter multiple times based on previous results.
+
