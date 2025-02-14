@@ -130,9 +130,17 @@ The grid of nine squares.
 
 (1) Detect custom repeats for genome recombination
 ![Snipaste_2025-02-14_23-37-59](https://github.com/user-attachments/assets/30bea6e6-e8c8-4692-83f5-1b05909f2f58)
+
 ① Set mode=C to enter the mode where the user provides repeated sequences.
+
 ② The complete genome sequence is also required.
+
 ③ Provide user-defined repeats that may mediate genome recombination.
+
+④ The data format of user-defined repeat information.
+
+![Snipaste_2025-02-15_00-10-09](https://github.com/user-attachments/assets/54e3e909-62a2-4598-ac82-730597730f8a)
+
 The prediction of repeats is a challenging task, and different algorithms may obtain different repeats. This model enables users to study the impact of specific repeats on genome recombination.
 
 (2) Refilter the repeat that can mediate the recombination of organelle genome
