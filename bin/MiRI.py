@@ -83,9 +83,13 @@ def extract_trimmed_length_from_filename(filename):
     # 修改正则表达式以匹配新的文件名格式
     match = re.search(r'_(\d+)\.fasta$', filename)
     if match:
-        return int(match.group(1))
+        length = int(match.group(1))
+        if length == 0:
+            # 对 0 进行特殊处理
+            return False  # 或者返回其他你希望的值
+        return length
     else:
-        return None
+        return False
 
 #######################################################################################################################################################################
 def run_command(command, output_file=None, append=False, add_header=False, header=None):
