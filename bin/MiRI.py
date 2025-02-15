@@ -1529,7 +1529,7 @@ def main():
 
                 # 再次确定截取序列的长度，因为截取的时候，重复序列两端剩下的序列长度可能小于设定的截取序列
                 extrsubcon_trimmed_length_reset = extract_trimmed_length_from_filename(fasta_file)
-                if extrsubcon_trimmed_length_reset == 0:
+                if not extrsubcon_trimmed_length_reset:
                     logging.warning(f"Warning: Could not determine flanked length from file name {fasta_file}. Skipping.")
                     continue
                 else:
