@@ -105,8 +105,8 @@ def process_data_user_color(data, genome_length, output_file, user_color_input):
                     result_color = custom_color_settings[fragment_prefix]
                 else:
                     print(f"Error: The color for displaying Repeat {fragment_prefix} has not defined.")
-                    print(f"Open the '.ini' file. Revise and Define the color of Repeat {fragment_prefix} in the '[color_library]' section.")
-                    print("Avoid setting colors duplicately for the same Repeat.")
+                    print(f"Modification: Open the '.ini' file. Revise and Define the color of Repeat {fragment_prefix} in the '[color_library]' section.")
+                    print("Attention: Avoid setting colors duplicately for the same Repeat.")
                     sys.exit(1)
             else:
                 result_color = '#ffffff'  # Set default color to white if no prefix found

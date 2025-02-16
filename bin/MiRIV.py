@@ -189,13 +189,26 @@ def main():
     ######## [general] section
     project_id = config['general']['project_id']
 
-    # 检验 project_id 是否有效。无效时，退出程序。
+    # 检验 project_id 是否有效。无效时，退出程序。logging
     if is_valid_project_id(project_id):
         logging.info(f"The 'project_id' {project_id} is valid.")
     else:
         logging.error("Invalid 'project_id'. The 'project_id' must consist of letters, numbers, and underscores, and must start with a letter.")
         sys.exit(1)
 
+################################################################################
+    try:
+        # 提醒用户进行颜色方案的设置
+        print()
+        print("Attention: Please ensure  each repeat is colored in the [color_library] section in the '.ini' file.")
+        print("Attention: Different repeats must do not have the same color.")
+        print("Attention: After 10 seconds, the subsequent program will continue to be executed.")
+        print()
+        # 等待 10 秒
+        time.sleep(10)
+    except KeyboardInterrupt:
+        print("User terminated the program using Ctrl+C.")
+    
 ################################################################################
     ######## [mainconfiguration] section
     auto_map_main = config['mainconfiguration'].get('auto_map', 'Y').upper()
