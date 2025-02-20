@@ -119,9 +119,9 @@ seq.close()
 # run blastn with query file plus strand (removing first line which is full length sequence), minus strand, and concatenate
 print('Performing self-blastn comparison with '+seqname)
 
-os.system(blast_path + 'blastn -query ' + infile + ' -strand plus -subject ' + infile + ' -word_size ' + wordsize + ' -reward ' + reward + ' -penalty -' + penalty + ' -ungapped -dust no -soft_masking false -evalue 7  -outfmt "10 qstart qend length sstart send mismatch sstrand qseq" | tail -n+2 > tempblast1.txt')           # previous -evalue 10
+os.system(blast_path + 'blastn -query ' + infile + ' -strand plus -subject ' + infile + ' -word_size ' + wordsize + ' -reward ' + reward + ' -penalty -' + penalty + ' -ungapped -dust no -soft_masking false -evalue 10  -outfmt "10 qstart qend length sstart send mismatch sstrand qseq" | tail -n+2 > tempblast1.txt')           #  -evalue 10      7
 
-os.system(blast_path + 'blastn -query ' + infile + ' -strand minus -subject ' + infile + ' -word_size ' + wordsize + ' -reward ' + reward + ' -penalty -' + penalty + ' -ungapped -dust no -soft_masking false -evalue 7 -outfmt "10 qstart qend length sstart send mismatch sstrand qseq" > tempblast2.txt')          # previous -evalue 10
+os.system(blast_path + 'blastn -query ' + infile + ' -strand minus -subject ' + infile + ' -word_size ' + wordsize + ' -reward ' + reward + ' -penalty -' + penalty + ' -ungapped -dust no -soft_masking false -evalue 10 -outfmt "10 qstart qend length sstart send mismatch sstrand qseq" > tempblast2.txt')          #  -evalue 10   7
 
 os.system('cat tempblast1.txt tempblast2.txt > '+tempblast)
 os.system('rm tempblast1.txt tempblast2.txt')

@@ -126,7 +126,8 @@ def trim_IR_sequence_circle(genome, fields, output_dir, trim_len, id1, id2, rev_
             ab_sequence_c = reverse_complement_dna(ab_sequence)
             ab_record_c = SeqRecord(ab_sequence_c, id=f"IR_AB_{id1}_{id2}_plus_{lasso_trim_len}", description="")
             SeqIO.write(ab_record_c, os.path.join(output_dir, f"IR_AB_{id1}_{id2}_plus_{lasso_trim_len}.fasta"), "fasta")
-        sys.stderr.write(f"ATTENTION: The length of the genome containing {id1, id2} repeat is too short ({len(genome.seq)} bp) and the length of the trimmed sequence is too long ({trim_len} bp), so there are not enough sequences in the genome to trim AB sequence. The maximum length of the genome allowed to be trimmed is {len(genome.seq) - len(rep1_sequence)} bp. So, it is assumed here that reads can cover the genome multiple times and reset the length of the trimmed sequence (-tl) to {lasso_trim_len} bp automatically.") 
+        
+        print(f"ATTENTION: The length of the mainconfiguration minus the length of repeat {id1} is {lasso_trim_len} bp, which is shorter than that of the trimmed sequence {trim_len} bp. It is here reset the maximum allowable length of the trimmed sequence to {lasso_trim_len} bp automatically.") 
         
 ################################################################################
     if len(genome.seq) - len(rep2_sequence) >= trim_len:
@@ -180,7 +181,8 @@ def trim_IR_sequence_circle(genome, fields, output_dir, trim_len, id1, id2, rev_
             cd_sequence_c = reverse_complement_dna(cd_sequence)
             cd_record_c = SeqRecord(cd_sequence_c, id=f"IR_CD_{id1}_{id2}_plus_{lasso_trim_len}", description="")
             SeqIO.write(cd_record_c, os.path.join(output_dir, f"IR_CD_{id1}_{id2}_plus_{lasso_trim_len}.fasta"), "fasta")
-        print(f"ATTENTION: The length of the genome containing {id1, id2} repeat is too short ({len(genome.seq)} bp) and the length of the trimmed sequence is too long ({trim_len} bp), so there are not enough sequences in the genome to trim CD sequence. The maximum length of the genome allowed to be trimmed is {len(genome.seq) - len(rep2_sequence)} bp. So, it is assumed here that long reads can cover the genome multiple times and reset the length of the trimmed sequence (-tl) to {lasso_trim_len} bp automatically.")
+
+        print(f"ATTENTION: The length of the mainconfiguration minus the length of repeat {id2} is {lasso_trim_len} bp, which is shorter than that of the trimmed sequence {trim_len} bp. It is here reset the maximum allowable length of the trimmed sequence to {lasso_trim_len} bp automatically.") 
 
 ########################################################################################################################################################################
 def trim_IR_sequence_linear(genome, fields, output_dir, trim_len, id1, id2, rev_compl_IR): 
@@ -268,7 +270,8 @@ def trim_IR_sequence_linear(genome, fields, output_dir, trim_len, id1, id2, rev_
             ab_sequence_c = reverse_complement_dna(ab_sequence)
             ab_record_c = SeqRecord(ab_sequence_c, id=f"IR_AB_{id1}_{id2}_plus_{lasso_trim_len}", description="")
             SeqIO.write(ab_record_c, os.path.join(output_dir, f"IR_AB_{id1}_{id2}_plus_{lasso_trim_len}.fasta"), "fasta")
-        print(f"ATTENTION: The length of the subgenome1 containing {id1, id2} repeat is too short ({len(genome.seq)} bp) and the length of the trimmed sequence is too long ({trim_len} bp), so there are not enough sequences in the genome to trim AB sequence. Then the length of trimmed sequence (-tl) is forced to set {lasso_trim_len} bp.") 
+
+        print(f"ATTENTION: The length of one of the sequences on the left and right sides of {id1} in the mainconfiguration is less than that of the trimmed sequence length ({trim_len} bp). It is here reset the maximum allowable length of the trimmed sequence to {lasso_trim_len} bp automatically.") 
         
 ################################################################################
     
@@ -316,8 +319,9 @@ def trim_IR_sequence_linear(genome, fields, output_dir, trim_len, id1, id2, rev_
             cd_sequence_c = reverse_complement_dna(cd_sequence)
             cd_record_c = SeqRecord(cd_sequence_c, id=f"IR_CD_{id1}_{id2}_plus_{lasso_trim_len}", description="")
             SeqIO.write(cd_record_c, os.path.join(output_dir, f"IR_CD_{id1}_{id2}_plus_{lasso_trim_len}.fasta"), "fasta")
-        print(f"ATTENTION: The length of the subgenome1 containing {id1, id2} repeat is too short ({len(genome.seq)} bp) and the length of the trimmed sequence is too long ({trim_len} bp), so there are not enough sequences in the genome to trim CD sequence. Then the length of trimmed sequence (-tl) is forced to set {lasso_trim_len} bp.") 
-    
+
+        print(f"ATTENTION: The length of one of the sequences on the left and right sides of {id2} in the mainconfiguration is less than that of the trimmed sequence length ({trim_len} bp). It is here reset the maximum allowable length of the trimmed sequence to {lasso_trim_len} bp automatically.") 
+        
 #######################################################################################################################################################################
 
 def trim_DR_sequence_circle(genome, fields, output_dir, trim_len, id1, id2, rev_compl_DR):
@@ -417,7 +421,8 @@ def trim_DR_sequence_circle(genome, fields, output_dir, trim_len, id1, id2, rev_
             ab_sequence_c = reverse_complement_dna(ab_sequence)
             ab_record_c = SeqRecord(ab_sequence_c, id=f"DR_AB_{id1}_{id2}_plus_{lasso_trim_len}", description="")
             SeqIO.write(ab_record_c, os.path.join(output_dir, f"DR_AB_{id1}_{id2}_plus_{lasso_trim_len}.fasta"), "fasta")
-        print(f"ATTENTION: The length of the genome containing {id1, id2} repeat is too short ({len(genome.seq)} bp) and the length of the trimmed sequence is too long ({trim_len} bp), so there are not enough sequences in the genome to trim AB sequence. The maximum length of the genome allowed to be trimmed is {len(genome.seq) - len(rep1_sequence)} bp. So, it is assumed here that reads can cover the genome multiple times and reset the length of the trimmed sequence (-tl) to {lasso_trim_len} bp automatically.") 
+
+        print(f"ATTENTION: The length of the mainconfiguration minus the length of repeat {id1} is {lasso_trim_len} bp, which is shorter than that of the trimmed sequence {trim_len} bp. It is here reset the maximum allowable length of the trimmed sequence to {lasso_trim_len} bp automatically.") 
 
 ################################################################################
     if len(genome.seq) - len(rep2_sequence) >= trim_len:
@@ -471,7 +476,8 @@ def trim_DR_sequence_circle(genome, fields, output_dir, trim_len, id1, id2, rev_
             cd_sequence_c = reverse_complement_dna(cd_sequence)
             cd_record_c = SeqRecord(cd_sequence_c, id=f"DR_CD_{id1}_{id2}_plus_{lasso_trim_len}", description="")
             SeqIO.write(cd_record_c, os.path.join(output_dir, f"DR_CD_{id1}_{id2}_plus_{lasso_trim_len}.fasta"), "fasta")
-        print(f"ATTENTION: The length of the genome containing {id1, id2} repeat is too short ({len(genome.seq)} bp) and the length of the trimmed sequence is too long ({trim_len} bp), so there are not enough sequences in the genome to trim CD sequence. The maximum length of the genome allowed to be trimmed is {len(genome.seq) - len(rep1_sequence)} bp. So, it is assumed here that reads can cover the genome multiple times and reset the length of the trimmed sequence (-tl) to {lasso_trim_len} bp automatically.") 
+
+        print(f"ATTENTION: The length of the mainconfiguration minus the length of repeat {id2} is {lasso_trim_len} bp, which is shorter than that of the trimmed sequence {trim_len} bp. It is here reset the maximum allowable length of the trimmed sequence to {lasso_trim_len} bp automatically.") 
 
 #######################################################################################################################################################################
 def trim_DR_sequence_linear(genome, fields, output_dir, trim_len, id1, id2, rev_compl_DR):
@@ -560,7 +566,8 @@ def trim_DR_sequence_linear(genome, fields, output_dir, trim_len, id1, id2, rev_
             ab_sequence_c = reverse_complement_dna(ab_sequence)
             ab_record_c = SeqRecord(ab_sequence_c, id=f"DR_AB_{id1}_{id2}_plus_{lasso_trim_len}", description="")
             SeqIO.write(ab_record_c, os.path.join(output_dir, f"DR_AB_{id1}_{id2}_plus_{lasso_trim_len}.fasta"), "fasta")
-        print(f"ATTENTION: The length of the subgenome1 containing {id1, id2} repeat is too short ({len(genome.seq)} bp) and the length of the trimmed sequence is too long ({trim_len} bp), so there are not enough sequences in the genome to trim AB sequence. Then the length of trimmed sequence (-tl) is forced to set {lasso_trim_len} bp.") 
+
+        print(f"ATTENTION: The length of one of the sequences on the left and right sides of {id1} in the mainconfiguration is less than that of the trimmed sequence length ({trim_len} bp). It is here reset the maximum allowable length of the trimmed sequence to {lasso_trim_len} bp automatically.") 
 
 ################################################################################
     # 计算重复单元2的上下游序列的长度
@@ -607,7 +614,8 @@ def trim_DR_sequence_linear(genome, fields, output_dir, trim_len, id1, id2, rev_
             cd_sequence_c = reverse_complement_dna(cd_sequence)
             cd_record_c = SeqRecord(cd_sequence_c, id=f"DR_CD_{id1}_{id2}_plus_{lasso_trim_len}", description="")
             SeqIO.write(cd_record_c, os.path.join(output_dir, f"DR_CD_{id1}_{id2}_plus_{lasso_trim_len}.fasta"), "fasta")
-        print(f"ATTENTION: The length of the subgenome1 containing {id1, id2} repeat is too short ({len(genome.seq)} bp) and the length of the trimmed sequence is too long ({trim_len} bp), so there are not enough sequences in the genome to trim CD sequence. Then the length of trimmed sequence (-tl) is forced to set {lasso_trim_len} bp.") 
+
+        print(f"ATTENTION: The length of one of the sequences on the left and right sides of {id2} in the mainconfiguration is less than that of the trimmed sequence length ({trim_len} bp). It is here reset the maximum allowable length of the trimmed sequence to {lasso_trim_len} bp automatically.") 
 
 #######################################################################################################################################################################
 def find_all_inverted_repeat_pairs(new_data):

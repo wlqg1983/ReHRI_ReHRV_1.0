@@ -286,10 +286,11 @@ def main():
     filtered_pairs = data_8CT_clean[data_8CT_clean['direction'] != data_8CT_clean['paired_direction']].dropna(subset=['fragment_id', 'paired_id'])[['fragment_id', 'paired_id']].drop_duplicates().values.tolist()
 
     if not filtered_pairs:
-        prints("No Inverted Repeat found. Please carefully check the repeat type.")
+        print("No Inverted Repeat found. Please carefully check the repeat type.")
         sys.exit(1)
 
     if filtered_pairs:
+        print()
         print("The following IDs are from paired Inverted Repeats based on your repeat info, which may mediate genome recombination:")
         for i, pair in enumerate(filtered_pairs, start=1):
             print(f"{i}. {pair}")
@@ -311,7 +312,7 @@ def main():
                 break
             elif user_input == '':
                 print("To process entered repeats...") if selected_pairs else None
-                print("No IDs entered. Program was terminated by user.") if not selected_pairs else None
+                print("\nNo IDs entered. Program was terminated by user.") if not selected_pairs else None
                 break
             else:
                 input_pair = sorted(user_input.split())

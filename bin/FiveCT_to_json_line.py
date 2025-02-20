@@ -17,24 +17,69 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 
 # 预定义颜色字典，将颜色名称映射到对应的十六进制值
 color_dict = {
-    'black': '#000000',          'red': '#ff0000',              'brown': '#a52a2a',         'orange': '#ffa500',       'blue': '#0000ff',
-    'yellow': '#ffff00',         'green': '#008000',            'pink': '#ffc0cb',          'cyan': '#00ffff',         'gray': '#808080',
-    'purple': '#800080',         'gold': '#ffd700',             'teal': '#008080',          'silver': '#c0c0c0',       'mint': '#98fb98',
-    'copper': '#b87333',         'turquoise': '#40e0d0',        'rust': '#b7410e',          'platinum': '#e5e4e2',     'pomegranate': '#c1282d',
-    'indigo': '#4b0082',         'tangerine': '#ffa500',        'navy': '#000080',          'beige': '#f5f5dc',        'olive': '#808000',
-    'peach': '#ffdab9',          'lavender': '#e6e6fa',         'light_blue': '#add8e6',    'salmon': '#fa8072',       'dark_green': '#006400',
-    'raspberry': '#e30b5c',      'white': '#ffffff',            'dark_purple': '#301934',   'dark_red': '#8b0000',     'light_green': '#90ee90',
-    'dark_brown': '#5c3317',     'light_purple': '#9370db',     'deep_orange': '#ff4500',   'coral_orange': '#ff6f41', 'lime_green': '#32cd32',
-    'light_pink': '#ffb6c1',     'steel_gray': '#262626',       'bright_green': '#4de94c',  'olive_green': '#b5e61d',  'fiery_red': '#ff3633',
-    'deep_emerald': '#087830',   'sapphire_blue': '#1959a7',    'coral_pink': '#ff6f61',    'deep_jade': '#00a86b',    'slate_blue': '#6a5acd',
-    'mint_green': '#98ff98',     'blue_purple': '#6243ff',      'coral_orange': '#ff4040',  'grass_green': '#4dbd33',  'deep_crimson': '#aa0055',
-    'pine_green': '#01796f',     'bright_pink': '#ff007f',      'vivid_blue': '#0115ff',    'indigo_blue': '#00416a',  'deep_teal': '#003333',
-    'deep_sienna': '#a0522d',    'pearl_white': '#eae0c8',      'steel_blue': '#4682b4',    'deep_amber': '#d14e04',   'cobalt_blue': '#0047ab',
-    'apple_green': '#8db600',    'moonlight_silver': '#727d71', 'cinnabar_red': '#e34234',  'rose_pink': '#ff66cc',    'iron_gray': '#5a4f4f',
-    'lemon_yellow': '#fdff00',   'cherry_blossom': '#ffb7c5',   'dark_olive': '#556b2f',    'deep_blue': '#00008b',    'royal_blue': '#4169e1',
-    'deep_eggplant': '#481d89',  'pearlescent_pink': '#ff5e8a', 'emerald_green': '#50c878', 'lilac_gray': '#c8a2c8',   'honey_yellow': '#ffc30b',
-    'strawberry_red': '#ff2738', 'deep_jewel': '#1a4780',       'light_coral': '#e77471'}
-
+'black': '#000000',
+'red': '#ff0000',
+'orange': '#ffa500',
+'yellow': '#ffff00',
+'green': '#008000',
+'cyan': '#00ffff',
+'blue': '#0000ff',
+'purple': '#800080',
+'brown': '#a52a2a',
+'gray': '#808080',
+'darkslategray': '#2f4f4f',
+'dimgray': '#696969',
+'navy': '#000080',
+'indigo': '#4b0082',
+'darkgreen': '#006400',
+'darkred': '#8b0000',
+'firebrick': '#b22222',
+'crimson': '#dc143c',
+'chocolate': '#d2691e',
+'olive': '#808000',
+'yellowgreen': '#9acd32',
+'lawngreen': '#7cfc00',
+'limegreen': '#32cd32',
+'greenyellow': '#adff2f',
+'lightseagreen': '#20b2aa',
+'seagreen': '#2e8b57',
+'darkseagreen': '#8fbc8f',
+'lightgreen': '#90ee90',
+'forestgreen': '#228b22',
+'darkcyan': '#008b8b',
+'mediumturquoise': '#48d1cc',
+'turquoise': '#40e0d0',
+'aquamarine': '#7fffd4',
+'mediumaquamarine': '#66cdaa',
+'aqua': '#00ffff',
+'deepskyblue': '#00bfff',
+'skyblue': '#87ceeb',
+'steelblue': '#4682b4',
+'lightblue': '#add8e6',
+'cadetblue': '#5f9ea0',
+'royalblue': '#4169e1',
+'mediumblue': '#0000cd',
+'darkviolet': '#9400d3',
+'plum': '#dda0dd',
+'deeppink': '#ff1493',
+'hotpink': '#ff69b4',
+'pink': '#ffc0cb',
+'palevioletred': '#db7093',
+'mediumvioletred': '#c71585',
+'coral': '#ff7f50',
+'orangered': '#ff4500',
+'darkorange': '#ff8c00',
+'goldenrod': '#daa520',
+'gold': '#ffd700',
+'khaki': '#f0e68c',
+'darkkhaki': '#bdb76b',
+'wheat': '#f5deb3',
+'navajowhite': '#ffdead',
+'lightgrey': '#d3d3d3',
+'lightslategray': '#778899',
+'slategray': '#708090',
+'darkgray': '#a9a9a9',
+}
 #######################################################################################################################################################################
 def validate_color_format(color_str):
     # Remove leading and trailing whitespaces from the color
@@ -103,9 +148,11 @@ def process_data_user_color(data, genome_length, output_file, user_color_input):
                 if fragment_prefix in custom_color_settings:
                     result_color = custom_color_settings[fragment_prefix]
                 else:
+                    print()
                     print(f"Error: The color for displaying Repeat {fragment_prefix} has not defined.")
                     print(f"Modification: Open the '.ini' file. Revise and Define the color of Repeat {fragment_prefix} in the '[color_library]' section.")
                     print("Attention: Avoid setting colors duplicately for the same Repeat.")
+                    print()
                     sys.exit(1)
             else:
                 result_color = '#ffffff'  # Set default color to white if no prefix found
@@ -198,24 +245,26 @@ def convert_media_to_json(input_file):
     media_df = pd.read_csv(input_file, delimiter='\t')
 
     # Adjust angles to be in the range [-6, 6]
-    media_df['angle'] = media_df['angle'].apply(lambda angle: 6 if angle > 0 and angle <= 6 else (-6 if angle < 0 and angle >= -6 else angle))
+    media_df['angle'] = media_df['angle'].apply(lambda angle: 5 if angle >= 0 and angle <= 5 else (-5 if angle < 0 and angle >= -5 else angle))
 
     # Calculate the total angle sum using absolute values
     total_angle = media_df['angle'].abs().sum()
 
     # Calculate the adjustment needed
-    adjustment = 330 - total_angle
+    adjustment = 320 - total_angle          ################################################################ 此处经摸索发现，被减数越小，map末端月不容易overlap，先设置为320，实际应该是330
 
-    # Find 'space' areas with lengths greater than 10 degrees
-    large_space_areas = media_df[(media_df['type'] == 'space') & (media_df['angle'].abs() > 10)]
+    # Find 'space' areas with lengths greater than 6 degrees
+    large_space_areas = media_df[(media_df['type'] == 'space') & (media_df['angle'].abs() > 5)]
 
     # Calculate the total length of long 'space' areas
     total_space_length = large_space_areas['angle'].abs().sum()
+    if total_space_length < 0.001:            ################## 当出现为0 的情况，设定 total_space_length = 1
+        total_space_length = 0.001
 
     # Calculate the adjustment per degree
     adjustment_per_degree = adjustment / total_space_length
 
-    # Update 'space' areas, including those with angles less than 10 degrees
+    # Update 'space' areas, including those with angles less than 6 degrees
     for index, row in large_space_areas.iterrows():
         space_length = abs(row['angle'])
         new_space_length = space_length + (space_length * adjustment_per_degree)

@@ -348,7 +348,7 @@ def split_data_and_fasta_by_paired_direct_repeats(paired_ids, unique_ids_with_di
     
             if user_input == '':
                 if not selected_pairs:
-                    print("No IDs entered. Program was terminated by user.")
+                    print("\nNo IDs entered. Program was terminated by user.")
                     sys.exit(1)
                 else:
                     print("To process entered repeats...")

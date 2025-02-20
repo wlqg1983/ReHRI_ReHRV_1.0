@@ -28,7 +28,8 @@ def process_repeat_type(combined_df):
     
     # 检查 unique_fragment_ids 的数量,超过30，则停止程序。
     if len(unique_fragment_ids) > 30:
-        print("ERROR: Repeat is more than 30. Too many duplicate units to display, currently accepting 30 Repeats.")
+        print()
+        print("ERROR: Repeat is more than 30. Too many duplicate units to display, currently accepting 30 Repeats.\n")
         sys.exit(1)
     
     five_col_df = pd.DataFrame(columns=["fragment_id", "start", "end", "type", "paired_id"])

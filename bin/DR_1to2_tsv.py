@@ -364,7 +364,7 @@ def main():
                 break
             elif user_input == '':
                 print("To process entered repeats...") if user_input else None
-                print("No IDs entered. Program was terminated by user.") if user_input else None
+                print("\nNo IDs entered. Program was terminated by user.") if user_input else None
                 break
             else:
                 input_pair = sorted(user_input.split())

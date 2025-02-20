@@ -615,7 +615,7 @@ def main():
         ## 检查处理过程记录文件是否存在
         if args.resume and not os.path.isfile(f"record_for_resume_{project_id}.txt"):      # 用于断点续接的文件不存在，终止程序
             logging.error(f"The '-resume' can't be used now. Please use '-redo' instead.")
-            print(f"You can check if the PROJECT labeled by '{project_id}' has already been completed. If so, reset a new 'project_id'.\n")
+            logging.info(f"Instead, you can also reset a new 'project_id'.\n")
             sys.exit(1)
         ## 检查日志文件是否存在
         if args.resume and not os.path.isfile(f"custom_log_{project_id}.txt"): 
@@ -977,9 +977,12 @@ def main():
         #此处为 resume 模式设置一个判断条件，即处于 resume 模式的时候，跳过某些运行程序，以节约时间
         record_file = f"record_for_resume_{project_id}.txt"          # 下面的程序中，record_file用于记录处理过的序列
         resume_logic = False
-        # 检查三个条件：文件存在、文件非空、用户启用了resume模式
-        if (os.path.exists(record_file) and os.path.getsize(record_file) > 0 and args.resume and os.path.exists(extrsubcon_output_dir_prefix + "_" + project_id) and os.path.exists(extrmaincon_output_dir_prefix + "_" + project_id) and os.path.exists("ROUSFinder_results_" + project_id)):
+        # 检查三个条件：文件存在、文件非空、用户启用了 resume 模式
+        if os.path.exists(record_file) and os.path.getsize(record_file) > 0 and args.resume and os.path.exists(extrsubcon_output_dir_prefix + "_" + project_id) and os.path.exists(extrmaincon_output_dir_prefix + "_" + project_id) and os.path.exists("ROUSFinder_results_" + project_id):
             resume_logic = True
+        if args.resume and not resume_logic:       # 进一步限制 -resume 参数运行的条件
+            logging.error("Relevant files are damaged and the '-resume' is invalid. Please use the '-redo' or change the 'project_id' and run again.")
+            exit(1)
 ######################################
 
         if count > 1:
@@ -1211,9 +1214,11 @@ def main():
                  # Create a new folder
                 os.makedirs(f"ROUSFinder_results_{project_id}/")
 
+################################################################################
             def validate_columns_in_manually_calibrate(manually_calibrate, count):
                 """
                 Validates the number of columns in the manually_calibrate file and checks the header.
+                Also checks if each fragment_id appears more than once.
                 Parameters:
                 manually_calibrate (str): Path to the manually_calibrate file.
                 count (int): The count of sequences in the FASTA file.
@@ -1221,25 +1226,49 @@ def main():
                 ValueError: If the number of columns does not match the expected count or header is incorrect.
                 """
                 try:
-                    # Read the first line of the manually_calibrate file
+                    # Read all lines of the manually_calibrate file
                     with open(manually_calibrate, 'r') as file:
-                        first_line = file.readline().strip()
-        
-                    # Split the first line into columns
-                    columns = first_line.split('\t')
-        
+                        lines = file.readlines()
+             
+                    # Get the header line and split it into columns
+                    header = lines[0].strip()
+                    columns = header.split('\t')
+             
                     # Define the expected headers
                     if count == 1:
-                        expected_header = "fragment_id\tlength\tstart\tend\tdirection\n"
+                        expected_header = "fragment_id\tlength\tstart\tend\tdirection"
                     elif count > 1:
-                        expected_header = "fragment_id\tlength\tstart\tend\tdirection\tchromosome\n"
-        
+                        expected_header = "fragment_id\tlength\tstart\tend\tdirection\tchromosome"
+             
                     # Check the number of columns based on the count
-                    if count == 1 and (len(columns) != 5 or first_line != expected_header.strip()):
-                        raise ValueError(f"Only one chromosome was found in 'inputfasta' file. The 'calibrated_repeat_file' file must have 5 columns, but found 6 columns.\n")
-                    elif count > 1 and (len(columns) != 6 or first_line != expected_header.strip()):
-                        raise ValueError(f"More than two chromosomes were found. The manually_calibrate file must have 6 columns with header '{expected_header}', but found {len(columns)} columns with header '{first_line}'.")
-        
+                    if count == 1 and (len(columns) != 5 or header != expected_header):
+                        raise ValueError(f"Only one chromosome was found in 'inputfasta' file. The 'calibrated_repeat_file' file must have 5 columns, but found {len(columns)} columns.\n")
+                    elif count > 1 and (len(columns) != 6 or header != expected_header):
+                        raise ValueError(f"More than two chromosomes were found. The manually_calibrate file must have 6 columns with header '{expected_header}', but found {len(columns)} columns with header '{header}'.")
+             
+                    # Find the index of the fragment_id column
+                    fragment_id_index = columns.index('fragment_id')
+             
+                    # Collect all fragment_id values
+                    fragment_ids = []
+                    for line in lines[1:]:
+                        # Strip the line to remove leading and trailing whitespace
+                        stripped_line = line.strip()
+                        # Skip lines that are empty after stripping
+                        if not stripped_line:
+                            continue
+                        values = stripped_line.split('\t')
+                        if len(values) != len(columns):
+                            raise ValueError(f"Line '{stripped_line}' has an incorrect number of columns. Expected {len(columns)}, but found {len(values)}.")
+                        fragment_ids.append(values[fragment_id_index])
+             
+                    # Check if each fragment_id appears more than once
+                    from collections import Counter
+                    fragment_id_count = Counter(fragment_ids)
+                    for fragment_id, count in fragment_id_count.items():
+                        if count == 1:
+                            raise ValueError(f"Each 'fragment_id' must be multiple, but '{fragment_id}' only appears once.\nPlease also check other fragment_ids.")
+
                 except FileNotFoundError:
                     print(f"The file {manually_calibrate} does not exist.\n")
                     exit(1)
@@ -1249,7 +1278,9 @@ def main():
                 except Exception as e:
                     print(f"An error occurred: {e}\n")
                     exit(1)
-            
+
+################################################################################
+                        
             # 检测 人工输入的列表与fasta序列是否一致，通过序列的条数进行检测，count=1,必须是5列，count>2，必须是6列
             validate_columns_in_manually_calibrate(manually_calibrate, count)
 
@@ -1478,9 +1509,10 @@ def main():
             subcon_fasta_files = glob.glob(f"{extrsubcon_output_dir_prefix}_{project_id}/*.fasta")
 
             subcon_fasta_total = len(subcon_fasta_files)    # 次要构型中需要检测的重复单元个数
-            print()
-            logging.info(f"@@@@@@@@@@ Found {subcon_fasta_total} repeat pairs that may mediate genomic recombination! @@@@@@@@@@")
-            time.sleep(5)
+            if not args.resume:
+                print()
+                logging.info(f"@@@@@@@@@@ Found {subcon_fasta_total} repeat pairs that may mediate genomic recombination! @@@@@@@@@@")
+                time.sleep(5)
 
             print()
             logging.info(f"%%%%%%%%%%%%% Start to process {subcon_fasta_total} repeat units in the subconfiguration! %%%%%%%%%%%%%")
@@ -1530,7 +1562,7 @@ def main():
                 # 再次确定截取序列的长度，因为截取的时候，重复序列两端剩下的序列长度可能小于设定的截取序列
                 extrsubcon_trimmed_length_reset = extract_trimmed_length_from_filename(fasta_file)
                 if not extrsubcon_trimmed_length_reset:
-                    logging.warning(f"Warning: Could not determine flanked length from file name {fasta_file}. Skipping.")
+                    logging.warning(f"Couldn't determine flanked length from file name {fasta_file}. Skipping.")
                     continue
                 else:
                     extrsubcon_trimmed_length = extrsubcon_trimmed_length_reset
@@ -1605,11 +1637,15 @@ def main():
             print()
             logging.info("Process recombination-mediated repeats in the subconfiguration! Waiting ... ")
             subcon_folders = glob.glob(f"{extrsubcon_output_dir_prefix}_{project_id}/*_results")
-            for subcon_folder in subcon_folders:
-                spanning_read_file = os.path.join(subcon_folder, "repeat-spanning_read.txt")    # 对每一个repeat的 repeat-spanning_read.txt 进行汇总
-                subprocess.run(["python", os.path.join(dir_path, "count_subconfig_spanning_reads.py"), "-i", spanning_read_file, "-o", file_path_sub, "-cl", str(check_spanning_length), "-rn", str(read_number)], check=True, text=True, capture_output=True) 
-            logging.info("Finished!")
-            time.sleep(2)
+            output_filename = f"repeat_supp_subconfig_recomb_{project_id}.txt"      # 用于 -resume 模式的判断，若这个地方已经运行完了，则 -resume 模式的时候直接跳过
+            if args.resume and os.path.isfile(output_filename):
+                pass
+            else:
+                for subcon_folder in subcon_folders:
+                    spanning_read_file = os.path.join(subcon_folder, "repeat-spanning_read.txt")    # 对每一个repeat的 repeat-spanning_read.txt 进行汇总
+                    subprocess.run(["python", os.path.join(dir_path, "count_subconfig_spanning_reads.py"), "-i", spanning_read_file, "-o", file_path_sub, "-cl", str(check_spanning_length), "-rn", str(read_number)], check=True, text=True, capture_output=True) 
+                logging.info("Finished!")
+                time.sleep(2)
 
 ################################################################################
         # 如果要求删除中间冗余结果，则可以根据剩下的 subconfiguration 提前删除一些 mainconfiguration，减少一部分比对运算
@@ -1664,7 +1700,6 @@ def main():
             time.sleep(2)
             
             file_path_main = os.path.join(extrmaincon_output_dir_prefix + "_" + project_id, "filter_mainconfig_spanned_results.tsv")
-
             output_final_main = os.path.dirname(file_path_main)    # 创建存放结果的文件夹
             # Ensure the directory for the results exists
             if not os.path.isdir(output_final_main):
@@ -1718,13 +1753,14 @@ def main():
                         fourth_column = parts[3]  
                     # 检查third_column和fourth_column是否已存在于文件中  
                     if check_columns_in_file(output_filename, third_column, fourth_column):  
-                        logging.info(f"Skipping this trimmed seq. No reads support recombination in the subconfiguration!")
+                        logging.info(f"Skipping this trimmed seq from mainconfiguration. Because no reads support corresponding subconfiguration!")
+                        os.remove(fasta_file) if os.path.isfile(fasta_file) else None       # mainconfiguration 截取的TSS 如果没有subconfiguration 中对应的 TSS，则删除 mainconfiguration 中的 TSS，resume时，节省时间
                         continue  # 如果不在记录文件中，则无需做mapping，无需做任何动作，继续下一个循环 
 
                 extrmaincon_trimmed_length_reset = extract_trimmed_length_from_filename(fasta_file)
-                logging.info(f"extrmaincon_trimmed_length_reset extrmaincon_trimmed_length_reset extrmaincon_trimmed_length_reset: {extrmaincon_trimmed_length_reset}")
-                if extrmaincon_trimmed_length == 0:
-                    logging.warning(f"Warning: Could not determine flanked length from file name {fasta_file}. Skipping.")
+                if not extrmaincon_trimmed_length_reset:
+                    logging.warning(f"Couldn't determine flanked length from file name {fasta_file}. Skipping.")
+                    os.remove(fasta_file) if os.path.isfile(fasta_file) and redundant_intermediate_results == "D" else None      # 截取TSS时，trimmed seq length < 设定的 spanning length，则删除该TSS
                     continue
                 else:
                     extrmaincon_trimmed_length = extrmaincon_trimmed_length_reset
@@ -1787,7 +1823,7 @@ def main():
                 map_results_folder = f"{map_output}_results"
                 if os.path.isdir(map_results_folder):
                     output_sam = os.path.join(map_results_folder, "output.sam")
-                    run_command(["python", os.path.join(dir_path, "check_mainconfig_spanning_reads.py"), "-s", output_sam, "-i", fasta_file, "-o", map_results_folder, "-cl", str(check_spanning_length), "-tl", str(extrmaincon_trimmed_length), "-a", seqdepth_alignment_software])
+                    run_command(["python", os.path.join(dir_path, "check_mainconfig_spanning_reads.py"), "-s", output_sam, "-i", fasta_file, "-o", map_results_folder, "-cl", str(check_spanning_length), "-tl", str(extrmaincon_trimmed_length), "-a", seqdepth_alignment_software, "-mr", redundant_intermediate_results])
                 
                 # 处理完一个文件后，将其添加到记录文件中
                 with open(record_file, "a") as f:
@@ -1796,11 +1832,14 @@ def main():
             print()
             logging.info("Process repeat information in the mainconfiguration! Waiting ... ")
             maincon_folders = glob.glob(f"{extrmaincon_output_dir_prefix}_{project_id}/*_results")
-            for maincon_folder in maincon_folders:
-                spanning_read_file = os.path.join(maincon_folder, "repeat-spanning_read.txt")    # 对每一个repeat的 repeat-spanning_read.txt 进行汇总
-                subprocess.run(["python", os.path.join(dir_path, "count_mainconfig_spanning_reads.py"), "-i", spanning_read_file, "-o", file_path_main, "-cl", str(check_spanning_length)], check=True, text=True, capture_output=True)
-            logging.info("Finished!")
-            time.sleep(2)
+            if args.resume and os.path.exists(project_id):        # 检测"count_mainconfig_spanning_reads.py"是否运行完毕
+                pass
+            else:
+                for maincon_folder in maincon_folders:
+                    spanning_read_file = os.path.join(maincon_folder, "repeat-spanning_read.txt")    # 对每一个repeat的 repeat-spanning_read.txt 进行汇总
+                    subprocess.run(["python", os.path.join(dir_path, "count_mainconfig_spanning_reads.py"), "-i", spanning_read_file, "-o", file_path_main, "-cl", str(check_spanning_length)], check=True, text=True, capture_output=True)
+                logging.info("Finished!")
+                time.sleep(2)
                     
             ############################
             # mapping 之后，删除 由fastq转化来的 中间结果 fasta文件，或者是过滤后的reads，直接删掉 

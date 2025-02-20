@@ -202,7 +202,7 @@ def main():
         print()
         print("Attention: Please ensure  each repeat is colored in the [color_library] section in the '.ini' file.")
         print("Attention: Different repeats must do not have the same color.")
-        print("Attention: After 10 seconds, the subsequent program will continue to be executed.")
+        print("Attention: After 10 seconds, the program will continue to be executed.")
         print()
         # 等待 10 秒
         time.sleep(10)
@@ -291,33 +291,33 @@ def main():
     output_dir_prefix_dr_2to1 = config['DR_mediated_recomb_2to1'].get('output_directory_prefix', 'DR_2to1')
     if auto_map_dr_2to1 in ["Y","YES","M"]:
         comp_ch_2to1_log = config['DR_mediated_recomb_2to1'].get('complementary_chain', 'Y').upper()
-        chrom1_file_2to1 = config['DR_mediated_recomb_2to1'].get('chrom1_file', '')
-        chrom2_file_2to1 = config['DR_mediated_recomb_2to1'].get('chrom2_file', '')
-        chrom1_fasta_2to1 = config['DR_mediated_recomb_2to1'].get('chrom1_fasta', '')
-        chrom2_fasta_2to1 = config['DR_mediated_recomb_2to1'].get('chrom2_fasta', '')
-        chrom1_type_2to1 = config['DR_mediated_recomb_2to1'].get('chrom1_type', 'C').upper()
-        chrom2_type_2to1 = config['DR_mediated_recomb_2to1'].get('chrom2_type', 'C').upper()
-        if not chrom1_file_2to1 or not chrom2_file_2to1:
+        chr1_file_2to1 = config['DR_mediated_recomb_2to1'].get('chr1_file', '')
+        chr2_file_2to1 = config['DR_mediated_recomb_2to1'].get('chr2_file', '')
+        chr1_fasta_2to1 = config['DR_mediated_recomb_2to1'].get('chr1_fasta', '')
+        chr2_fasta_2to1 = config['DR_mediated_recomb_2to1'].get('chr2_fasta', '')
+        chr1_type_2to1 = config['DR_mediated_recomb_2to1'].get('chr1_type', 'C').upper()
+        chr2_type_2to1 = config['DR_mediated_recomb_2to1'].get('chr2_type', 'C').upper()
+        if not chr1_file_2to1 or not chr2_file_2to1:
             logging.error(f"Paired repeat infornation in [DR_mediated_recomb_2to1] section was not provided!")
             sys.exit(1)
-        if not chrom1_fasta_2to1 or not chrom2_fasta_2to1:
+        if not chr1_fasta_2to1 or not chr2_fasta_2to1:
             logging.error(f"The 'chromsome sequences' in [DR_mediated_recomb_2to1] section were not provided completely!")
             sys.exit(1)
-        if not chrom1_type_2to1 or not chrom2_type_2to1:
+        if not chr1_type_2to1 or not chr2_type_2to1:
             logging.error(f"The 'chromsome type' in [DR_mediated_recomb_2to1] section were not provided completely!")
             sys.exit(1)
-        if chrom1_type_2to1 not in ["L", "C"]: 
-            logging.error(f"The 'chrom1_type' in [DR_mediated_recomb_2to1] section should be 'L/C'!")
+        if chr1_type_2to1 not in ["L", "C"]: 
+            logging.error(f"The 'chr1_type' in [DR_mediated_recomb_2to1] section should be 'L/C'!")
             sys.exit(1)
-        if chrom2_type_2to1 != "C":
-            logging.error(f"The 'chrom2_type' in [DR_mediated_recomb_2to1] section must be 'C'!")
+        if chr2_type_2to1 != "C":
+            logging.error(f"The 'chr2_type' in [DR_mediated_recomb_2to1] section must be 'C'!")
             sys.exit(1)
         if comp_ch_2to1_log not in ['Y','YES','N','NO']:
             logging.error(f"The 'complementary_chain' parameter in the '[DR_mediated_recomb_2to1]' section should be one of '['Y','YES','N','NO']'.")
             sys.exit(1)
             
-        chrom1_len_2to1 = check_fasta_sequence_length(chrom1_fasta_2to1)
-        chrom2_len_2to1 = check_fasta_sequence_length(chrom2_fasta_2to1)  
+        chr1_len_2to1 = check_fasta_sequence_length(chr1_fasta_2to1)
+        chr2_len_2to1 = check_fasta_sequence_length(chr2_fasta_2to1)  
         comp_ch_2to1_log = parse_log(comp_ch_2to1_log)
         
     elif auto_map_dr_2to1 in ["N","NO"]:
@@ -332,22 +332,22 @@ def main():
     output_dir_prefix_dr_2to2 = config['DR_mediated_recomb_2to2'].get('output_directory_prefix', 'DR_2to2')
     if auto_map_dr_2to2 in ["Y","YES","M"]:
         comp_ch_2to2_log = config['DR_mediated_recomb_2to1'].get('complementary_chain', 'Y').upper()
-        chrom1_file_2to2 = config['DR_mediated_recomb_2to2'].get('chrom1_file', '')
-        chrom2_file_2to2 = config['DR_mediated_recomb_2to2'].get('chrom2_file', '')
-        chrom1_fasta_2to2 = config['DR_mediated_recomb_2to2'].get('chrom1_fasta', '')
-        chrom2_fasta_2to2 = config['DR_mediated_recomb_2to2'].get('chrom2_fasta', '')
-        if not chrom1_file_2to2 or not chrom2_file_2to2:
+        chr1_file_2to2 = config['DR_mediated_recomb_2to2'].get('chr1_file', '')
+        chr2_file_2to2 = config['DR_mediated_recomb_2to2'].get('chr2_file', '')
+        chr1_fasta_2to2 = config['DR_mediated_recomb_2to2'].get('chr1_fasta', '')
+        chr2_fasta_2to2 = config['DR_mediated_recomb_2to2'].get('chr2_fasta', '')
+        if not chr1_file_2to2 or not chr2_file_2to2:
             logging.error(f"Paired repeats infornation in [DR_mediated_recomb_2to2] section was not provided!")
             sys.exit(1)
-        if not chrom1_fasta_2to2 or not chrom2_fasta_2to2:
+        if not chr1_fasta_2to2 or not chr2_fasta_2to2:
             logging.error(f"The 'chrosome sequences' in [DR_mediated_recomb_2to2] section were not provided completely!")
             sys.exit(1)
         if comp_ch_2to2_log not in ['Y','YES','N','NO']:
             logging.error(f"The 'complementary_chain' parameter in the '[DR_mediated_recomb_2to2]' section should be one of '['Y','YES','N','NO']'.")
             sys.exit(1)
             
-        chrom1_len_2to2 = check_fasta_sequence_length(chrom1_fasta_2to2)
-        chrom2_len_2to2 = check_fasta_sequence_length(chrom2_fasta_2to2)  
+        chr1_len_2to2 = check_fasta_sequence_length(chr1_fasta_2to2)
+        chr2_len_2to2 = check_fasta_sequence_length(chr2_fasta_2to2)  
         comp_ch_2to2_log = parse_log(comp_ch_2to2_log)
         
     elif auto_map_dr_2to2 in ["N","NO"]:
@@ -481,7 +481,9 @@ def main():
     
     # 提前处理数据，生成5CT
     if auto_map_main in ["Y","YES"]:
-        logging.info(f"#### Map the mainconfiguration! ####")
+        logging.info(f"%%%%%%%%%%%%  Map the mainconfiguration! %%%%%%%%%%%%")
+        logging.info(f"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+        
         prefix = os.path.splitext(os.path.basename(inputfile_main))[0]
         os.system(f"python {current_dir}/paired_info_to_5CT.py -i {inputfile_main} -o {prefix}_{project_id}_5CT.tsv -l {genome_length_main}")
 
@@ -520,12 +522,15 @@ def main():
         if os.path.exists(f"mainconfig_{project_id}"):        #  结果重新归档
             shutil.move(f"mainconfig_{project_id}", f"{project_id}")
         
-        logging.info(f"The mainconfiguration map has been completed. The results have been saved in folder '{project_id}/mainconfig_{project_id}'!\n")
+        logging.info(f"The mainconfiguration map has been completed. The results have been saved in folder '{project_id}/mainconfig_{project_id}'!")
+        print()
     
 ##########################################################################################################################################
     # 提前处理数据，生成5CT
     if auto_map_inv in ["Y","YES","M"]:
-        logging.info(f"#### Map the IR-mediated subconfiguration! ####")
+        logging.info(f"%%%%%%%%%%%% Map the IR-mediated subconfiguration! %%%%%%%%%%%%")
+        logging.info(f"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+        
         prefix = os.path.splitext(os.path.basename(inputfile_inv))[0]
         os.system(f"python {current_dir}/paired_info_to_5CT.py -i {inputfile_inv} -o {prefix}_{project_id}_5CT.tsv -l {genome_length_inv}")
         
@@ -540,8 +545,12 @@ def main():
             os.mkdir(IR_folder)
 
     if (auto_map_inv == "YES" or auto_map_inv == "Y") and genome_type_inv == "C":
+        # 8CT转换来的5CT，将其绘制为mainconfiguration的图谱
+        os.system(f"python {current_dir}/map_recomb.py -i {prefix}_{project_id}_5CT.tsv -l {genome_length_inv} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {IR_folder}/mainconfig_{prefix}_{project_id}_map.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
+
         os.system(f"python {current_dir}/IR_inv_tsv.py -i {prefix}_{project_id}_5CT.tsv -j {inputfile_inv} -f {inputfasta_inv} -t {genome_type_inv} -o {IR_folder}/{project_id} -auto")   #产生用于绘图的5CT，以及5CT对应的8CT
-        os.remove(f"{prefix}_{project_id}_5CT.tsv")    #删除8CT转换来的5CT，删除中间结果
+        os.remove(f"{prefix}_{project_id}_5CT.tsv") if os.path.isfile(f"{prefix}_{project_id}_5CT.tsv") else None    # 删除8CT转换来的5CT，删除中间结果
+        
         IR_files = glob.glob(f"{IR_folder}/{project_id}*_5CT.tsv")
         for IR_file in IR_files:
             os.system(f"python {current_dir}/map_recomb.py -i {IR_file} -l {genome_length_inv} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {os.path.splitext(os.path.basename(IR_file))[0]}.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
@@ -550,12 +559,17 @@ def main():
             IR_file_new_basename = IR_file_without_ext.replace("_5CT", "_map") + ext  # 去掉 "_5CT" 并添加回扩展名
             os.rename(f"{IR_file_basename}", f"{IR_file_new_basename}")
             shutil.move(f"{IR_file_new_basename}", f"{IR_folder}")
-            os.remove(f"{IR_file}")
+            os.remove(IR_file) if os.path.exists(IR_file) else None
         if os.path.exists(f"{IR_folder}"):        #  结果重新归档
             shutil.move(f"{IR_folder}", f"{project_id}")
 
     if (auto_map_inv == "YES" or auto_map_inv == "Y") and genome_type_inv == "L":
+        # 8CT转换来的5CT，将其绘制为mainconfiguration的图谱
+        os.system(f"python {current_dir}/map_recomb_line.py -i {prefix}_{project_id}_5CT.tsv -l {genome_length_inv} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {IR_folder}/mainconfig_{prefix}_{project_id}_map.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
+
         os.system(f"python {current_dir}/IR_inv_tsv.py -i {prefix}_{project_id}_5CT.tsv -j {inputfile_inv} -f {inputfasta_inv} -t {genome_type_inv} -o {IR_folder}/{project_id} -auto")
+        os.remove(f"{prefix}_{project_id}_5CT.tsv") if os.path.isfile(f"{prefix}_{project_id}_5CT.tsv") else None    # 删除8CT转换来的5CT，删除中间结果
+        
         IR_files = glob.glob(f"{IR_folder}/{project_id}*_5CT.tsv")
         for IR_file in IR_files:
             os.system(f"python {current_dir}/map_recomb_line.py -i {IR_file} -l {genome_length_inv} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {os.path.splitext(os.path.basename(IR_file))[0]}.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
@@ -564,12 +578,17 @@ def main():
             IR_file_new_basename = IR_file_without_ext.replace("_5CT", "_map") + ext  # 去掉 "_5CT" 并添加回扩展名
             os.rename(f"{IR_file_basename}", f"{IR_file_new_basename}")
             shutil.move(f"{IR_file_new_basename}", f"{IR_folder}")
-            os.remove(f"{IR_file}")
+            os.remove(IR_file) if os.path.exists(IR_file) else None
         if os.path.exists(f"{IR_folder}"):        #  结果重新归档
             shutil.move(f"{IR_folder}", f"{project_id}")
 
     if auto_map_inv == "M" and genome_type_inv == "C":
+        # 8CT转换来的5CT，将其绘制为mainconfiguration的图谱
+        os.system(f"python {current_dir}/map_recomb.py -i {prefix}_{project_id}_5CT.tsv -l {genome_length_inv} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {IR_folder}/mainconfig_{prefix}_{project_id}_map.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
+
         os.system(f"python {current_dir}/IR_inv_tsv.py -i {prefix}_{project_id}_5CT.tsv -j {inputfile_inv} -f {inputfasta_inv} -t {genome_type_inv} -o {IR_folder}/{project_id}")
+        os.remove(f"{prefix}_{project_id}_5CT.tsv") if os.path.isfile(f"{prefix}_{project_id}_5CT.tsv")  else None     # 删除8CT转换来的5CT，删除中间结果
+        
         IR_files = glob.glob(f"{IR_folder}/{project_id}*_5CT.tsv")
         for IR_file in IR_files:  #if os.path.exists(f"{IR_file}"):
             os.system(f"python {current_dir}/map_recomb.py -i {IR_file} -l {genome_length_inv} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {os.path.splitext(os.path.basename(IR_file))[0]}.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
@@ -578,21 +597,26 @@ def main():
             IR_file_new_basename = IR_file_without_ext.replace("_5CT", "_map") + ext  # 去掉 "_5CT" 并添加回扩展名
             os.rename(f"{IR_file_basename}", f"{IR_file_new_basename}")
             shutil.move(f"{IR_file_new_basename}", f"{IR_folder}")
-            os.remove(f"{IR_file}")
+            os.remove(IR_file) if os.path.exists(IR_file) else None
         if os.path.exists(f"{IR_folder}"):        #  结果重新归档
             shutil.move(f"{IR_folder}", f"{project_id}")
             
     if auto_map_inv == "M" and genome_type_inv == "L":
+        # 8CT转换来的5CT，将其绘制为mainconfiguration的图谱
+        os.system(f"python {current_dir}/map_recomb_line.py -i {prefix}_{project_id}_5CT.tsv -l {genome_length_inv} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {IR_folder}/mainconfig_{prefix}_{project_id}_map.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
+
         os.system(f"python {current_dir}/IR_inv_tsv.py -i {prefix}_{project_id}_5CT.tsv -j {inputfile_inv} -f {inputfasta_inv} -t {genome_type_inv} -o {IR_folder}/{project_id}")
+        os.remove(f"{prefix}_{project_id}_5CT.tsv") if os.path.isfile(f"{prefix}_{project_id}_5CT.tsv")  else None     # 删除8CT转换来的5CT，删除中间结果
+        
         IR_files = glob.glob(f"{IR_folder}/{project_id}*_5CT.tsv")
-        for IR_file in IR_files:  #if os.path.exists(f"{IR_file}"):
+        for IR_file in IR_files:      
             os.system(f"python {current_dir}/map_recomb_line.py -i {IR_file} -l {genome_length_inv} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {os.path.splitext(os.path.basename(IR_file))[0]}.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
             IR_file_basename = f"{os.path.splitext(os.path.basename(IR_file))[0]}.svg"  # 获取文件名（不包含路径）
             IR_file_without_ext, ext = os.path.splitext(IR_file_basename)  # 分离文件名和扩展名
             IR_file_new_basename = IR_file_without_ext.replace("_5CT", "_map") + ext  # 去掉 "_5CT" 并添加回扩展名
             os.rename(f"{IR_file_basename}", f"{IR_file_new_basename}")
             shutil.move(f"{IR_file_new_basename}", f"{IR_folder}")
-            os.remove(f"{IR_file}")
+            os.remove(IR_file) if os.path.exists(IR_file) else None
         if os.path.exists(f"{IR_folder}"):        #  结果重新归档
             shutil.move(f"{IR_folder}", f"{project_id}")
             
@@ -600,14 +624,17 @@ def main():
         if os.path.exists(f"{prefix}_{project_id}_5CT.tsv"):
             os.remove(f"{prefix}_{project_id}_5CT.tsv")
         
-    print(f"Results are saved in folder {project_id}/{IR_folder}.\n") if auto_map_inv in ['M', 'Y', 'YES'] and os.listdir(f"{project_id}/{IR_folder}") else None
-    print(f"No results are saved in folder {project_id}/{IR_folder}.\n") if auto_map_inv in ['M', 'Y', 'YES'] and not os.listdir(f"{project_id}/{IR_folder}") else None
+    print(f"Results are saved in folder {project_id}/{IR_folder}.") if auto_map_inv in ['M', 'Y', 'YES'] and os.listdir(f"{project_id}/{IR_folder}") else None
+    print(f"No results are saved in folder {project_id}/{IR_folder}.") if auto_map_inv in ['M', 'Y', 'YES'] and not os.listdir(f"{project_id}/{IR_folder}") else None
+    print()
     time.sleep(2)
     
 ##########################################################################################################################################
     # 提前处理数据，生成5CT
     if auto_map_dr_1to2 in ["Y","YES","M"]:
-        logging.info(f"#### Map the DR-mediated subconfiguration (1to2)! ####")
+        logging.info(f"%%%%%%%%%% Map the DR-mediated subconfiguration (1to2)! %%%%%%%%%%")
+        logging.info(f"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+        
         prefix = os.path.splitext(os.path.basename(inputfile_1to2))[0]
         os.system(f"python {current_dir}/paired_info_to_5CT.py -i {inputfile_1to2} -o {prefix}_{project_id}_5CT.tsv -l {genome_length_1to2}")
         
@@ -622,8 +649,12 @@ def main():
             os.mkdir(DR_folder_1to2)
 
     if (auto_map_dr_1to2 == "YES" or auto_map_dr_1to2 == "Y") and genome_type_1to2 == "C":
+        # 8CT转换来的5CT，将其绘制为mainconfiguration的图谱
+        os.system(f"python {current_dir}/map_recomb.py -i {prefix}_{project_id}_5CT.tsv -l {genome_length_1to2} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {DR_folder_1to2}/mainconfig_{prefix}_{project_id}_map.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
+
         os.system(f"python {current_dir}/DR_1to2_tsv.py -i {prefix}_{project_id}_5CT.tsv -j {inputfile_1to2} -f {inputfasta_1to2} -t {genome_type_1to2} -o {DR_folder_1to2}/{project_id} -auto")
-        os.remove(f"{prefix}_{project_id}_5CT.tsv")    #删除8CT转换来的5CT，删除中间结果
+        os.remove(f"{prefix}_{project_id}_5CT.tsv") if os.path.isfile(f"{prefix}_{project_id}_5CT.tsv")  else None     # 删除8CT转换来的5CT，删除中间结果
+        
         DR_files = glob.glob(f"{DR_folder_1to2}/{project_id}*_1to2.tsv")
         for DR_file in DR_files:
             os.system(f"python {current_dir}/map_recomb.py -i {DR_file} -l {genome_length_1to2} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {os.path.splitext(os.path.basename(DR_file))[0]}_map.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
@@ -635,7 +666,12 @@ def main():
             shutil.move(f"{DR_folder_1to2}", f"{project_id}")
 
     if (auto_map_dr_1to2 == "YES" or auto_map_dr_1to2 == "Y") and genome_type_1to2 == "L":
+        # 8CT转换来的5CT，将其绘制为mainconfiguration的图谱
+        os.system(f"python {current_dir}/map_recomb_line.py -i {prefix}_{project_id}_5CT.tsv -l {genome_length_1to2} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {DR_folder_1to2}/mainconfig_{prefix}_{project_id}_map.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
+
         os.system(f"python {current_dir}/DR_1to2_tsv.py -i {prefix}_{project_id}_5CT.tsv -j {inputfile_1to2} -f {inputfasta_1to2} -t {genome_type_1to2} -o {DR_folder_1to2}/{project_id} -auto")
+        os.remove(f"{prefix}_{project_id}_5CT.tsv") if os.path.isfile(f"{prefix}_{project_id}_5CT.tsv")  else None     # 删除8CT转换来的5CT，删除中间结果
+        
         DR_files = glob.glob(f"{DR_folder_1to2}/{project_id}*_Chr1_1to2.tsv")
         for DR_file in DR_files:
             os.system(f"python {current_dir}/map_recomb_line.py -i {DR_file} -l {genome_length_1to2} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {os.path.splitext(os.path.basename(DR_file))[0]}_map.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
@@ -653,7 +689,12 @@ def main():
             shutil.move(f"{DR_folder_1to2}", f"{project_id}")
 
     if auto_map_dr_1to2 == "M" and genome_type_1to2 == "C":
+        # 8CT转换来的5CT，将其绘制为mainconfiguration的图谱
+        os.system(f"python {current_dir}/map_recomb.py -i {prefix}_{project_id}_5CT.tsv -l {genome_length_1to2} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {DR_folder_1to2}/mainconfig_{prefix}_{project_id}_map.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
+
         os.system(f"python {current_dir}/DR_1to2_tsv.py -i {prefix}_{project_id}_5CT.tsv -j {inputfile_1to2} -f {inputfasta_1to2} -t {genome_type_1to2} -o {DR_folder_1to2}/{project_id}")
+        os.remove(f"{prefix}_{project_id}_5CT.tsv") if os.path.isfile(f"{prefix}_{project_id}_5CT.tsv")  else None       # 删除8CT转换来的5CT，删除中间结果
+        
         DR_files = glob.glob(f"{DR_folder_1to2}/{project_id}*_1to2.tsv")
         for DR_file in DR_files:
             os.system(f"python {current_dir}/map_recomb.py -i {DR_file} -l {genome_length_1to2} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {os.path.splitext(os.path.basename(DR_file))[0]}_map.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
@@ -665,7 +706,12 @@ def main():
             shutil.move(f"{DR_folder_1to2}", f"{project_id}")
 
     if auto_map_dr_1to2 == "M" and genome_type_1to2 == "L":
+        # 8CT转换来的5CT，将其绘制为mainconfiguration的图谱
+        os.system(f"python {current_dir}/map_recomb_line.py -i {prefix}_{project_id}_5CT.tsv -l {genome_length_1to2} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {DR_folder_1to2}/mainconfig_{prefix}_{project_id}_map.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
+
         os.system(f"python {current_dir}/DR_1to2_tsv.py -i {prefix}_{project_id}_5CT.tsv -j {inputfile_1to2} -f {inputfasta_1to2} -t {genome_type_1to2} -o {DR_folder_1to2}/{project_id}")
+        os.remove(f"{prefix}_{project_id}_5CT.tsv") if os.path.isfile(f"{prefix}_{project_id}_5CT.tsv")  else None       # 删除8CT转换来的5CT，删除中间结果
+        
         DR_files = glob.glob(f"{DR_folder_1to2}/{project_id}*_Chr1_1to2.tsv")
         for DR_file in DR_files:
             os.system(f"python {current_dir}/map_recomb_line.py -i {DR_file} -l {genome_length_1to2} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {os.path.splitext(os.path.basename(DR_file))[0]}_map.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
@@ -686,45 +732,42 @@ def main():
         if os.path.exists(f"{prefix}_{project_id}_5CT.tsv"):
             os.remove(f"{prefix}_{project_id}_5CT.tsv")
 
-    print(f"Results are saved in folder {project_id}/{DR_folder_1to2}.\n") if auto_map_dr_1to2 in ['M', 'Y', 'YES'] and os.listdir(f"{project_id}/{DR_folder_1to2}") else None
-    print(f"No results are saved in folder {project_id}/{DR_folder_1to2}.\n") if auto_map_dr_1to2 in ['M', 'Y', 'YES'] and not os.listdir(f"{project_id}/{DR_folder_1to2}") else None
+    print(f"Results are saved in folder {project_id}/{DR_folder_1to2}.") if auto_map_dr_1to2 in ['M', 'Y', 'YES'] and os.listdir(f"{project_id}/{DR_folder_1to2}") else None
+    print(f"No results are saved in folder {project_id}/{DR_folder_1to2}.") if auto_map_dr_1to2 in ['M', 'Y', 'YES'] and not os.listdir(f"{project_id}/{DR_folder_1to2}") else None
+    print() 
     time.sleep(2)
     
 ##########################################################################################################################################
     #### 绘制2to1重组图谱，创建文件夹
     if auto_map_dr_2to1 in ["Y","YES","M"]:
-        logging.info(f"#### Map the DR-mediated subconfiguration (2to1)! ####")
+        logging.info(f"%%%%%%%%%% Map the DR-mediated subconfiguration (2to1)! %%%%%%%%%%")
+        logging.info(f"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+        
         DR_folder_2to1 = f"{output_dir_prefix_dr_2to1}_{project_id}"
         if not os.path.exists(DR_folder_2to1):
             os.mkdir(DR_folder_2to1)
             
         if not os.path.exists(f"{project_id}"):    # 创建结果存储文件夹，以project_id命名
             os.mkdir(f"{project_id}")
+            
+        prefix_chr1 = os.path.splitext(os.path.basename(chr1_file_2to1))[0]
+        os.system(f"python {current_dir}/paired_info_to_5CT.py -i {chr1_file_2to1} -o {prefix_chr1}_{project_id}_5CT.tsv -l {chr1_len_2to1}")
+        prefix_chr2 = os.path.splitext(os.path.basename(chr2_file_2to1))[0]
+        os.system(f"python {current_dir}/paired_info_to_5CT.py -i {chr2_file_2to1} -o {prefix_chr2}_{project_id}_5CT.tsv -l {chr2_len_2to1}")
 
-    if (auto_map_dr_2to1 == "YES" or auto_map_dr_2to1 == "Y") and (chrom1_type_2to1 == "C" and chrom2_type_2to1 == "C"):
-        os.system(f"python bin/DR_2to1_tsv.py -i {chrom1_file_2to1} -c1 {chrom1_type_2to1} -j {chrom2_file_2to1} -c2 {chrom2_type_2to1} -l {chrom1_fasta_2to1} -s {chrom2_fasta_2to1} -o {DR_folder_2to1}/{project_id} -auto -g {comp_ch_2to1_log}")
-        DR_files = glob.glob(f"{DR_folder_2to1}/{project_id}_DR_*_2to1_5CT.tsv")
-        for DR_file in DR_files:
-            os.system(f"python {current_dir}/map_recomb.py -i {DR_file} -l {chrom1_len_2to1+chrom2_len_2to1} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {os.path.splitext(os.path.basename(DR_file))[0]}_map.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
-            DR_2to1_basename = f"{os.path.splitext(os.path.basename(DR_file))[0]}_map.svg"  # 获取文件名（不包含路径）
-            DR_2to1_without_ext, ext = os.path.splitext(DR_2to1_basename)  # 分离文件名和扩展名
-            DR_2to1_new_basename = DR_2to1_without_ext.replace("_5CT", "") + ext  # 去掉 "_5CT" 并添加回扩展名
-            os.rename(f"{DR_2to1_basename}", f"{DR_2to1_new_basename}")
-            shutil.move(f"{DR_2to1_new_basename}", f"{DR_folder_2to1}")
-            if os.path.exists(DR_file):
-                os.remove(f"{DR_file}")
-        DR_2to1_tsv = glob.glob("DR_*_2to1_map.tsv")
-        for DR_2to1 in DR_2to1_tsv:
-            shutil.move(f"{DR_2to1}", f"{DR_folder_2to1}/{project_id}_{DR_2to1}")
-        if os.path.exists(f"{DR_folder_2to1}"):        #  结果重新归档
-            shutil.move(f"{DR_folder_2to1}", f"{project_id}")
-            
+################################################################################
+    if (auto_map_dr_2to1 == "YES" or auto_map_dr_2to1 == "Y") and (chr1_type_2to1 == "C" and chr2_type_2to1 == "C"):
+        os.system(f"python {current_dir}/map_recomb.py -i {prefix_chr1}_{project_id}_5CT.tsv -l {chr1_len_2to1+chr2_len_2to1} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {DR_folder_2to1}/{prefix_chr1}_{project_id}.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
+         
+        os.system(f"python {current_dir}/map_recomb.py -i {prefix_chr2}_{project_id}_5CT.tsv -l {chr1_len_2to1+chr2_len_2to1} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {DR_folder_2to1}/{prefix_chr2}_{project_id}.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
 
-    if (auto_map_dr_2to1 == "YES" or auto_map_dr_2to1 == "Y") and (chrom1_type_2to1 == "L" and chrom2_type_2to1 == "C"):
-        os.system(f"python bin/DR_2to1_tsv.py -i {chrom1_file_2to1} -c1 {chrom1_type_2to1} -j {chrom2_file_2to1} -c2 {chrom2_type_2to1} -l {chrom1_fasta_2to1} -s {chrom2_fasta_2to1} -o {DR_folder_2to1}/{project_id} -auto -g {comp_ch_2to1_log}")
+        os.system(f"python bin/DR_2to1_tsv.py -i {chr1_file_2to1} -c1 {chr1_type_2to1} -j {chr2_file_2to1} -c2 {chr2_type_2to1} -l {chr1_fasta_2to1} -s {chr2_fasta_2to1} -o {DR_folder_2to1}/{project_id} -auto -g {comp_ch_2to1_log}")
+        os.remove(f"{prefix_chr1}_{project_id}_5CT.tsv") if os.path.isfile(f"{prefix_chr1}_{project_id}_5CT.tsv")  else None       # 删除8CT转换来的5CT，删除中间结果
+        os.remove(f"{prefix_chr2}_{project_id}_5CT.tsv") if os.path.isfile(f"{prefix_chr2}_{project_id}_5CT.tsv")  else None       # 删除8CT转换来的5CT，删除中间结果
+        
         DR_files = glob.glob(f"{DR_folder_2to1}/{project_id}_DR_*_2to1_5CT.tsv")
         for DR_file in DR_files:
-            os.system(f"python {current_dir}/map_recomb_line.py -i {DR_file} -l {chrom1_len_2to1+chrom2_len_2to1} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {os.path.splitext(os.path.basename(DR_file))[0]}_map.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
+            os.system(f"python {current_dir}/map_recomb.py -i {DR_file} -l {chr1_len_2to1+chr2_len_2to1} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {os.path.splitext(os.path.basename(DR_file))[0]}_map.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
             DR_2to1_basename = f"{os.path.splitext(os.path.basename(DR_file))[0]}_map.svg"  # 获取文件名（不包含路径）
             DR_2to1_without_ext, ext = os.path.splitext(DR_2to1_basename)  # 分离文件名和扩展名
             DR_2to1_new_basename = DR_2to1_without_ext.replace("_5CT", "") + ext  # 去掉 "_5CT" 并添加回扩展名
@@ -738,12 +781,18 @@ def main():
         if os.path.exists(f"{DR_folder_2to1}"):        #  结果重新归档
             shutil.move(f"{DR_folder_2to1}", f"{project_id}")
             
-            
-    if auto_map_dr_2to1 == "M" and (chrom1_type_2to1 == "C" and chrom2_type_2to1 == "C"):
-        os.system(f"python bin/DR_2to1_tsv.py -i {chrom1_file_2to1} -c1 {chrom1_type_2to1} -j {chrom2_file_2to1} -c2 {chrom2_type_2to1} -l {chrom1_fasta_2to1} -s {chrom2_fasta_2to1} -o {DR_folder_2to1}/{project_id} -g {comp_ch_2to1_log}")
+    if (auto_map_dr_2to1 == "YES" or auto_map_dr_2to1 == "Y") and (chr1_type_2to1 == "L" and chr2_type_2to1 == "C"):
+        os.system(f"python {current_dir}/map_recomb_line.py -i {prefix_chr1}_{project_id}_5CT.tsv -l {chr1_len_2to1+chr2_len_2to1} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {DR_folder_2to1}/{prefix_chr1}_{project_id}.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
+         
+        os.system(f"python {current_dir}/map_recomb.py -i {prefix_chr2}_{project_id}_5CT.tsv -l {chr1_len_2to1+chr2_len_2to1} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {DR_folder_2to1}/{prefix_chr2}_{project_id}.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
+        
+        os.system(f"python bin/DR_2to1_tsv.py -i {chr1_file_2to1} -c1 {chr1_type_2to1} -j {chr2_file_2to1} -c2 {chr2_type_2to1} -l {chr1_fasta_2to1} -s {chr2_fasta_2to1} -o {DR_folder_2to1}/{project_id} -auto -g {comp_ch_2to1_log}")
+        os.remove(f"{prefix_chr1}_{project_id}_5CT.tsv") if os.path.isfile(f"{prefix_chr1}_{project_id}_5CT.tsv")  else None       # 删除8CT转换来的5CT，删除中间结果
+        os.remove(f"{prefix_chr2}_{project_id}_5CT.tsv") if os.path.isfile(f"{prefix_chr2}_{project_id}_5CT.tsv")  else None        # 删除8CT转换来的5CT，删除中间结果
+        
         DR_files = glob.glob(f"{DR_folder_2to1}/{project_id}_DR_*_2to1_5CT.tsv")
         for DR_file in DR_files:
-            os.system(f"python {current_dir}/map_recomb.py -i {DR_file} -l {chrom1_len_2to1+chrom2_len_2to1} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {os.path.splitext(os.path.basename(DR_file))[0]}_map.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
+            os.system(f"python {current_dir}/map_recomb_line.py -i {DR_file} -l {chr1_len_2to1+chr2_len_2to1} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {os.path.splitext(os.path.basename(DR_file))[0]}_map.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
             DR_2to1_basename = f"{os.path.splitext(os.path.basename(DR_file))[0]}_map.svg"  # 获取文件名（不包含路径）
             DR_2to1_without_ext, ext = os.path.splitext(DR_2to1_basename)  # 分离文件名和扩展名
             DR_2to1_new_basename = DR_2to1_without_ext.replace("_5CT", "") + ext  # 去掉 "_5CT" 并添加回扩展名
@@ -757,12 +806,43 @@ def main():
         if os.path.exists(f"{DR_folder_2to1}"):        #  结果重新归档
             shutil.move(f"{DR_folder_2to1}", f"{project_id}")
             
-            
-    if auto_map_dr_2to1 == "M" and (chrom1_type_2to1 == "L" and chrom2_type_2to1 == "C"):
-        os.system(f"python bin/DR_2to1_tsv.py -i {chrom1_file_2to1} -c1 {chrom1_type_2to1} -j {chrom2_file_2to1} -c2 {chrom2_type_2to1} -l {chrom1_fasta_2to1} -s {chrom2_fasta_2to1} -o {DR_folder_2to1}/{project_id} -g {comp_ch_2to1_log}")
+    if auto_map_dr_2to1 == "M" and (chr1_type_2to1 == "C" and chr2_type_2to1 == "C"):
+        os.system(f"python {current_dir}/map_recomb.py -i {prefix_chr1}_{project_id}_5CT.tsv -l {chr1_len_2to1+chr2_len_2to1} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {DR_folder_2to1}/{prefix_chr1}_{project_id}.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
+         
+        os.system(f"python {current_dir}/map_recomb.py -i {prefix_chr2}_{project_id}_5CT.tsv -l {chr1_len_2to1+chr2_len_2to1} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {DR_folder_2to1}/{prefix_chr2}_{project_id}.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
+        
+        os.system(f"python bin/DR_2to1_tsv.py -i {chr1_file_2to1} -c1 {chr1_type_2to1} -j {chr2_file_2to1} -c2 {chr2_type_2to1} -l {chr1_fasta_2to1} -s {chr2_fasta_2to1} -o {DR_folder_2to1}/{project_id} -g {comp_ch_2to1_log}")
+        os.remove(f"{prefix_chr1}_{project_id}_5CT.tsv") if os.path.isfile(f"{prefix_chr1}_{project_id}_5CT.tsv")  else None        # 删除8CT转换来的5CT，删除中间结果
+        os.remove(f"{prefix_chr2}_{project_id}_5CT.tsv") if os.path.isfile(f"{prefix_chr2}_{project_id}_5CT.tsv")  else None        # 删除8CT转换来的5CT，删除中间结果
+        
         DR_files = glob.glob(f"{DR_folder_2to1}/{project_id}_DR_*_2to1_5CT.tsv")
         for DR_file in DR_files:
-            os.system(f"python {current_dir}/map_recomb_line.py -i {DR_file} -l {chrom1_len_2to1+chrom2_len_2to1} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {os.path.splitext(os.path.basename(DR_file))[0]}_map.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
+            os.system(f"python {current_dir}/map_recomb.py -i {DR_file} -l {chr1_len_2to1+chr2_len_2to1} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {os.path.splitext(os.path.basename(DR_file))[0]}_map.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
+            DR_2to1_basename = f"{os.path.splitext(os.path.basename(DR_file))[0]}_map.svg"  # 获取文件名（不包含路径）
+            DR_2to1_without_ext, ext = os.path.splitext(DR_2to1_basename)  # 分离文件名和扩展名
+            DR_2to1_new_basename = DR_2to1_without_ext.replace("_5CT", "") + ext  # 去掉 "_5CT" 并添加回扩展名
+            os.rename(f"{DR_2to1_basename}", f"{DR_2to1_new_basename}")
+            shutil.move(f"{DR_2to1_new_basename}", f"{DR_folder_2to1}")
+            if os.path.exists(DR_file):
+                os.remove(f"{DR_file}")
+        DR_2to1_tsv = glob.glob("DR_*_2to1_map.tsv")
+        for DR_2to1 in DR_2to1_tsv:
+            shutil.move(f"{DR_2to1}", f"{DR_folder_2to1}/{project_id}_{DR_2to1}")
+        if os.path.exists(f"{DR_folder_2to1}"):        #  结果重新归档
+            shutil.move(f"{DR_folder_2to1}", f"{project_id}")
+            
+    if auto_map_dr_2to1 == "M" and (chr1_type_2to1 == "L" and chr2_type_2to1 == "C"):
+        os.system(f"python {current_dir}/map_recomb_line.py -i {prefix_chr1}_{project_id}_5CT.tsv -l {chr1_len_2to1+chr2_len_2to1} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {DR_folder_2to1}/{prefix_chr1}_{project_id}.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
+         
+        os.system(f"python {current_dir}/map_recomb.py -i {prefix_chr2}_{project_id}_5CT.tsv -l {chr1_len_2to1+chr2_len_2to1} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {DR_folder_2to1}/{prefix_chr2}_{project_id}.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
+    
+        os.system(f"python bin/DR_2to1_tsv.py -i {chr1_file_2to1} -c1 {chr1_type_2to1} -j {chr2_file_2to1} -c2 {chr2_type_2to1} -l {chr1_fasta_2to1} -s {chr2_fasta_2to1} -o {DR_folder_2to1}/{project_id} -g {comp_ch_2to1_log}")
+        os.remove(f"{prefix_chr1}_{project_id}_5CT.tsv") if os.path.isfile(f"{prefix_chr1}_{project_id}_5CT.tsv")  else None      # 删除8CT转换来的5CT，删除中间结果
+        os.remove(f"{prefix_chr2}_{project_id}_5CT.tsv") if os.path.isfile(f"{prefix_chr2}_{project_id}_5CT.tsv")  else None      # 删除8CT转换来的5CT，删除中间结果
+        
+        DR_files = glob.glob(f"{DR_folder_2to1}/{project_id}_DR_*_2to1_5CT.tsv")
+        for DR_file in DR_files:
+            os.system(f"python {current_dir}/map_recomb_line.py -i {DR_file} -l {chr1_len_2to1+chr2_len_2to1} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {os.path.splitext(os.path.basename(DR_file))[0]}_map.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
             DR_2to1_basename = f"{os.path.splitext(os.path.basename(DR_file))[0]}_map.svg"  # 获取文件名（不包含路径）
             DR_2to1_without_ext, ext = os.path.splitext(DR_2to1_basename)  # 分离文件名和扩展名
             DR_2to1_new_basename = DR_2to1_without_ext.replace("_5CT", "") + ext  # 去掉 "_5CT" 并添加回扩展名
@@ -776,14 +856,17 @@ def main():
         if os.path.exists(f"{DR_folder_2to1}"):        #  结果重新归档
             shutil.move(f"{DR_folder_2to1}", f"{project_id}")
         
-    print(f"Results are saved in folder {project_id}/{DR_folder_2to1}.\n") if auto_map_dr_2to1 in ['M', 'Y', 'YES'] and os.listdir(f"{project_id}/{DR_folder_2to1}") else None
-    print(f"No results are saved in folder {project_id}/{DR_folder_2to1}.\n") if auto_map_dr_2to1 in ['M', 'Y', 'YES'] and not os.listdir(f"{project_id}/{DR_folder_2to1}") else None
+    print(f"Results are saved in folder {project_id}/{DR_folder_2to1}.") if auto_map_dr_2to1 in ['M', 'Y', 'YES'] and os.listdir(f"{project_id}/{DR_folder_2to1}") else None
+    print(f"No results are saved in folder {project_id}/{DR_folder_2to1}.") if auto_map_dr_2to1 in ['M', 'Y', 'YES'] and not os.listdir(f"{project_id}/{DR_folder_2to1}") else None
+    print()
     time.sleep(2)
     
 ##########################################################################################################################################
     #### 绘制2to2重组图谱，创建文件夹
     if auto_map_dr_2to2 in ["Y","YES","M"]:
-        logging.info(f"#### Map the DR-mediated subconfiguration (2to2)! ####")
+        logging.info(f"%%%%%%%%%% Map the DR-mediated subconfiguration (2to2)! %%%%%%%%%%")
+        logging.info(f"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+        
         DR_folder_2to2 = f"{output_dir_prefix_dr_2to2}_{project_id}"
         if not os.path.exists(DR_folder_2to2):
             os.mkdir(DR_folder_2to2)
@@ -791,13 +874,25 @@ def main():
         if not os.path.exists(f"{project_id}"):    # 创建结果存储文件夹，以project_id命名
             os.mkdir(f"{project_id}")
 
-    if auto_map_dr_2to2 == "YES" or auto_map_dr_2to2 == "Y":  
-        os.system(f"python bin/DR_2to2_tsv.py -i {chrom1_file_2to2} -j {chrom2_file_2to2} -l {chrom1_fasta_2to2} -s {chrom2_fasta_2to2} -o {DR_folder_2to2}/{project_id} -auto -g {comp_ch_2to2_log}")
-        # DR_2to2_tsv.py  释放绘图用的5CT，还有5CT对应的8CT
+        prefix_chr1 = os.path.splitext(os.path.basename(chr1_file_2to2))[0]
+        os.system(f"python {current_dir}/paired_info_to_5CT.py -i {chr1_file_2to2} -o {prefix_chr1}_{project_id}_5CT.tsv -l {chr1_len_2to2}")
+        prefix_chr2 = os.path.splitext(os.path.basename(chr2_file_2to2))[0]
+        os.system(f"python {current_dir}/paired_info_to_5CT.py -i {chr2_file_2to2} -o {prefix_chr2}_{project_id}_5CT.tsv -l {chr2_len_2to2}")
+        
+################################################################################
+    if auto_map_dr_2to2 == "YES" or auto_map_dr_2to2 == "Y":           # 这种情况下，两条染色体只能都是线性的
+        os.system(f"python {current_dir}/map_recomb_line.py -i {prefix_chr1}_{project_id}_5CT.tsv -l {chr1_len_2to2+chr2_len_2to2} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {DR_folder_2to2}/{prefix_chr1}_{project_id}.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
+         
+        os.system(f"python {current_dir}/map_recomb_line.py -i {prefix_chr2}_{project_id}_5CT.tsv -l {chr1_len_2to2+chr2_len_2to2} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {DR_folder_2to2}/{prefix_chr2}_{project_id}.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
+        
+        # DR_2to2_tsv.py  释放绘图用的5CT，由对应的8CT产生
+        os.system(f"python bin/DR_2to2_tsv.py -i {chr1_file_2to2} -j {chr2_file_2to2} -l {chr1_fasta_2to2} -s {chr2_fasta_2to2} -o {DR_folder_2to2}/{project_id} -auto -g {comp_ch_2to2_log}")
+        os.remove(f"{prefix_chr1}_{project_id}_5CT.tsv") if os.path.isfile(f"{prefix_chr1}_{project_id}_5CT.tsv")  else None       # 删除8CT转换来的5CT，删除中间结果
+        os.remove(f"{prefix_chr2}_{project_id}_5CT.tsv") if os.path.isfile(f"{prefix_chr2}_{project_id}_5CT.tsv")  else None       # 删除8CT转换来的5CT，删除中间结果
         
         DR_files = glob.glob(f"{DR_folder_2to2}/{project_id}_DR_*_2to2_5CT.tsv")
         for DR_file in DR_files:
-            os.system(f"python {current_dir}/map_recomb_line.py -i {DR_file} -l {chrom1_len_2to2+chrom2_len_2to2} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {os.path.splitext(os.path.basename(DR_file))[0]}_map.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
+            os.system(f"python {current_dir}/map_recomb_line.py -i {DR_file} -l {chr1_len_2to2+chr2_len_2to2} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {os.path.splitext(os.path.basename(DR_file))[0]}_map.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
             DR_2to2_basename = f"{os.path.splitext(os.path.basename(DR_file))[0]}_map.svg"  #  DR_2to2_basename为绘制的图片文件的名字   具体为 MiRIV_DR_RP3a_2to2_5CT_map.svg
             DR_2to2_without_ext, ext = os.path.splitext(DR_2to2_basename)    # 分离文件名和扩展名
             DR_2to2_new_basename = DR_2to2_without_ext.replace("_5CT", "") + ext    # 去掉 "_5CT" 并添加回扩展名   # 更换后缀 _5CT_map.svg 为 _map.svg， ext为“svg”
@@ -811,12 +906,18 @@ def main():
         if os.path.exists(f"{DR_folder_2to2}"):        #  结果重新归档
             shutil.move(f"{DR_folder_2to2}", f"{project_id}")
         
-        
     if auto_map_dr_2to2 == "M": 
-        os.system(f"python bin/DR_2to2_tsv.py -i {chrom1_file_2to2} -j {chrom2_file_2to2} -l {chrom1_fasta_2to2} -s {chrom2_fasta_2to2} -o {DR_folder_2to2}/{project_id} -g {comp_ch_2to2_log} -g {comp_ch_2to2_log}")
+        os.system(f"python {current_dir}/map_recomb_line.py -i {prefix_chr1}_{project_id}_5CT.tsv -l {chr1_len_2to2+chr2_len_2to2} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {DR_folder_2to2}/{prefix_chr1}_{project_id}.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
+         
+        os.system(f"python {current_dir}/map_recomb_line.py -i {prefix_chr2}_{project_id}_5CT.tsv -l {chr1_len_2to2+chr2_len_2to2} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {DR_folder_2to2}/{prefix_chr2}_{project_id}.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
+    
+        os.system(f"python bin/DR_2to2_tsv.py -i {chr1_file_2to2} -j {chr2_file_2to2} -l {chr1_fasta_2to2} -s {chr2_fasta_2to2} -o {DR_folder_2to2}/{project_id} -g {comp_ch_2to2_log} -g {comp_ch_2to2_log}")
+        os.remove(f"{prefix_chr1}_{project_id}_5CT.tsv") if os.path.isfile(f"{prefix_chr1}_{project_id}_5CT.tsv")  else None       # 删除8CT转换来的5CT，删除中间结果
+        os.remove(f"{prefix_chr2}_{project_id}_5CT.tsv") if os.path.isfile(f"{prefix_chr2}_{project_id}_5CT.tsv")  else None       # 删除8CT转换来的5CT，删除中间结果
+        
         DR_files = glob.glob(f"{DR_folder_2to2}/{project_id}_DR_*_2to2_5CT.tsv")
         for DR_file in DR_files:
-            os.system(f"python {current_dir}/map_recomb_line.py -i {DR_file} -l {chrom1_len_2to2+chrom2_len_2to2} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {os.path.splitext(os.path.basename(DR_file))[0]}_map.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
+            os.system(f"python {current_dir}/map_recomb_line.py -i {DR_file} -l {chr1_len_2to2+chr2_len_2to2} -pb {picture_box} -r {radius} -ar {arrow_radius} -as {arrow_size} -at {arrow_thickness} -fs {font_size} -th {tag_height} -tl {tag_line_width} -os {os.path.splitext(os.path.basename(DR_file))[0]}_map.svg -c '{RP_key[1]}:{RP_color[1]}, {RP_key[2]}:{RP_color[2]}, {RP_key[3]}:{RP_color[3]}, {RP_key[4]}:{RP_color[4]}, {RP_key[5]}:{RP_color[5]}, {RP_key[6]}:{RP_color[6]}, {RP_key[7]}:{RP_color[7]}, {RP_key[8]}:{RP_color[8]}, {RP_key[9]}:{RP_color[9]}, {RP_key[10]}:{RP_color[10]}, {RP_key[11]}:{RP_color[11]}, {RP_key[12]}:{RP_color[12]}, {RP_key[13]}:{RP_color[13]}, {RP_key[14]}:{RP_color[14]}, {RP_key[15]}:{RP_color[15]}, {RP_key[16]}:{RP_color[16]}, {RP_key[17]}:{RP_color[17]}, {RP_key[18]}:{RP_color[18]}, {RP_key[19]}:{RP_color[19]}, {RP_key[20]}:{RP_color[20]}, {RP_key[21]}:{RP_color[21]}, {RP_key[22]}:{RP_color[22]}, {RP_key[23]}:{RP_color[23]}, {RP_key[24]}:{RP_color[24]}, {RP_key[25]}:{RP_color[25]}, {RP_key[26]}:{RP_color[26]}, {RP_key[27]}:{RP_color[27]}, {RP_key[28]}:{RP_color[28]}, {RP_key[29]}:{RP_color[29]}, {RP_key[30]}:{RP_color[30]}'")
             DR_2to2_basename = f"{os.path.splitext(os.path.basename(DR_file))[0]}_map.svg"  # 获取文件名（不包含路径）
             DR_2to2_without_ext, ext = os.path.splitext(DR_2to2_basename)  # 分离文件名和扩展名
             DR_2to2_new_basename = DR_2to2_without_ext.replace("_5CT", "") + ext  # 去掉 "_5CT" 并添加回扩展名
@@ -830,8 +931,9 @@ def main():
         if os.path.exists(f"{DR_folder_2to2}"):        #  结果重新归档
             shutil.move(f"{DR_folder_2to2}", f"{project_id}")
         
-    print(f"Results are saved in folder {project_id}/{DR_folder_2to2}.\n") if auto_map_dr_2to2 in ['M', 'Y', 'YES'] and os.listdir(f"{project_id}/{DR_folder_2to2}") else None
-    print(f"No results are saved in folder {project_id}/{DR_folder_2to2}.\n") if auto_map_dr_2to2 in ['M', 'Y', 'YES'] and not os.listdir(f"{project_id}/{DR_folder_2to2}") else None
+    print(f"Results are saved in folder {project_id}/{DR_folder_2to2}.") if auto_map_dr_2to2 in ['M', 'Y', 'YES'] and os.listdir(f"{project_id}/{DR_folder_2to2}") else None
+    print(f"No results are saved in folder {project_id}/{DR_folder_2to2}.") if auto_map_dr_2to2 in ['M', 'Y', 'YES'] and not os.listdir(f"{project_id}/{DR_folder_2to2}") else None
+    print()
     time.sleep(2)
     
 ##########################################################################################################################################
@@ -839,7 +941,8 @@ def main():
     ####  绘制九宫格 
     # Extract the values
     if arrange in ["YES", "Y"]:
-        logging.info(f"#### Arrange maps into a grid of nine squares! ####")
+        logging.info(f"%%%%%%%%%%%% Arrange maps into a grid of nine squares! %%%%%%%%%%%")
+        logging.info(f"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
         #### 创建文件夹
         arr_folder = f"{output_dir_prefix_arr}_{project_id}"
         if not os.path.exists(arr_folder):
@@ -892,6 +995,6 @@ if __name__ == "__main__":
     end_time = time.time()    # Capture the end time when execution is about to finish
     
     execution_time = end_time - start_time  # Calculate the difference to get execution time
-    print(f"\nTotal execution time: {round(execution_time,1)} seconds.\n")  # Log the execution time
+    print(f"Total execution time: {round(execution_time,1)} seconds.\n")  # Log the execution time
 
 
