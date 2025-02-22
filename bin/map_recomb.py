@@ -81,15 +81,8 @@ def adjust_plasmidrender_args(genome_length, plasmidrender_args, args):
         # Calculate adjustment based on the ratio of lengths
         ratio = subtype_length / genome_length
 
-        if ratio >= 0.35:
-            pass
-            #print(f"subconfig_genome_length = {subtype_length} bp. mainconfig_genome_length = {genome_length} bp")
-            #print(f"Ratio of mapping genomes is {round(ratio, 4)}.")
-        else:
-            #print(f"Ratio of subconfig_genome_length/mainconfig_genome_length is {round(ratio, 4)}, which is less than 0.35.")
-            #print(f"To better display the genome map, the ratio is set to 0.35 automatically.")
+        if ratio < 0.35:            # 为了避免绘制的图形过小，对下限做出限制
             ratio = 0.35
-        #print()
             
         # Adjust parameters
         plasmidrender_args_dict = {plasmidrender_args[i]: plasmidrender_args[i + 1] for i in range(0, len(plasmidrender_args), 2)}
@@ -127,15 +120,8 @@ def adjust_plasmidrender_args(genome_length, plasmidrender_args, args):
         # Calculate adjustment based on the ratio of lengths
         ratio = subtype_length / genome_length
 
-        if ratio >= 0.35:
-            pass
-            #print(f"subconfig_genome_length = {subtype_length}bp. mainconfig_genome_length = {genome_length}bp")
-            #print(f"Ratio of mapping genomes is {round(ratio, 4)}.")
-        else:
-            #print(f"Ratio of subconfig_genome_length/mainconfig_genome_length is {round(ratio, 4)}, which is less than 0.35.")
-            #print(f"To better display the genome map, the ratio is set to 0.35 automatically.")
+        if ratio < 0.35:            # 为了避免绘制的图形过小，对下限做出限制
             ratio = 0.35
-        #print()
 
         # Adjust parameters
         if args.config_path is not None:
