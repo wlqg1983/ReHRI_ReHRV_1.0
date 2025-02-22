@@ -452,9 +452,10 @@ def convert_media_to_json(input_file):
                 # Get the color from the 'color' column and strip any surrounding double quotes
                 tag_color = row['color'].strip('"') if not pd.isna(row['color']) else "#000000"
                 if angle < 0:
+                    tag_angle = angle if angle < -180 else -180
                     json_data.append({
                         "type": "tag",
-                        "angle": str(abs(angle)),
+                        "angle": str(abs(tag_angle)),
                         "label": "",
                         "color": tag_color
                     })
@@ -478,9 +479,10 @@ def convert_media_to_json(input_file):
                     })
 
                 elif angle > 0:
+                    tag_angle = angle if angle > 180 else 180
                     json_data.append({
                         "type": "tag",
-                        "angle": str(angle),
+                        "angle": str(tag_angle),
                         "label": "",
                         "color": tag_color
                     })

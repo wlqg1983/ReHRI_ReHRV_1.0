@@ -62,7 +62,7 @@ def separate_args(external_args):
         sys.exit(1)
 
     if not genome_length:
-        print("You have not provided the length of the mitochondrial genome. The data will be plotted as the main configuration of the mitogenome.")
+        print("You have not provided the length of the genome. The data will be plotted as the main configuration of the genome.")
 
     return five_ct_args, plasmidrender_args, genome_length
 
@@ -221,7 +221,6 @@ def replace_short_options_with_long(plasmidrender_args):
         '-at': '--arrow_thickness',
         '-fs': '--font_size',
         '-l': '--genome_length',
-        '-pb': '--picture_box',
         '--radius': '-r',
         '-th': '--tag_height',
         '-tl': '--tag_line_width'
@@ -241,7 +240,7 @@ def replace_short_options_with_long(plasmidrender_args):
 
 def main():
     # Create command-line argument parser
-    parser = argparse.ArgumentParser(description='Recan: A script for mapping repeats in mitochondrial genome.')
+    parser = argparse.ArgumentParser(description='A script for mapping repeats in organellar genome.')
     parser.add_argument('-i', dest='input_file', required=True, help='Input file (TSV format, Containing 5 columns).')
     parser.add_argument('-c', dest='user_color_input', help='User-defined color settings.')
     parser.add_argument('-cf', dest='custom_color_file', help='User-defined color settings file.')
@@ -266,10 +265,6 @@ def main():
     except argparse.ArgumentError as e:
         parser.print_help()
         sys.exit(1)
-
-        
-    # Read the input TSV file into a DataFrame
-    #input_df = pd.read_csv(args.input_file, sep='\t')
     
     # Separate arguments for FiveCT_to_json, plasmidrender, and others
     five_ct_args, plasmidrender_args, genome_length = separate_args(sys.argv[1:])

@@ -408,12 +408,8 @@ def main():
     # 使用字典存储颜色和键，以数字为键
     color_dict_select = {}
     for i, (key, value) in enumerate(color_library, start=1):
-        #print(f"{key}: {value}")
         # 确保value是小写的，并将键值对添加到字典中
         color_dict_select[i] = (key, value)
-    
-    # 输出存储的字典内容
-    #print("Selected Color dictionary:", color_dict_select)
     
     # 通过下标访问元素 
     RP_color = {}
@@ -423,10 +419,6 @@ def main():
 
         RP_key[index] = key
         RP_color[index] = color
-    #print(f"Index {index} - Key: {RP_key}, Color: {RP_color}")
-    #print(RP_key[1],RP_color[1])
-
-
 
 ################################################################################
     #### [Arrange_map] section
@@ -469,11 +461,11 @@ def main():
             sys.exit(1)
         if os.path.exists(ckecklist) and args.redo:
             if os.path.isdir(ckecklist):
-                logging.info(f"Delete previous folder: {ckecklist}")
+                logging.info(f"Delete previous folder: {ckecklist}.")
                 shutil.rmtree(ckecklist)
                 print()
             elif os.path.isfile(ckecklist):
-                logging.info(f"Delete previous file: {ckecklist}")
+                logging.info(f"Delete previous file: {ckecklist}.")
                 os.remove(ckecklist)
 
 ##########################################################################################################################################
@@ -624,10 +616,10 @@ def main():
         if os.path.exists(f"{prefix}_{project_id}_5CT.tsv"):
             os.remove(f"{prefix}_{project_id}_5CT.tsv")
         
-    print(f"Results are saved in folder {project_id}/{IR_folder}.") if auto_map_inv in ['M', 'Y', 'YES'] and os.listdir(f"{project_id}/{IR_folder}") else None
-    print(f"No results are saved in folder {project_id}/{IR_folder}.") if auto_map_inv in ['M', 'Y', 'YES'] and not os.listdir(f"{project_id}/{IR_folder}") else None
-    print()
-    time.sleep(2)
+        print(f"Results are saved in folder {project_id}/{IR_folder}.") if auto_map_inv in ['M', 'Y', 'YES'] and os.listdir(f"{project_id}/{IR_folder}") else None
+        print(f"No results are saved in folder {project_id}/{IR_folder}.") if auto_map_inv in ['M', 'Y', 'YES'] and not os.listdir(f"{project_id}/{IR_folder}") else None
+        print()
+        time.sleep(2)
     
 ##########################################################################################################################################
     # 提前处理数据，生成5CT
@@ -732,9 +724,9 @@ def main():
         if os.path.exists(f"{prefix}_{project_id}_5CT.tsv"):
             os.remove(f"{prefix}_{project_id}_5CT.tsv")
 
-    print(f"Results are saved in folder {project_id}/{DR_folder_1to2}.") if auto_map_dr_1to2 in ['M', 'Y', 'YES'] and os.listdir(f"{project_id}/{DR_folder_1to2}") else None
-    print(f"No results are saved in folder {project_id}/{DR_folder_1to2}.") if auto_map_dr_1to2 in ['M', 'Y', 'YES'] and not os.listdir(f"{project_id}/{DR_folder_1to2}") else None
-    print() 
+        print(f"Results are saved in folder {project_id}/{DR_folder_1to2}.") if auto_map_dr_1to2 in ['M', 'Y', 'YES'] and os.listdir(f"{project_id}/{DR_folder_1to2}") else None
+        print(f"No results are saved in folder {project_id}/{DR_folder_1to2}.") if auto_map_dr_1to2 in ['M', 'Y', 'YES'] and not os.listdir(f"{project_id}/{DR_folder_1to2}") else None
+        print()
     time.sleep(2)
     
 ##########################################################################################################################################
@@ -856,10 +848,11 @@ def main():
         if os.path.exists(f"{DR_folder_2to1}"):        #  结果重新归档
             shutil.move(f"{DR_folder_2to1}", f"{project_id}")
         
-    print(f"Results are saved in folder {project_id}/{DR_folder_2to1}.") if auto_map_dr_2to1 in ['M', 'Y', 'YES'] and os.listdir(f"{project_id}/{DR_folder_2to1}") else None
-    print(f"No results are saved in folder {project_id}/{DR_folder_2to1}.") if auto_map_dr_2to1 in ['M', 'Y', 'YES'] and not os.listdir(f"{project_id}/{DR_folder_2to1}") else None
-    print()
-    time.sleep(2)
+    if auto_map_dr_2to1 in ["Y","YES","M"]:
+        print(f"Results are saved in folder {project_id}/{DR_folder_2to1}.") if auto_map_dr_2to1 in ['M', 'Y', 'YES'] and os.listdir(f"{project_id}/{DR_folder_2to1}") else None
+        print(f"No results are saved in folder {project_id}/{DR_folder_2to1}.") if auto_map_dr_2to1 in ['M', 'Y', 'YES'] and not os.listdir(f"{project_id}/{DR_folder_2to1}") else None
+        print()
+        time.sleep(2)
     
 ##########################################################################################################################################
     #### 绘制2to2重组图谱，创建文件夹
@@ -930,11 +923,12 @@ def main():
             os.remove(f"{DR_2to2}", f"{DR_folder_2to2}/{DR_folder_2to2}")
         if os.path.exists(f"{DR_folder_2to2}"):        #  结果重新归档
             shutil.move(f"{DR_folder_2to2}", f"{project_id}")
-        
-    print(f"Results are saved in folder {project_id}/{DR_folder_2to2}.") if auto_map_dr_2to2 in ['M', 'Y', 'YES'] and os.listdir(f"{project_id}/{DR_folder_2to2}") else None
-    print(f"No results are saved in folder {project_id}/{DR_folder_2to2}.") if auto_map_dr_2to2 in ['M', 'Y', 'YES'] and not os.listdir(f"{project_id}/{DR_folder_2to2}") else None
-    print()
-    time.sleep(2)
+
+    if auto_map_dr_2to2 in ["Y","YES","M"]:
+        print(f"Results are saved in folder {project_id}/{DR_folder_2to2}.") if auto_map_dr_2to2 in ['M', 'Y', 'YES'] and os.listdir(f"{project_id}/{DR_folder_2to2}") else None
+        print(f"No results are saved in folder {project_id}/{DR_folder_2to2}.") if auto_map_dr_2to2 in ['M', 'Y', 'YES'] and not os.listdir(f"{project_id}/{DR_folder_2to2}") else None
+        print()
+        time.sleep(2)
     
 ##########################################################################################################################################
 ##########################################################################################################################################
@@ -995,6 +989,7 @@ if __name__ == "__main__":
     end_time = time.time()    # Capture the end time when execution is about to finish
     
     execution_time = end_time - start_time  # Calculate the difference to get execution time
+    print()
     print(f"Total execution time: {round(execution_time,1)} seconds.\n")  # Log the execution time
 
 

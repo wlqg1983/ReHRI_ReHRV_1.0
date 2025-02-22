@@ -446,9 +446,10 @@ def convert_media_to_json(input_file):
                 # Get the color from the 'color' column and strip any surrounding double quotes
                 tag_color = row['color'].strip('"') if not pd.isna(row['color']) else "#000000"
                 if angle < 0:
+                    tag_angle = angle if angle > -180 else -180         # plasmidrender 可能存在一个bug，当tag的角度小于 -180 度时，tag 的位置就会出问题。做出限制，不让其小于 -180度
                     json_data.append({
                         "type": "tag",
-                        "angle": str(abs(angle)),
+                        "angle": str(abs(tag_angle)),
                         "label": "",
                         "color": tag_color
                     })
@@ -472,9 +473,10 @@ def convert_media_to_json(input_file):
                     })
 
                 elif angle > 0:
+                    tag_angle = angle if angle < 180 else 180         # plasmidrender 可能存在一个bug，当tag的角度大于180度时，tag的位置就会出问题。做出限制，不让其大于 180度
                     json_data.append({
                         "type": "tag",
-                        "angle": str(angle),
+                        "angle": str(tag_angle),
                         "label": "",
                         "color": tag_color
                     })
@@ -497,7 +499,6 @@ def convert_media_to_json(input_file):
                         "color": "#000000"
                     })
 
-
     # Convert the list of dictionaries to a JSON string
     json_string = json.dumps(json_data, indent=4)
     
@@ -508,8 +509,6 @@ def convert_media_to_json(input_file):
 
 
 ###################################################################################################################################################################
-
-
 if __name__ == "__main__":
     # Create command-line argument parser
     parser = argparse.ArgumentParser(description='Process data and convert to JSON')
