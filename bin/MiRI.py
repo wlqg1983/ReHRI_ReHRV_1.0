@@ -1204,7 +1204,15 @@ def main():
             run_command(["python", os.path.join(dir_path, "calibrate_ROUSFinder_results.py"), "-i", f"ROUSFinder_results_{project_id}/" + rous_output_file_prefix + "_" + project_id + "_rep_table.txt", "-fl", str(calibrate_flexibility), "-o", f"ROUSFinder_results_{project_id}/" + rous_output_file_prefix + "_" + project_id, "-t", str(seqdepth_threads)])
             # 将程序校准后的ROUSFinder结果转换为5CT
             run_command(["python", os.path.join(dir_path, "ROUSFinder_to_5CT.py"), "-i", f"ROUSFinder_results_{project_id}/" + rous_output_file_prefix + "_" + project_id + "_rep_calibration_table.txt", "-l", str(sequence_lengths), "-o", f"ROUSFinder_results_{project_id}/" + rous_output_file_prefix + "_" + project_id, "-t", str(seqdepth_threads)])
-        
+
+        if mode == 'C':         # 此处重新定义一些变量，因为发现一些变量有时会未被定义。
+            manually_calibrate_adj = f"ROUSFinder_results_{project_id}/adjusted_manual_calibrated_list.tsv"     # 更改手工校准文件的名字
+
+            # 提取输入文件的前缀
+            dir_path_manual, file_name_manual = os.path.split(manually_calibrate_adj)       # 拆解为路径和文件名
+            prefix_manual = os.path.splitext(file_name_manual)[0]    # 将文件名拆解为前缀和后缀
+            manually_calibrate_reset = f"ROUSFinder_results_{project_id}/{prefix_manual}_{project_id}_rep_calibration_table.txt"          ##更换表头之后，保存为calibration_table.txt
+
         if mode == 'C' and not resume_logic:
             logging.info("ATTENTION: Please ensure that the position information of repeats is consistent with the genome sequence!!")
             print()
@@ -1440,6 +1448,9 @@ def main():
                         
             if provided_data_type == 'NGS_pair_ends':
                 fastq1, fastq2 = seq_data_value 
+                if fastq1 == fastq2:              # 检测两个测序文件是不是同名,防止提供了相同的数据
+                    logging.error(f"You provided two 'NGS_pair_ends' files with the same names. They may be the same data!")
+                    exit(1)
                 
                 fastq1_prefix = os.path.splitext(os.path.basename(fastq1))[0]       # 提取测序数据文件的前缀
                 file_format = check_file_format_efficient(fastq1)      # 检查输入文件的数据格式
@@ -1547,7 +1558,7 @@ def main():
                 # 使用colorama高亮显示计数器和序数词后缀  
                 highlighted_text = f"{Fore.RED}{every_subcon_count}{ordinal_suffix_basename}{Style.RESET_ALL}"
                 print()
-                logging.info(f"**** Start to process the {highlighted_text} sequence: {os.path.basename(fasta_file)}. ****")  
+                logging.info(f"**** Process the {highlighted_text}/{subcon_fasta_total} unit in the subconfig: {os.path.basename(fasta_file)}. ****")  
                 time.sleep(2)
                 every_subcon_count += 1    # 计数器递增
 
@@ -1737,7 +1748,7 @@ def main():
 
                 highlighted_text = f"{Fore.RED}{every_maincon_count}{ordinal_suffix_basename}{Style.RESET_ALL}" 
                 print()
-                logging.info(f"**** Start to process the {highlighted_text} sequence: {os.path.basename(fasta_file)}. ****")  
+                logging.info(f"**** Process the {highlighted_text}/{maincon_fasta_total} unit in the mainconfig: {os.path.basename(fasta_file)}. ****")  
                 time.sleep(5)
                 every_maincon_count += 1      # 计数器递增
 
@@ -2821,7 +2832,7 @@ def main():
                 # 使用colorama高亮显示计数器和序数词后缀  
                 highlighted_text = f"{Fore.RED}{every_subcon_count}{ordinal_suffix_basename}{Style.RESET_ALL}"
                 print()
-                logging.info(f"**** Start to process the {highlighted_text} sequence: {fasta_file_suffix_basename}. ****")  
+                logging.info(f"**** Refilter the {highlighted_text}/{map_results_folders_count} unit in the subconfig: {fasta_file_suffix_basename}. ****")  
                 time.sleep(2)
                 every_subcon_count += 1      # 计数器递增
                 
@@ -2869,7 +2880,7 @@ def main():
                 # 使用colorama高亮显示计数器和序数词后缀  
                 highlighted_text = f"{Fore.RED}{every_maincon_count}{ordinal_suffix_basename}{Style.RESET_ALL}"
                 print()
-                logging.info(f"**** Start to process the {highlighted_text} sequence: {fasta_file_suffix_basename}. ****")  
+                logging.info(f"**** Refilter the {highlighted_text}/{map_results_folders_count} unit in the mainconfig: {fasta_file_suffix_basename}. ****")  
                 time.sleep(2)
                 every_maincon_count += 1      # 计数器递增
                 

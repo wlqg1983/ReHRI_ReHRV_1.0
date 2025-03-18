@@ -273,7 +273,7 @@ def main():
     plasmidrender_args = adjust_plasmidrender_args(genome_length, plasmidrender_args, args)
 
     subprocess.run(['plasmidrender', '-i', json_file] + plasmidrender_args)
-    os.remove(json_file)
+    os.remove(json_file) if os.path.isfile(json_file) else None
 
 ##################################################################################################################################
 
