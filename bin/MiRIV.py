@@ -162,6 +162,122 @@ def parse_log(value):
         # 记录错误日志  
         logging.error(f"Type error in parse_log: Input type is {type(value)}, but must be a string.")  
         raise TypeError("Input must be a string.")
+
+################################################################################
+def validate_file_format(file_path):
+    expected_columns = 8
+    expected_headers = [
+        "fragment_id", "start", "end", "direction", 
+        "paired_id", "paired_start", "paired_end", "paired_direction"
+    ]
+    
+    try:
+        with open(file_path, 'r') as file:
+            # Read the header line
+            header_line = file.readline().strip()
+            headers = header_line.split('\t')
+            
+            # Check the number of columns
+            if len(headers) != expected_columns:
+                raise ValueError(f"Number of columns in the file does not match the expected format. Expected: {expected_columns}, Found: {len(headers)}")
+            
+            # Check the column names
+            if headers != expected_headers:
+                raise ValueError(f"Column names in the file do not match the expected format. Expected: {expected_headers}, Found: {headers}")
+            
+            # Check the data format for each row
+            for line_number, line in enumerate(file, start=2):
+                line = line.strip()
+                if not line:
+                    continue  # Skip empty lines
+                columns = line.split('\t')
+                if len(columns) != expected_columns:
+                    raise ValueError(f"Line {line_number} has an incorrect number of columns. Expected: {expected_columns}, Found: {len(columns)}")
+                
+                # Check if start, end, paired_start, and paired_end are integers
+                try:
+                    start = int(columns[1])
+                    end = int(columns[2])
+                    paired_start = int(columns[5])
+                    paired_end = int(columns[6])
+                except ValueError:
+                    raise ValueError(f"Line {line_number} contains invalid values for start, end, paired_start, or paired_end. Expected integers.")
+                
+                # Check if direction and paired_direction are either "plus" or "minus"
+                if columns[3] not in ["plus", "minus"] or columns[7] not in ["plus", "minus"]:
+                    raise ValueError(f"Line {line_number} contains invalid values for direction or paired_direction. Expected: 'plus' or 'minus'")
+    
+    except FileNotFoundError:
+        logging.error(f"File '{file_path}' not found.")
+        sys.exit(1)
+    except ValueError as e:
+        logging.error(f"{e}")
+        sys.exit(1)
+    except Exception as e:
+        logging.error(f"Unknown error: {e}")
+        sys.exit(1)
+
+################################################################################
+def check_rp_ids_in_color_library(file_path, color_library):
+    """
+    Check if RP-prefixed repeat sequence IDs in the file exist in the color library.
+
+    Args:
+        file_path (str): Path to the input file.
+        color_library (list): List of tuples containing RP IDs and their corresponding colors.
+
+    Returns:
+        None
+
+    Raises:
+        ValueError: If any RP ID is missing in the color library.
+        FileNotFoundError: If the file does not exist.
+    """
+    # Convert color_library to a set of RP IDs for faster lookup
+    color_library_ids = {rp_id for rp_id, _ in color_library}
+
+    # Function to extract the base RP ID (e.g., 'RP61a' -> 'RP61')
+    def extract_base_rp_id(fragment_id):
+        if fragment_id.startswith('RP'):
+            # Remove the suffix (e.g., 'a', 'b', 'aa', etc.)
+            base_rp_id = ''.join([char for char in fragment_id if char.isdigit() or (char in ['R', 'P'])])
+            return base_rp_id
+        return None
+
+    # Read the file and check for missing RP IDs
+    missing_rp_ids = set()
+
+    try:
+        with open(file_path, 'r') as file:
+            # Skip the header line
+            next(file)
+            
+            # Process each line
+            for line in file:
+                columns = line.strip().split('\t')
+                fragment_id = columns[0]
+                
+                # Extract the base RP ID
+                base_rp_id = extract_base_rp_id(fragment_id)
+                
+                # Check if the base RP ID is in the color_library
+                if base_rp_id and base_rp_id not in color_library_ids:
+                    missing_rp_ids.add(base_rp_id)
+        
+        # Report missing RP IDs
+        if missing_rp_ids:
+            error_message = f"The following repeat sequence IDs are missing in the color library: {', '.join(missing_rp_ids)}"
+            logging.error(error_message)
+            exit(1)
+        else:
+            logging.info("All RP-prefixed repeat sequence IDs are present in the color library.")
+
+    except FileNotFoundError:
+        logging.error(f"File '{file_path}' not found.")
+        exit(1)
+    except Exception as e:
+        logging.error(f"An error occurred: {e}")
+        exit(1)
         
 ##########################################################################################################################################
 def main():
@@ -371,7 +487,6 @@ def main():
     #### [color_library] section
     # 获取color_library节的所有键值对
     color_library = config.items('color_library')
-    #print(f"color_library: {color_library}")
     # 动态设置颜色变量
     color_dict = {}
 
@@ -473,12 +588,15 @@ def main():
     
     # 提前处理数据，生成5CT
     if auto_map_main in ["Y","YES"]:
-        logging.info(f"%%%%%%%%%%%%  Map the mainconfiguration! %%%%%%%%%%%%")
+        logging.info(f"%%%%%%%%%%%% Map the mainconfiguration! %%%%%%%%%%%%")
         logging.info(f"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+        
+        validate_file_format(inputfile_main)            # 检验读入的8CT是否符合程序要求的格式
+        check_rp_ids_in_color_library(inputfile_main, color_library)           # 检验重复序列有没有被设置颜色
         
         prefix = os.path.splitext(os.path.basename(inputfile_main))[0]
         os.system(f"python {current_dir}/paired_info_to_5CT.py -i {inputfile_main} -o {prefix}_{project_id}_5CT.tsv -l {genome_length_main}")
-
+        
         if not os.path.exists(f"{project_id}"):    # 创建结果存储文件夹，以project_id命名
             os.mkdir(f"{project_id}")
 
@@ -522,6 +640,8 @@ def main():
     if auto_map_inv in ["Y","YES","M"]:
         logging.info(f"%%%%%%%%%%%% Map the IR-mediated subconfiguration! %%%%%%%%%%%%")
         logging.info(f"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+        
+        validate_file_format(inputfile_inv)       # 检验读入的8CT是否符合程序要求的格式
         
         prefix = os.path.splitext(os.path.basename(inputfile_inv))[0]
         os.system(f"python {current_dir}/paired_info_to_5CT.py -i {inputfile_inv} -o {prefix}_{project_id}_5CT.tsv -l {genome_length_inv}")
@@ -626,7 +746,9 @@ def main():
     if auto_map_dr_1to2 in ["Y","YES","M"]:
         logging.info(f"%%%%%%%%%% Map the DR-mediated subconfiguration (1to2)! %%%%%%%%%%")
         logging.info(f"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-        
+
+        validate_file_format(inputfile_1to2)       # 检验读入的8CT是否符合程序要求的格式
+
         prefix = os.path.splitext(os.path.basename(inputfile_1to2))[0]
         os.system(f"python {current_dir}/paired_info_to_5CT.py -i {inputfile_1to2} -o {prefix}_{project_id}_5CT.tsv -l {genome_length_1to2}")
         
@@ -741,7 +863,10 @@ def main():
             
         if not os.path.exists(f"{project_id}"):    # 创建结果存储文件夹，以project_id命名
             os.mkdir(f"{project_id}")
-            
+
+        validate_file_format(chr1_file_2to1)       # 检验读入的8CT是否符合程序要求的格式
+        validate_file_format(chr2_file_2to1)       # 检验读入的8CT是否符合程序要求的格式
+
         prefix_chr1 = os.path.splitext(os.path.basename(chr1_file_2to1))[0]
         os.system(f"python {current_dir}/paired_info_to_5CT.py -i {chr1_file_2to1} -o {prefix_chr1}_{project_id}_5CT.tsv -l {chr1_len_2to1}")
         prefix_chr2 = os.path.splitext(os.path.basename(chr2_file_2to1))[0]
@@ -866,6 +991,9 @@ def main():
             
         if not os.path.exists(f"{project_id}"):    # 创建结果存储文件夹，以project_id命名
             os.mkdir(f"{project_id}")
+
+        validate_file_format(chr1_file_2to2)       # 检验读入的8CT是否符合程序要求的格式
+        validate_file_format(chr2_file_2to2)       # 检验读入的8CT是否符合程序要求的格式
 
         prefix_chr1 = os.path.splitext(os.path.basename(chr1_file_2to2))[0]
         os.system(f"python {current_dir}/paired_info_to_5CT.py -i {chr1_file_2to2} -o {prefix_chr1}_{project_id}_5CT.tsv -l {chr1_len_2to2}")
