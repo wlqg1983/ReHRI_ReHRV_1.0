@@ -35,7 +35,7 @@ def save_complement_sequences(fasta_file, output_file_path):
         print(f"Only one sequence should be in: {fasta_file}.")
         sys.exit(1) 
     elif len(sequences) == 0:  
-        print(f"No sequence found in: {fasta_file}.")
+        print(f"ERROR: No sequence found in: {fasta_file}.")
         sys.exit(1)  
 
     # Write the reverse complement of the sequence to the output file
@@ -47,7 +47,7 @@ def save_complement_sequences(fasta_file, output_file_path):
             
     return output_file_path
 
-##########################################################################################################################################
+################################################################################################################################################################
 def split_data_by_direct_repeat_circle(df, id1):
     # Find the index of the row with the direct repeat ID
     direct_repeat_index = df.index[df['fragment_id'] == id1].tolist()
@@ -65,10 +65,10 @@ def split_data_by_direct_repeat_circle(df, id1):
         new_df = pd.concat([second_subset, first_subset], ignore_index=True)
         return new_df
     else:
-        print(f"Direct repeat ID {id1} is not found in the DataFrame.")
+        print(f"ERROR: Direct repeat ID {id1} is not found in the DataFrame.")
         sys.exit(1)
         
-##########################################################################################################################################
+################################################################################################################################################################
 def split_fasta_by_direct_repeat_circle(chrom1_filter, id1, long_genome_seq):  
     # 将chrom1_filter转换成DataFrame，如果它还不是  
     df_filter = pd.DataFrame(chrom1_filter)  
@@ -88,7 +88,7 @@ def split_fasta_by_direct_repeat_circle(chrom1_filter, id1, long_genome_seq):
     #先检查是不是fasta格式
     file_format = check_file_format_efficient(long_genome_seq)
     if file_format != 'FASTA':
-        print(f"The infile {long_genome_seq} is not in FASTA format.")
+        print(f"ERROR: The infile {long_genome_seq} is not in FASTA format.")
         sys.exit(1)
     
     sequences = []  
@@ -106,10 +106,10 @@ def split_fasta_by_direct_repeat_circle(chrom1_filter, id1, long_genome_seq):
             sequences.append(current_sequence)  
   
     if len(sequences) > 1:  
-        print(f"Only one sequence should be in: {long_genome_seq}.")
+        print(f"ATTENTION: Only one sequence should be in: {long_genome_seq}.")
         sys.exit(1) 
     elif len(sequences) == 0:  
-        print(f"Only one sequence should be in: {long_genome_seq}.")
+        print(f"ATTENTION: Only one sequence should be in: {long_genome_seq}.")
         sys.exit(1)  
         
     genome_seq = sequences[0]
@@ -123,7 +123,7 @@ def split_fasta_by_direct_repeat_circle(chrom1_filter, id1, long_genome_seq):
     new_fasta_1_length = len(new_fasta_1)
     return new_fasta_1, new_fasta_1_length-repeat_length, new_fasta_1_length
 
-##########################################################################################################################################
+################################################################################################################################################################
 def split_data_by_direct_repeat_line(df, id1):
     # Find the index of the row with the direct repeat ID
     direct_repeat_index = df.index[df['fragment_id'] == id1].tolist()
@@ -139,10 +139,10 @@ def split_data_by_direct_repeat_line(df, id1):
 
         return first_subset, second_subset
     else:
-        print(f"Direct repeat ID {id1} is not found in the DataFrame.")
+        print(f"ERROR: Direct repeat ID {id1} is not found in the {df}.")
         sys.exit(1)
 
-##########################################################################################################################################
+################################################################################################################################################################
 def split_fasta_by_direct_repeat_line(chrom1_filter, id1, long_genome_seq):
     # 将chrom1_filter转换成DataFrame，如果它还不是  
     df_filter = pd.DataFrame(chrom1_filter)  
@@ -160,7 +160,7 @@ def split_fasta_by_direct_repeat_line(chrom1_filter, id1, long_genome_seq):
     #先检查是不是fasta格式
     file_format = check_file_format_efficient(long_genome_seq)
     if file_format != 'FASTA':
-        print(f"The infile {long_genome_seq} is not in FASTA format.")
+        print(f"ERROR: The infile {long_genome_seq} is not in FASTA format.")
         sys.exit(1)
     
     sequences = []  
@@ -178,10 +178,10 @@ def split_fasta_by_direct_repeat_line(chrom1_filter, id1, long_genome_seq):
             sequences.append(current_sequence)  
   
     if len(sequences) > 1:  
-        print(f"Only one sequence should be in: {long_genome_seq}.")
+        print(f"ERROR: Only one sequence should be in: {long_genome_seq}.")
         sys.exit(1) 
     elif len(sequences) == 0:  
-        print(f"Only one sequence should be in: {long_genome_seq}.")
+        print(f"ERROR: Only one sequence should be in: {long_genome_seq}.")
         sys.exit(1)  
     
     genome_seq = sequences[0]
@@ -195,7 +195,7 @@ def split_fasta_by_direct_repeat_line(chrom1_filter, id1, long_genome_seq):
 
     return seq_before_end, seq_after_end, seq_before_end_length, start, end
 
-##########################################################################################################################################
+################################################################################################################################################################
 def convert_length_to_start_end(table):
     # Define the header for the new 4-column table
     new_header = ["fragment_id", "start", "end", "direction"]
@@ -221,7 +221,7 @@ def convert_length_to_start_end(table):
 
     return converted_table
 
-##########################################################################################################################################
+################################################################################################################################################################
 def add_ctg(processed_data, genome_length, chr):
     
     final_data = []
@@ -259,7 +259,7 @@ def add_ctg(processed_data, genome_length, chr):
         prev_end = adjusted_end
 
     if last_end > genome_length:
-        print(f"The position of last repeat {prev_end} in the mapping information 'chrom{chr} file' exceeds the provided 'chrom{chr} fasta' length {genome_length}. Please confirm again.")
+        print(f"ERROR: The last position {last_end} exceeds the chromosome length {genome_length} of 'chr{chr}_fasta'. Please confirm again.")
         sys.exit(1)
 
     if prev_end < genome_length:
@@ -267,17 +267,17 @@ def add_ctg(processed_data, genome_length, chr):
 
     return final_data
 
-##########################################################################################################################################
+################################################################################################################################################################
 def filter_ctg_rows(eight_col_df):
     # 过滤掉以"ctg"开头的行
     return eight_col_df[~eight_col_df['fragment_id'].str.startswith('ctg')]
 
-##########################################################################################################################################
+################################################################################################################################################################
 def check_fasta_sequence_length(fasta_file_path):  
     #先检查是不是fasta格式
     file_format = check_file_format_efficient(fasta_file_path)
     if file_format != 'FASTA':
-        print(f"The infile {fasta_file_path} is not in FASTA format.")
+        print(f"ERROR: The infile {fasta_file_path} is not in FASTA format.")
         sys.exit(1)
         
     sequences = []  
@@ -295,16 +295,16 @@ def check_fasta_sequence_length(fasta_file_path):
             sequences.append(current_sequence)  
   
     if len(sequences) > 1:  
-        print(f"Only one sequence should be in: {fasta_file}.")
+        print(f"ERROR: Only one sequence should be in: {fasta_file}.")
         sys.exit(1) 
     elif len(sequences) == 0:  
-        print(f"Only one sequence should be in: {fasta_file}.")
+        print(f"ERROR: Only one sequence should be in: {fasta_file}.")
         sys.exit(1)  
     else:  
         # 返回序列的长度  
         return len(sequences[0]) 
 
-##########################################################################################################################################
+################################################################################################################################################################
 def check_file_format_efficient(file_path):
     with open(file_path, 'r') as file:
         first_line = file.readline().strip()
@@ -322,7 +322,7 @@ def check_file_format_efficient(file_path):
         else:
             return 'Unknown'
 
-##########################################################################################################################################
+################################################################################################################################################################
 def split_data_and_fasta_by_paired_direct_repeats(paired_ids, unique_ids_with_direction_1, unique_ids_with_direction_2, chrom1_file, chrom2_file, chr1_genome_type, chr2_genome_type, long_genome, short_genome, chrom1_len, chrom2_len, args):
     # 根据paired_ids，形成重组基因组对应的5CT，5CT用于绘制基因组图谱
     # 根据paired_ids，再形成8CT
@@ -331,8 +331,8 @@ def split_data_and_fasta_by_paired_direct_repeats(paired_ids, unique_ids_with_di
     auto_processed = False
 
     if len(paired_ids) == 0:
-        print("No Direct Repeat pairs found. Please check the repeat type carefully.")
-        exit(1)
+        print("ERROR: No Direct Repeat pairs found. Please check the repeat type carefully.")
+        sys.exit(1)
         
     while True:
         if args.auto and not auto_processed:
@@ -343,12 +343,10 @@ def split_data_and_fasta_by_paired_direct_repeats(paired_ids, unique_ids_with_di
             auto_processed = True
             break
         else:
-    
             user_input = input("Enter a pair of Direct Repeat IDs (e.g., RP1a RP1c, case sensitive), 'a/all' to process all, or press 'Enter Button' to exit:").strip()
-    
             if user_input == '':
                 if not selected_pairs:
-                    print("\nNo IDs entered. Program was terminated by user.")
+                    print("\nNo IDs entered. The program has automatically terminated.")
                     sys.exit(1)
                 else:
                     print("To process entered repeats...")
@@ -369,8 +367,14 @@ def split_data_and_fasta_by_paired_direct_repeats(paired_ids, unique_ids_with_di
                         prefix2 = match2.group(1)
     
                         if prefix1 == prefix2 and input_ids[0] != input_ids[1]:
+                            # 此处是为了避免id 顺序与数据集里 id 的顺序不一致
                             direction1 = unique_ids_with_direction_1.loc[unique_ids_with_direction_1['fragment_id'] == input_ids[0], 'direction'].values
                             direction2 = unique_ids_with_direction_2.loc[unique_ids_with_direction_2['fragment_id'] == input_ids[1], 'direction'].values
+                            if not direction1.size and not direction2.size:
+                                direction1 = unique_ids_with_direction_1.loc[unique_ids_with_direction_1['fragment_id'] == input_ids[1], 'direction'].values
+                                direction2 = unique_ids_with_direction_2.loc[unique_ids_with_direction_2['fragment_id'] == input_ids[0], 'direction'].values
+                                input_ids[0],input_ids[1] = input_ids[1],input_ids[0]       # 调整位置，以使后面在数据集中能找到id
+                            
                             if direction1.size > 0 and direction2.size > 0 and direction1[0] == direction2[0]:
                                 selected_pairs.append(input_ids)
                                 if input_ids in paired_ids:
@@ -379,10 +383,10 @@ def split_data_and_fasta_by_paired_direct_repeats(paired_ids, unique_ids_with_di
                                     error_count += 1
                                     print("Invalid or duplicate IDs.")
                                 if len(paired_ids) == 0:
-                                   print("All possible pairs have been added.")
-                                   break 
+                                    print("All possible pairs have been added.")
+                                    break 
                             else:
-                                print("Invalid input. The two IDs may be from different DNA strand, in the same chromosome or not found.")
+                                print("Invalid input. The two IDs should be from different chromosomes.")
                                 error_count += 1
                         else:
                             print("Invalid input. Please enter two IDs with the same prefix and different suffixes, or press 'Enter' to skip.")
@@ -398,10 +402,11 @@ def split_data_and_fasta_by_paired_direct_repeats(paired_ids, unique_ids_with_di
                 print("Too many incorrect attempts. Program will now exit.")
                 sys.exit(1)
     
-################################################################################
+    ################################################################################
     # 在 while 循环之外处理 selected_pairs
     for pair in selected_pairs:
         id1, id2 = pair
+        print(f"Processing pair: {id1}, {id2}")
         if chr1_genome_type == "C" and chr2_genome_type == "C":
             new_data_1_calibrate = split_data_by_direct_repeat_circle(unique_ids_with_direction_1, id1)
             new_data_2_calibrate = split_data_by_direct_repeat_circle(unique_ids_with_direction_2, id2)
@@ -428,6 +433,7 @@ def split_data_and_fasta_by_paired_direct_repeats(paired_ids, unique_ids_with_di
             new_fasta_2, start2, end2 = split_fasta_by_direct_repeat_circle(chrom2_filter, id2, short_genome)
             new_fasta = seq_before_end1 + new_fasta_2 + seq_after_end1
             filename = f"{args.output_file}_DR_{id1}_{id2}_2to1.fasta"
+            print(f"Writing FASTA file: {filename}")
             with open(filename, 'w') as fasta_file:                      # 根据从两个8CT形成的一个5CT，产生5CT对应的fasta
                 fasta_file.write(f">DR_{id1}_{start1}_{end1}_{id2}_{start2+seq_before_end_length1}_{end2+seq_before_end_length1}_Linear_{chrom1_len + chrom2_len}_2to1\n")  
                 # Split the sequence into lines of 100 characters for readability  
@@ -437,10 +443,9 @@ def split_data_and_fasta_by_paired_direct_repeats(paired_ids, unique_ids_with_di
             combined_new_data = pd.concat([new_data_1_calibrate1, new_data_2_calibrate, new_data_1_calibrate2], ignore_index=True)
             combined_new_data = convert_length_to_start_end(combined_new_data)
 
-################################################################################
+    ################################################################################
         # 将combined_new_data保存为5列表，用于绘图
         processed_data_with_paired_id = []
-      
         for row in combined_new_data:
             if row[0] == 'fragment_id':
                 # Change the header row
@@ -449,22 +454,19 @@ def split_data_and_fasta_by_paired_direct_repeats(paired_ids, unique_ids_with_di
                 # Add '-' to the other rows for 'paired_id'
                 row.append('-')
             processed_data_with_paired_id.append(row)
-      
+
         # File name
-        # pair.sort() # 无需排序
         file_name = f"{args.output_file}_DR_{pair[0]}_{pair[1]}_2to1_5CT.tsv"
         # Save the data to a TSV file
         with open(file_name, 'w', newline='') as file:
             writer = csv.writer(file, delimiter='\t')
             writer.writerows(processed_data_with_paired_id)
-      
-################################################################################
+
+    ################################################################################
         ####  形成新的8CT
         # 步骤0: 合并两个文件  
         merged_file = pd.concat([chrom1_file, chrom2_file], ignore_index=True)  
-        
         # 步骤1: 提取含空值的行，并检查第一列是否与 pair[0] 或 pair[1] 相等，相等则删除  
-        # 假设空值在 DataFrame 中表示为 NaN  
         drop_indices = []  
         for index, row in merged_file.iterrows():  
             if pd.isnull(row).any():  # 检查行中是否有空值  
@@ -474,83 +476,90 @@ def split_data_and_fasta_by_paired_direct_repeats(paired_ids, unique_ids_with_di
         merged_file = merged_file.drop(drop_indices).reset_index(drop=True)  
 
         # 步骤2: 替换 merged_file 的前四列  
-        # 将列表转换为 DataFrame，假设每个元素都有三个字段  
         combined_new_data = pd.DataFrame(combined_new_data, columns=['fragment_id', 'start', 'end', 'direction', 'paired_id'])  
-  
         merged_keys = merged_file.iloc[:, 0]  
         combined_keys = combined_new_data.iloc[:, 0]  
         mapping = dict(zip(combined_keys, combined_new_data.values))  
         for index, key in enumerate(merged_keys):  
             if key in mapping:  
-                replacement_row = mapping[key][:4]  # 取前四列的值  
-                merged_file.iloc[index, 0:4] = replacement_row  
-                
+                # 检查目标单元格是否为空值，并且不是固有的 paired_ids
+                if (pd.isnull(merged_file.iloc[index, 0]) or pd.isnull(merged_file.iloc[index, 1]) or 
+                    pd.isnull(merged_file.iloc[index, 2]) or pd.isnull(merged_file.iloc[index, 3])) and \
+                    key not in paired_ids:  # 跳过固有的 paired_ids
+                    replacement_row = mapping[key][:4]  # 取前四列的值  
+                    merged_file.iloc[index, 0:4] = replacement_row  
+
         # 步骤3: 替换 merged_file 的五到八列  
         for index, key in enumerate(merged_file.iloc[:, 4]):  
             if key in mapping:  
-                replacement_row = mapping[key][:4]  # 取第二到第五列的值（即，跳过第一列）  
-                merged_file.iloc[index, 4:8] = replacement_row  
+                # 检查目标单元格是否为空值，并且不是固有的 paired_ids
+                if (pd.isnull(merged_file.iloc[index, 4]) or pd.isnull(merged_file.iloc[index, 5]) or 
+                    pd.isnull(merged_file.iloc[index, 6]) or pd.isnull(merged_file.iloc[index, 7])) and \
+                    key not in paired_ids:  # 跳过固有的 paired_ids
+                    replacement_row = mapping[key][:4]  # 取第二到第五列的值（即，跳过第一列）  
+                    merged_file.iloc[index, 4:8] = replacement_row  
 
-        # 步骤4: 根据 pair 追加行到 merged_file  
-        # 初始化一个空的 DataFrame，用于积累符合条件的行  
-        accumulated_rows = pd.DataFrame()  
-  
-        # 迭代 combined_new_data 中的每一行  
-        for index, row in combined_new_data.iterrows():  
-            if row.iloc[0] == pair[0] or row.iloc[0] == pair[1]:  
-                # 如果行符合条件，则将其前4个元素转换为 DataFrame  
-                # 假设 row 是一个 Series，我们先将其转换为 DataFrame，然后选择前4列（如果存在）  
-                selected_elements = row.iloc[:4]  # 取前4个元素  
-                row_df = selected_elements.to_frame().T  # 转换为 DataFrame 并进行转置  
-          
-                # 如果 accumulated_rows 为空，则直接使用当前行  
-                if accumulated_rows.empty:  
-                    accumulated_rows = row_df  
-                else:  
-                    # 否则，尝试将新行追加到 accumulated_rows（这里需要确保列名匹配或重置列名）  
-                    # 如果列名不匹配，可以使用 reset_index 和 rename 方法来调整  
-                    accumulated_rows = pd.concat([accumulated_rows, row_df], ignore_index=True)  
-        # 如果 accumulated_rows 不为空，则将其追加到 merged_file  
-        if not accumulated_rows.empty:  
+        # 步骤4: 根据 pair 追加行到 merged_file
+        accumulated_rows = pd.DataFrame()
+        for index, row in combined_new_data.iterrows():
+            if row.iloc[0] == pair[0] or row.iloc[0] == pair[1]:
+                # 检查新的 paired_ids 是否与固有的 paired_ids 冲突
+                if row.iloc[0] not in paired_ids and row.iloc[4] not in paired_ids:
+                    selected_elements = row.iloc[:4]  # 取前4个元素
+                    row_df = selected_elements.to_frame().T  # 转换为 DataFrame 并进行转置
+                    accumulated_rows = pd.concat([accumulated_rows, row_df], ignore_index=True)
+        
+        # 如果 accumulated_rows 不为空，则将其追加到 merged_file
+        if not accumulated_rows.empty:
             merged_file = pd.concat([merged_file, accumulated_rows], ignore_index=True)
         
         # 查找并替换操作  
         for index, row in merged_file.iterrows():  
             if row['fragment_id'] == pair[0]:  
                 paired_row = combined_new_data[combined_new_data['fragment_id'] == pair[1]].iloc[0]  
-                merged_file.at[index, 'paired_id'] = paired_row['fragment_id']  
-                merged_file.at[index, 'paired_start'] = paired_row['start']  
-                merged_file.at[index, 'paired_end'] = paired_row['end']  
-                merged_file.at[index, 'paired_direction'] = paired_row['direction']  
+                # 检查目标单元格是否为空值，并且不是固有的 paired_ids
+                if pd.isnull(merged_file.at[index, 'paired_id']) and row['fragment_id'] not in paired_ids:  
+                    merged_file.at[index, 'paired_id'] = paired_row['fragment_id']  
+                if pd.isnull(merged_file.at[index, 'paired_start']) and row['fragment_id'] not in paired_ids:  
+                    merged_file.at[index, 'paired_start'] = paired_row['start']  
+                if pd.isnull(merged_file.at[index, 'paired_end']) and row['fragment_id'] not in paired_ids:  
+                    merged_file.at[index, 'paired_end'] = paired_row['end']  
+                if pd.isnull(merged_file.at[index, 'paired_direction']) and row['fragment_id'] not in paired_ids:  
+                    merged_file.at[index, 'paired_direction'] = paired_row['direction']  
+
         # 查找并替换操作  
         for index, row in merged_file.iterrows():  
             if row['fragment_id'] == pair[1]:  
                 paired_row = combined_new_data[combined_new_data['fragment_id'] == pair[0]].iloc[0]  
-                merged_file.at[index, 'paired_id'] = paired_row['fragment_id']  
-                merged_file.at[index, 'paired_start'] = paired_row['start']  
-                merged_file.at[index, 'paired_end'] = paired_row['end']  
-                merged_file.at[index, 'paired_direction'] = paired_row['direction']  
+                # 检查目标单元格是否为空值，并且不是固有的 paired_ids
+                if pd.isnull(merged_file.at[index, 'paired_id']) and row['fragment_id'] not in paired_ids:  
+                    merged_file.at[index, 'paired_id'] = paired_row['fragment_id']  
+                if pd.isnull(merged_file.at[index, 'paired_start']) and row['fragment_id'] not in paired_ids:  
+                    merged_file.at[index, 'paired_start'] = paired_row['start']  
+                if pd.isnull(merged_file.at[index, 'paired_end']) and row['fragment_id'] not in paired_ids:  
+                    merged_file.at[index, 'paired_end'] = paired_row['end']  
+                if pd.isnull(merged_file.at[index, 'paired_direction']) and row['fragment_id'] not in paired_ids:  
+                    merged_file.at[index, 'paired_direction'] = paired_row['direction']  
 
-        # 步骤5: 去除重复行  去除重复的表头
-        merged_file = merged_file.drop_duplicates()    # 初级去重
-  
+        # 步骤5: 去除重复行  
+        merged_file = merged_file.drop_duplicates()  
+
         # 分割数据为含有空值和不含有空值的两部分  
         nan_rows = merged_file[merged_file.isnull().any(axis=1)]  
         non_nan_rows = merged_file[~merged_file.isnull().any(axis=1)]  
-  
+
         # 创建一个新列，其中包含排序后的fragment_id和paired_id的元组  
         def create_sorted_id_tuple(row):  
             fragment_id = row['fragment_id']  
             paired_id = row['paired_id']  
             # 对fragment_id和paired_id进行排序  
             sorted_ids = sorted([(fragment_id, paired_id), (paired_id, fragment_id)])  
-            # 返回排序后的第一个元组（因为两个元组是排序后的，所以它们中的任何一个都可以作为唯一标识符）  
+            # 返回排序后的第一个元组  
             return sorted_ids[0]  
-  
-        # 假设non_nan_rows是一个DataFrame，且其索引是有效的  
+
         non_nan_rows = non_nan_rows.copy()
         non_nan_rows.loc[:, 'sorted_id_tuple'] = non_nan_rows.apply(create_sorted_id_tuple, axis=1)
-  
+
         # 查找相同的行并记录index  
         duplicate_dict = {}  
         duplicate_indices = []  
@@ -560,19 +569,46 @@ def split_data_and_fasta_by_paired_direct_repeats(paired_ids, unique_ids_with_di
                 duplicate_indices.append(index)  
             else:  
                 duplicate_dict[sorted_id_tuple] = index  
-  
-        # 保留每组重复项的第一项（即duplicate_dict中记录的索引对应的行）  
+
+        # 保留每组重复项的第一项  
         unique_non_nan_rows = non_nan_rows.drop(duplicate_indices)  
-  
         # 最终的DataFrame，包含含有空值的行和去重后的不含空值的行  
         final_merged_file = pd.concat([nan_rows, unique_non_nan_rows], ignore_index=True)
-        merged_file = final_merged_file.iloc[:, :8]
-        
-        # 步骤5: 保存merged_file为 TSV 文件，文件名格式为 "DR_{pair[0]}_{pair[1]}_2to1_map.tsv"  
+        merged_file = final_merged_file.iloc[:, :8]  # 只保留前8列
+        merged_file = align_data(merged_file, processed_data_with_paired_id) 
+
+        # 步骤6: 保存merged_file为 TSV 文件，文件名格式为 "DR_{pair[0]}_{pair[1]}_2to1_map.tsv"  
         csv_filename = f"DR_{pair[0]}_{pair[1]}_2to1_map.tsv"  
         merged_file.to_csv(csv_filename, sep='\t', index=False)  
 
-##########################################################################################################################################
+################################################################################################################################################################
+def align_data(merged_file, processed_data_with_paired_id):
+    # 这个函数的核心功能是把 merged_file 里的位置信息和 processed_data_with_paired_id 对齐
+    # 确保 merged_file 中的 fragment_id 和 paired_id 对应的位置信息是准确的。
+
+    if isinstance(processed_data_with_paired_id, list):
+        columns = ['fragment_id', 'start', 'end', 'type', 'paired_id']
+        processed_data_with_paired_id = pd.DataFrame(processed_data_with_paired_id, columns=columns)
+    
+    for index, row in merged_file.iterrows():
+        fragment_id = row['fragment_id']
+        paired_id = row['paired_id']
+
+        match_fragment = processed_data_with_paired_id[processed_data_with_paired_id['fragment_id'] == fragment_id]
+        if not match_fragment.empty:
+            merged_file.at[index, 'start'] = match_fragment['start'].values[0]
+            merged_file.at[index, 'end'] = match_fragment['end'].values[0]
+            merged_file.at[index, 'direction'] = match_fragment['type'].values[0]
+
+        if pd.notna(paired_id):
+            match_paired = processed_data_with_paired_id[processed_data_with_paired_id['fragment_id'] == paired_id]
+            if not match_paired.empty:
+                merged_file.at[index, 'paired_start'] = match_paired['start'].values[0]
+                merged_file.at[index, 'paired_end'] = match_paired['end'].values[0]
+                merged_file.at[index, 'paired_direction'] = match_paired['type'].values[0]
+    return merged_file
+
+################################################################################################################################################################
 def complementary_strand_5CT_and_fasta(data):
     df = pd.DataFrame(data)  
   
@@ -632,8 +668,8 @@ def drop_duplicates_in_8CT(merged_file):
     
     return merged_file
     
-##########################################################################################################################################
-##########################################################################################################################################
+################################################################################################################################################################
+################################################################################################################################################################
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process data from external files.")
     parser.add_argument('-i', '--chrom1_file', required=True, help="Path to the chrom1 data file (8CT).")
@@ -651,9 +687,10 @@ if __name__ == "__main__":
     except argparse.ArgumentError as e:
         parser.print_help()
         sys.exit(1)
-        
-    print("The following operation is to combine two chromosomes into one chromosome.")
-    print("Make sure the two chromosomes come from the same DNA strand, e.g., all from plus or minus strand!")
+    print()
+    print("ATTENTION: The following operation is to combine two chromosomes into one chromosome.")
+    print("ATTENTION: Make sure the two chromosomes come from the same DNA strand, e.g., all from plus or minus strand!")
+    print()
     time.sleep(5)
     
     chr1_genome_type = args.chr1_genome_type
@@ -670,16 +707,15 @@ if __name__ == "__main__":
         chrom1_file = pd.read_csv(args.chrom1_file, sep='\t', header=0)
         chrom1_file = drop_duplicates_in_8CT(chrom1_file)
     else:
-        print(f"{args.chrom1_file} non-exist.")
+        print(f"ERROR: {args.chrom1_file} non-exist.")
         sys.exit(1)
 
     if os.path.isfile(f"{args.chrom2_file}"):
         chrom2_file = pd.read_csv(args.chrom2_file, sep='\t', header=0)
         chrom2_file = drop_duplicates_in_8CT(chrom2_file)
     else:
-        print(f"{args.chrom2_file} non-exist.")
+        print(f"ERROR: {args.chrom2_file} non-exist.")
         sys.exit(1)
-
 
     # Create a new DataFrame with the first four columns
     chrom1_filter_top = chrom1_file.iloc[:, :4].copy()
@@ -752,7 +788,7 @@ if __name__ == "__main__":
     duplicates = new_data2['fragment_id'].isin(new_data1['fragment_id'])  
     # 检查是否存在重复值  
     if duplicates.any():  
-        print("There are duplicate IDs in two datasets, please confirm.")  
+        print("ERROR: There are duplicate IDs in two datasets, please confirm.")  
         sys.exit(1)  # 如果存在重复值，则停止程序运行  
 
     # 根据 new_data1 的 'fragment_id' , 'length'和 'direction' 列，去除重复的行
@@ -768,7 +804,7 @@ if __name__ == "__main__":
     
     # 创建一个空列表来存储可以配对的 DR_ID
     paired_ids = []
-    # 创建一个空列表，存储将一条染色体互补翻转(complementary flipped strand)后可以配对的 DR_ID
+    # 创建一个空列表，存储将一条染色体互补翻转(flipped strand)后可以配对的 DR_ID
     paired_ids_CS = [] 
     
     # 遍历 chromosome1 中的每个 ID
@@ -798,20 +834,21 @@ if __name__ == "__main__":
 ################################################################################
     # 打印正向重复序列配对的 ID
     if paired_ids:
-        print("The following IDs are from paired direct repeats based on your repeat info, which may mediate genome recombination:")
+        print("The following IDs are from paired Direct Repeats based on your repeat info, which may mediate genome recombination:")
         for i, pair in enumerate(paired_ids, start=1):
             print(f"{i}. {pair}")
-            
+        
         # 根据paired_ids，形成重组基因组对应的5CT，5CT用于绘制基因组图谱，# unique_ids_with_direction_1, unique_ids_with_direction_2, 包含['fragment_id', 'length', 'direction'] 三列内容
         split_data_and_fasta_by_paired_direct_repeats(paired_ids, unique_ids_with_direction_1, unique_ids_with_direction_2, chrom1_file, chrom2_file, chr1_genome_type, chr2_genome_type, args.long_genome, args.short_genome, chrom1_len, chrom2_len, args)
 
 ################################################################################
     # 打印反向重复序列配对的 ID，但是将其中一条染色体取互补链，反向重复序列对就可以变为正向重复序列对
     if paired_ids_CS and comp_ch_2to1_log:  
-        print("The following IDs are from paired Inverted Repeats, which can become paired Direct Repeats when one of the provided chromosomes takes the complementary strand.")
+        print("The following IDs are from paired Inverted Repeats, which can become paired Direct Repeats when one of the chromosomes flipped.")
         print(f"Take the complementary strand of the second chromosome {args.chrom2_file} and draw the possible genome rearrangement maps.")
         for i, pair in enumerate(paired_ids_CS, start=1):
             print(f"{i}. {pair}")
+
         # 对于paired_ids_CS，需要对一条染色体的5CT进行翻转处理，仅对unique_ids_with_direction_2进行处理
         unique_ids_with_direction_2 = complementary_strand_5CT_and_fasta(unique_ids_with_direction_2)
         short_genome = save_complement_sequences(args.short_genome, 'output_temp_file.fasta') 

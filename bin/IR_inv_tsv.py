@@ -173,7 +173,7 @@ def update_inputfasta(data_5CT, id1, id2, inputfasta, output_file, genome_type):
     elif genome_type == "L":
         genome_type = "Linear"
     else:
-        print("The provided genome type was invalid! It should be C/L.")
+        print("ERROR: The provided genome type was invalid! It should be C/L.")
         sys.exit(1)
 
     # 假设data_5CT是一个文件路径，我们需要先从文件中读取数据并构建一个字段映射  
@@ -286,7 +286,7 @@ def main():
     filtered_pairs = data_8CT_clean[data_8CT_clean['direction'] != data_8CT_clean['paired_direction']].dropna(subset=['fragment_id', 'paired_id'])[['fragment_id', 'paired_id']].drop_duplicates().values.tolist()
 
     if not filtered_pairs:
-        print("No Inverted Repeat found. Please carefully check the repeat type.")
+        print("ERROR: No Inverted Repeat found. Please carefully check the repeat type.")
         sys.exit(1)
 
     if filtered_pairs:
@@ -327,7 +327,7 @@ def main():
                 else:
                     error_count += 1
                     if error_count >= 3:
-                        print("Too many incorrect attempts. Program will now exit.")
+                        print("ERROR: Too many incorrect attempts. Program will now exit.")
                         sys.exit(1)
                     print("Invalid or duplicate ID pair. Please check again!")
                     

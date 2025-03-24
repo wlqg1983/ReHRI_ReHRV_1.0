@@ -99,8 +99,8 @@ def validate_color_format(color_str):
             return 'RGB'  # Indicates that the input is in RGB format
 
         # If none of the above conditions are met, the format is unknown or not recognized
-        print("Custom color is not recognised. Please check the spelling of words, the range of hexadecimal numbers, or the RGB format.")
-        print(f"Problematic color value: {color}")
+        print("ERROR: Custom color is not recognised. Please check the spelling of words, the range of hexadecimal numbers, or the RGB format.")
+        print(f"ATTENTION: Problematic color value: {color}")
         sys.exit(1)
 
     # If the function reaches this point, the color format is unknown

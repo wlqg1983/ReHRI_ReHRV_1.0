@@ -81,7 +81,7 @@ if __name__ == "__main__":
         df_main = pd.read_csv(args.mainconfig_reads, sep='\t', header=0)
         df_sub = pd.read_csv(args.subconfig_reads, sep='\t', header=0)
     except FileNotFoundError:
-        print("One or both of the input files were not found.")
+        print("ERROR: One or both of the input files were not found.")
         sys.exit(1)
 
     # Process columns and split

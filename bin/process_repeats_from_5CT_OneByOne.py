@@ -63,7 +63,7 @@ def main():
         # 计算序列的长度
         sequence_length = len(sequence_record.seq)
     else:
-        print(f"Genome sequence {fasta_file} file not found.")
+        print(f"ERROR: Genome sequence {fasta_file} file not found.")
         sys.exit(1)
 
     # 截取序列并保存为新的FASTA文件

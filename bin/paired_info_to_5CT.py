@@ -21,9 +21,9 @@ def process_repeat_type(combined_df):
     # 检查 unique_fragment_ids 的格式
     for fragment_id in unique_fragment_ids:
         if not pattern.match(fragment_id):
-            raise ValueError(f"The format of Repeat name '{fragment_id}' is invalid.")
-            print(f"It must start with letters and be followed by one or more numbers (e.g., 'A1', 'AB2').")
-            print("The same Repeat unit can be distinguished by different letter suffixes, which is optional.")
+            print(f"ERROR: The format of Repeat name '{fragment_id}' is invalid.")
+            print(f"ATTNTION: It must start with letters and be followed by one or more numbers (e.g., 'A1', 'AB2').")
+            print("ATTNTION: The same Repeat unit can be distinguished by different letter suffixes, which is optional.")
             sys.exit(1)
     
     # 检查 unique_fragment_ids 的数量,超过30，则停止程序。

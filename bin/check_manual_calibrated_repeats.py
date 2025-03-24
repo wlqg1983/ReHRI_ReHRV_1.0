@@ -16,7 +16,7 @@ def extract_chromosome_number(chromosome):
     match = re.search(r'^chr\d+$', cleaned_chromosome)
     if not match:
         raise ValueError("The chromosome number format should be chr1, chr2,..., chr10,..., chr100, etc.")
-        exit(1)
+
     # 提取编号中的数字部分，用于排序
     return int(re.search(r'\d+', cleaned_chromosome).group())
 
@@ -26,8 +26,8 @@ def validate_manual_calibrated_list(manual_calibrated_list, count):
     num_columns = manual_calibrated_list.shape[1]
 
     if num_columns != 6:
-        raise ValueError("ERROR: The format of the input repetitive sequence information is incorrect.")
-        raise ValueError("The correct header should be: fragment_id, length, start, end, direction, chromosome. (TSV format)\n")
+        print("ERROR: The format of the input repetitive sequence information is incorrect.")
+        print("ATTENTION: The correct header should be: fragment_id, length, start, end, direction, chromosome. (TSV format)\n")
         exit(1)
 
     # 去重检查染色体编号, # 检查并排序染色体编号
@@ -43,7 +43,6 @@ def validate_manual_calibrated_list(manual_calibrated_list, count):
 
     if len(sorted_chromosomes) != count:
         raise ValueError(f"The number of chromosomes you provided is inconsistent with the the number of chromosome numbers in file {manual_calibrated_list}.")
-        exit(1)
     else:
         return sorted_chromosomes
 
@@ -101,23 +100,10 @@ def check_direction(df):
         end = row['end']
         if direction == 'plus' and end <= start:
             raise ValueError(f"Error in row {index + 1}: When direction is 'plus', 'end' should be > 'start'.")
-            raise ValueError(row)
-            exit(1)
+
         elif direction == 'minus' and end >= start:
             raise ValueError(f"Error in row {index + 1}: When direction is 'minus', 'end' should be < 'start'.")
-            raise ValueError(row)
-            exit(1)
             
-    # 检查 fragment_id 相同的行，direction 不能全部为 minus
-    #grouped = df.groupby('fragment_id')
-    #for fragment_id, group in grouped:
-    #    directions = group['direction'].tolist()
-    #    if all(d == 'minus' for d in directions):
-    #        raise ValueError(f"Error: For fragment_id '{fragment_id}', please use 'plus' position information to represent the repeats.")
-    #        raise ValueError(group)
-    #        exit(1)
-
-
 ######################################################################################################################################################################
 ################################################################################
 def main():
@@ -165,8 +151,8 @@ def main():
         # 检查列数
         num_columns = manual_calibrated_list.shape[1]
         if num_columns != 5:
-            print("The format of the input repetitive sequence information is incorrect.")
-            print("The correct header should be: fragment_id, length, start, end, direction. (tsv format)\n")
+            print("ERROR: The format of the input repetitive sequence information is incorrect.")
+            print("ATTENTION: The correct header should be: fragment_id, length, start, end, direction. (tsv format)\n")
             exit(1)
         # 取前5列
         adjusted_list = manual_calibrated_list.iloc[:, :5]

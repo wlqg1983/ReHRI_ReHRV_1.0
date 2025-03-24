@@ -460,7 +460,7 @@ if __name__ == "__main__":
     # Check the number of specific arguments
     required_args = ['subconfig_reads', 'mainconfig_reads', 'repfile', 'rep_calibration', 'output','read_number','reverse_complement']
     if not all(getattr(args, arg, None) for arg in required_args):
-        print("Incorrect number of external parameters. Please provide the correct parameters.")
+        print("ERROR: Incorrect number of external parameters. Please provide the correct parameters.")
         # Add additional information or usage instructions if needed
         exit(1)
 

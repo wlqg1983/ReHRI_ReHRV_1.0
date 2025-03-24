@@ -46,19 +46,19 @@ def separate_args(external_args):
         i += 1
 
     if '-cp' in plasmidrender_args and has_plasmidrender:
-        print("The '-cp' needs to be used separately.")
+        print("ERROR: The '-cp' needs to be used separately.")
         sys.exit(1)
 
     if not has_five_ct:
-        print("The '-i' option is required. Please provide an input file.")
+        print("ERROR: The '-i' option is required. Please provide an input file.")
         sys.exit(1)
 
     if has_five_ct and ('-c' not in five_ct_args and '-cf' not in five_ct_args):
-        print("Either -c or -cf option is required. Please provide one of them.")
+        print("ERROR: Either -c or -cf option is required. Please provide one of them.")
         sys.exit(1)
 
     if has_plasmidrender and ('-os' not in plasmidrender_args and '-op' not in plasmidrender_args):
-        print("Either -os or -op option is required for plasmidrender. Please provide one or two of them.")
+        print("ERROR: Either -os or -op option is required for plasmidrender. Please provide one or two of them.")
         sys.exit(1)
 
     if not genome_length:

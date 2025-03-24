@@ -123,7 +123,7 @@ def update_inputfasta(data_5CT, id1, id2, inputfasta, output_file, genome_type):
     #先检查是不是fasta格式
     file_format = check_file_format_efficient(inputfasta)
     if file_format != 'FASTA':
-        print(f"The infile {inputfasta} is not in FASTA format.")
+        print(f"ERROR: The infile {inputfasta} is not in FASTA format.")
         sys.exit(1)
     
     sequences = []  
@@ -141,10 +141,10 @@ def update_inputfasta(data_5CT, id1, id2, inputfasta, output_file, genome_type):
             sequences.append(current_sequence)  
   
     if len(sequences) > 1:  
-        print(f"At least one sequence should be in: {inputfasta}.")
+        print(f"ERROR: Only one sequence should be in: {inputfasta}.")
         sys.exit(1) 
     elif len(sequences) == 0:  
-        print(f"At least one sequence should be in: {inputfasta}.")
+        print(f"ERROR: At least one sequence should be in: {inputfasta}.")
         sys.exit(1)  
         
         
@@ -155,7 +155,7 @@ def update_inputfasta(data_5CT, id1, id2, inputfasta, output_file, genome_type):
     elif genome_type == "L":
         genome_type = "Linear"
     else:
-        print("The provided genome type was invalid! It should be C/L.")
+        print("ERROR: The provided genome type was invalid! It should be C/L.")
         sys.exit(1)
 
     # 假设data_5CT是一个文件路径，我们需要先从文件中读取数据并构建一个字段映射  
@@ -340,7 +340,7 @@ def main():
     .tolist()]
 
     if not filtered_pairs:
-        print("No Direct Repeat pairs found. Please check the repeat type carefully.")
+        print("ATTENTION: No Direct Repeat pairs found. Please check the repeat type carefully.")
         sys.exit(1)
 
     if not args.auto and filtered_pairs:
@@ -351,7 +351,7 @@ def main():
         selected_pairs = []
         error_count = 0
         while filtered_pairs:
-            user_input = input("Enter a pair of Direct Repeat sequence IDs (e.g., RP1a RP1b, case sensitive), 'a/all' to process all, or press 'Enter Button' to exit: ").strip()
+            user_input = input("Enter paired Direct Repeat sequence IDs (e.g., RP1a RP1b, case sensitive), 'a/all' to process all, or press 'Enter' to exit: ").strip()
             
             if user_input.lower() == 'a' or user_input.lower() == 'all':
                 for pair in filtered_pairs:
@@ -378,7 +378,7 @@ def main():
                 else:
                     error_count += 1
                     if error_count >= 3:
-                        print("Too many incorrect attempts. Program will now exit.")
+                        print("ERROR: Too many incorrect attempts. Program will now exit.")
                         sys.exit(1)
                     print("Invalid or duplicate ID pair.")
                     

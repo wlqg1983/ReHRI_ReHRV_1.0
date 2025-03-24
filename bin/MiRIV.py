@@ -53,7 +53,6 @@ def run_command(command, output_file=None, append=False, add_header=False, heade
         logging.info(f"Executing command: {' '.join(command)}")
 
         # 修改subprocess.run调用，捕获stdout和stderr
-        #result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, text=True)
         result = subprocess.run(command, shell=True, capture_output=True, text=True)
 
         # 记录标准输出
@@ -81,6 +80,8 @@ def run_command(command, output_file=None, append=False, add_header=False, heade
         # 捕获其他异常
         logging.error(f"Unexpected error: {e}")
         sys.exit(1)
+    except KeyboardInterrupt:
+        logging.info("User terminated the program using Ctrl+C.")
 
 ################################################################################
 def validate_positive_integer(value, param_name):
@@ -170,7 +171,10 @@ def validate_file_format(file_path):
         "fragment_id", "start", "end", "direction", 
         "paired_id", "paired_start", "paired_end", "paired_direction"
     ]
-    
+
+    # 在错误信息中提取文件名
+    file_name = os.path.basename(file_path)
+
     try:
         with open(file_path, 'r') as file:
             # Read the header line
@@ -179,33 +183,39 @@ def validate_file_format(file_path):
             
             # Check the number of columns
             if len(headers) != expected_columns:
-                raise ValueError(f"Number of columns in the file does not match the expected format. Expected: {expected_columns}, Found: {len(headers)}")
+                raise ValueError(f"Number of columns in the file {file_name} does not match the expected format. Expected: {expected_columns}, Found: {len(headers)}")
             
             # Check the column names
             if headers != expected_headers:
-                raise ValueError(f"Column names in the file do not match the expected format. Expected: {expected_headers}, Found: {headers}")
+                raise ValueError(f"Column names in the file {file_name} do not match the expected format. Expected: {expected_headers}, Found: {headers}")
             
             # Check the data format for each row
             for line_number, line in enumerate(file, start=2):
-                line = line.strip()
-                if not line:
+                line = line.replace(' ', '').replace('\r', '').replace('\n', '')              # 这里保留/t，但去掉其他的空白字符
+                if not line: 
                     continue  # Skip empty lines
+                
+                # 计算 /t 的个数
+                tab_count = line.count('\t')
+
+                # Check the number of columns based on tab count
+                if tab_count != expected_columns - 1:
+                    raise ValueError(f"Line {line_number} in the file {file_name} has an incorrect number of columns. Expected: {expected_columns}, Found: {tab_count + 1}")
+                
                 columns = line.split('\t')
-                if len(columns) != expected_columns:
-                    raise ValueError(f"Line {line_number} has an incorrect number of columns. Expected: {expected_columns}, Found: {len(columns)}")
                 
                 # Check if start, end, paired_start, and paired_end are integers
                 try:
-                    start = int(columns[1])
-                    end = int(columns[2])
-                    paired_start = int(columns[5])
-                    paired_end = int(columns[6])
+                    start = int(float(columns[1])) if columns[1] else None
+                    end = int(float(columns[2])) if columns[2] else None
+                    paired_start = int(float(columns[5])) if columns[5] else None
+                    paired_end = int(float(columns[6])) if columns[6] else None
                 except ValueError:
-                    raise ValueError(f"Line {line_number} contains invalid values for start, end, paired_start, or paired_end. Expected integers.")
+                    raise ValueError(f"Line {line_number} in the file {file_name} contains invalid values for start, end, paired_start, or paired_end. Expected integers.")
                 
                 # Check if direction and paired_direction are either "plus" or "minus"
-                if columns[3] not in ["plus", "minus"] or columns[7] not in ["plus", "minus"]:
-                    raise ValueError(f"Line {line_number} contains invalid values for direction or paired_direction. Expected: 'plus' or 'minus'")
+                if columns[3] not in ["plus", "minus", ""] or columns[7] not in ["plus", "minus", ""]:
+                    raise ValueError(f"Line {line_number} in the file {file_name} contains invalid values for direction or paired_direction. Expected: 'plus' or 'minus'")
     
     except FileNotFoundError:
         logging.error(f"File '{file_path}' not found.")
@@ -216,7 +226,10 @@ def validate_file_format(file_path):
     except Exception as e:
         logging.error(f"Unknown error: {e}")
         sys.exit(1)
-
+    except KeyboardInterrupt:
+        logging.info("User terminated the program using Ctrl+C.")
+        
+        
 ################################################################################
 def check_rp_ids_in_color_library(file_path, color_library):
     """
@@ -268,16 +281,19 @@ def check_rp_ids_in_color_library(file_path, color_library):
         if missing_rp_ids:
             error_message = f"The following repeat sequence IDs are missing in the color library: {', '.join(missing_rp_ids)}"
             logging.error(error_message)
-            exit(1)
+            print()
+            sys.exit(1)
         else:
             logging.info("All RP-prefixed repeat sequence IDs are present in the color library.")
 
     except FileNotFoundError:
         logging.error(f"File '{file_path}' not found.")
-        exit(1)
+        sys.exit(1)
     except Exception as e:
         logging.error(f"An error occurred: {e}")
-        exit(1)
+        sys.exit(1)
+    except KeyboardInterrupt:
+        logging.info("User terminated the program using Ctrl+C.")
         
 ##########################################################################################################################################
 def main():
@@ -291,6 +307,8 @@ def main():
     except argparse.ArgumentError as e:
         parser.print_help()
         sys.exit(1)
+    except KeyboardInterrupt:
+        logging.info("User terminated the program using Ctrl+C.")
 
     # Set up logging to console only
     setup_logging(mode='w', include_file_handler=True)
@@ -316,14 +334,14 @@ def main():
     try:
         # 提醒用户进行颜色方案的设置
         print()
-        print("Attention: Please ensure  each repeat is colored in the [color_library] section in the '.ini' file.")
-        print("Attention: Different repeats must do not have the same color.")
-        print("Attention: After 10 seconds, the program will continue to be executed.")
+        logging.info("ATTENTION: Ensure each repeat is colored in the '[color_library]' section of the '.ini' file.")
+        logging.info("ATTENTION: Different repeats must have unique colors.")
+        logging.info("ATTENTION: The program will resume execution after 10 seconds.")
         print()
         # 等待 10 秒
         time.sleep(10)
     except KeyboardInterrupt:
-        print("User terminated the program using Ctrl+C.")
+        logging.info("User terminated the program using Ctrl+C.")
     
 ################################################################################
     ######## [mainconfiguration] section
@@ -406,7 +424,7 @@ def main():
     auto_map_dr_2to1 = config['DR_mediated_recomb_2to1'].get('auto_map', 'N').upper()
     output_dir_prefix_dr_2to1 = config['DR_mediated_recomb_2to1'].get('output_directory_prefix', 'DR_2to1')
     if auto_map_dr_2to1 in ["Y","YES","M"]:
-        comp_ch_2to1_log = config['DR_mediated_recomb_2to1'].get('complementary_chain', 'Y').upper()
+        comp_ch_2to1_log = config['DR_mediated_recomb_2to1'].get('flip_chain', 'Y').upper()
         chr1_file_2to1 = config['DR_mediated_recomb_2to1'].get('chr1_file', '')
         chr2_file_2to1 = config['DR_mediated_recomb_2to1'].get('chr2_file', '')
         chr1_fasta_2to1 = config['DR_mediated_recomb_2to1'].get('chr1_fasta', '')
@@ -429,7 +447,7 @@ def main():
             logging.error(f"The 'chr2_type' in [DR_mediated_recomb_2to1] section must be 'C'!")
             sys.exit(1)
         if comp_ch_2to1_log not in ['Y','YES','N','NO']:
-            logging.error(f"The 'complementary_chain' parameter in the '[DR_mediated_recomb_2to1]' section should be one of '['Y','YES','N','NO']'.")
+            logging.error(f"The 'flip_chain' parameter in the '[DR_mediated_recomb_2to1]' section should be one of '['Y','YES','N','NO']'.")
             sys.exit(1)
             
         chr1_len_2to1 = check_fasta_sequence_length(chr1_fasta_2to1)
@@ -447,7 +465,7 @@ def main():
     auto_map_dr_2to2 = config['DR_mediated_recomb_2to2'].get('auto_map', 'N').upper()
     output_dir_prefix_dr_2to2 = config['DR_mediated_recomb_2to2'].get('output_directory_prefix', 'DR_2to2')
     if auto_map_dr_2to2 in ["Y","YES","M"]:
-        comp_ch_2to2_log = config['DR_mediated_recomb_2to1'].get('complementary_chain', 'Y').upper()
+        comp_ch_2to2_log = config['DR_mediated_recomb_2to1'].get('flip_chain', 'Y').upper()
         chr1_file_2to2 = config['DR_mediated_recomb_2to2'].get('chr1_file', '')
         chr2_file_2to2 = config['DR_mediated_recomb_2to2'].get('chr2_file', '')
         chr1_fasta_2to2 = config['DR_mediated_recomb_2to2'].get('chr1_fasta', '')
@@ -459,7 +477,7 @@ def main():
             logging.error(f"The 'chrosome sequences' in [DR_mediated_recomb_2to2] section were not provided completely!")
             sys.exit(1)
         if comp_ch_2to2_log not in ['Y','YES','N','NO']:
-            logging.error(f"The 'complementary_chain' parameter in the '[DR_mediated_recomb_2to2]' section should be one of '['Y','YES','N','NO']'.")
+            logging.error(f"The 'flip_chain' parameter in the '[DR_mediated_recomb_2to2]' section should be one of '['Y','YES','N','NO']'.")
             sys.exit(1)
             
         chr1_len_2to2 = check_fasta_sequence_length(chr1_fasta_2to2)
@@ -642,6 +660,7 @@ def main():
         logging.info(f"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
         
         validate_file_format(inputfile_inv)       # 检验读入的8CT是否符合程序要求的格式
+        check_rp_ids_in_color_library(inputfile_inv, color_library)           # 检验重复序列有没有被设置颜色
         
         prefix = os.path.splitext(os.path.basename(inputfile_inv))[0]
         os.system(f"python {current_dir}/paired_info_to_5CT.py -i {inputfile_inv} -o {prefix}_{project_id}_5CT.tsv -l {genome_length_inv}")
@@ -748,6 +767,7 @@ def main():
         logging.info(f"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
 
         validate_file_format(inputfile_1to2)       # 检验读入的8CT是否符合程序要求的格式
+        check_rp_ids_in_color_library(inputfile_1to2, color_library)           # 检验重复序列有没有被设置颜色
 
         prefix = os.path.splitext(os.path.basename(inputfile_1to2))[0]
         os.system(f"python {current_dir}/paired_info_to_5CT.py -i {inputfile_1to2} -o {prefix}_{project_id}_5CT.tsv -l {genome_length_1to2}")
@@ -866,6 +886,8 @@ def main():
 
         validate_file_format(chr1_file_2to1)       # 检验读入的8CT是否符合程序要求的格式
         validate_file_format(chr2_file_2to1)       # 检验读入的8CT是否符合程序要求的格式
+        check_rp_ids_in_color_library(chr1_file_2to1, color_library)           # 检验重复序列有没有被设置颜色
+        check_rp_ids_in_color_library(chr2_file_2to1, color_library)           # 检验重复序列有没有被设置颜色
 
         prefix_chr1 = os.path.splitext(os.path.basename(chr1_file_2to1))[0]
         os.system(f"python {current_dir}/paired_info_to_5CT.py -i {chr1_file_2to1} -o {prefix_chr1}_{project_id}_5CT.tsv -l {chr1_len_2to1}")
@@ -994,6 +1016,8 @@ def main():
 
         validate_file_format(chr1_file_2to2)       # 检验读入的8CT是否符合程序要求的格式
         validate_file_format(chr2_file_2to2)       # 检验读入的8CT是否符合程序要求的格式
+        check_rp_ids_in_color_library(chr1_file_2to2, color_library)           # 检验重复序列有没有被设置颜色
+        check_rp_ids_in_color_library(chr2_file_2to2, color_library)           # 检验重复序列有没有被设置颜色
 
         prefix_chr1 = os.path.splitext(os.path.basename(chr1_file_2to2))[0]
         os.system(f"python {current_dir}/paired_info_to_5CT.py -i {chr1_file_2to2} -o {prefix_chr1}_{project_id}_5CT.tsv -l {chr1_len_2to2}")

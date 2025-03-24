@@ -47,7 +47,7 @@ def main(input_file, flexibility, output_prefix):
     
     is_valid_format = check_tsv_format(input_file)
     if not is_valid_format:
-        print(f"Please check if the file format of {input_file} is TSV and should be 5 columns.")
+        print(f"ATTENTION: Please check if the file format of {input_file} is TSV and should be 5 columns.")
         sys.exit(1)
 
     # Read data, skipping the first row, and specify column names

@@ -131,6 +131,8 @@ def run_command(command, output_file=None, append=False, add_header=False, heade
         # 捕获其他异常
         logging.error(f"Unexpected error: {e}")
         sys.exit(1)
+    except KeyboardInterrupt:
+        logging.info("User terminated the program using Ctrl+C.")
         
 #######################################################################################################################################################################
 def parse_redundant_intermediate_results(value):
@@ -194,6 +196,9 @@ def setup_logging(mode, project_id, log_file_name=None, include_file_handler=Tru
             print(f"Log file will be created: {log_file_name}")  # 添加调试信息
         except Exception as e:
             print(f"Failed to create log file: {e}")
+        except KeyboardInterrupt:
+            logging.info("User terminated the program using Ctrl+C.")
+            
     handlers.append(logging.StreamHandler(sys.stdout))
 
     # 检查是否已经配置过basicConfig
@@ -373,14 +378,18 @@ def parse_repeat_lengths(repeat_length_str, sequence_lengths):
                 except ValueError as e:
                     logging.error(f"Validation error for start: {e}")
                     sys.exit(1)
-                
+                except KeyboardInterrupt:
+                    logging.info("User terminated the program using Ctrl+C.")
+        
                 try:
                     end = int(end) if end else sequence_lengths
                     validate_positive_integer(end, 'end')
                 except ValueError as e:
                     logging.error(f"Validation error for end: {e}")
                     sys.exit(1)
-            
+                except KeyboardInterrupt:
+                    logging.info("User terminated the program using Ctrl+C.")
+        
                 if start <= end:
                     lengths.extend(range(start, min(end + 1, sequence_lengths + 1)))
                 else:
@@ -393,6 +402,8 @@ def parse_repeat_lengths(repeat_length_str, sequence_lengths):
                 except ValueError as e:
                     logging.error(f"Validation error for length: {e}")
                     sys.exit(1)
+                except KeyboardInterrupt:
+                    logging.info("User terminated the program using Ctrl+C.")
 
                 if length <= sequence_lengths:
                     lengths.append(length)
@@ -416,6 +427,8 @@ def find_chromosome(start, end, cumulative_lengths):
         end = int(end)
     except ValueError:
         raise ValueError("The 'start' and 'end' must be integers or values that can be converted to integers.")
+    except KeyboardInterrupt:
+        logging.info("User terminated the program using Ctrl+C.")
 
     for i, length in enumerate(cumulative_lengths):
         # 确保比较时数据类型一致
@@ -520,7 +533,9 @@ def main():
     except argparse.ArgumentError as e:
         parser.print_help()
         sys.exit(1)
-
+    except KeyboardInterrupt:
+        logging.info("User terminated the program using Ctrl+C.")
+        
     # Load external configuration file
     config = read_ini_file(args.config)
 
@@ -666,7 +681,9 @@ def main():
         except KeyError as e:
             logging.exception(f"Missing mandatory configuration parameter(s): {e}")
             exit(1)
-                 
+        except KeyboardInterrupt:
+            logging.info("User terminated the program using Ctrl+C.")
+        
         if complementary_chain not in ['YES','Y','NO','N']:
             logging.error(f"Error: Invalid 'complementary_chain' '{complementary_chain}' parameter in the [general] section. It must be one of 'Yes', 'Y', 'No' or 'N'.")
             sys.exit(1)
@@ -769,16 +786,24 @@ def main():
         except ValueError as e:
             logging.error(f"Validation error for rous_repeat_minlength: {e}")
             sys.exit(1)
+        except KeyboardInterrupt:
+            logging.info("User terminated the program using Ctrl+C.")
+            
         try:
             validate_positive_integer(rous_reward, 'rous_reward')
         except ValueError as e:
             logging.error(f"Validation error for rous_reward: {e}")
             sys.exit(1)
+        except KeyboardInterrupt:
+            logging.info("User terminated the program using Ctrl+C.")
+        
         try:
             validate_positive_integer(rous_penalty, 'rous_penalty')
         except ValueError as e:
             logging.error(f"Validation error for rous_penalty: {e}")
             sys.exit(1)
+        except KeyboardInterrupt:
+            logging.info("User terminated the program using Ctrl+C.")
 
 ################################################################################
         # [sequencing_depth] Section  
@@ -883,6 +908,8 @@ def main():
                 total_cores = os.cpu_count() or 1
                 seqdepth_threads = max(1, min(total_cores - 1, int(total_cores * 0.95)))
                 logging.error(f"No thread parameter was provided, default parameter has been used instead: {seqdepth_threads} threads.")
+            except KeyboardInterrupt:
+                logging.info("User terminated the program using Ctrl+C.")
 
 ################################################################################
         # [subconfiguration] Section
@@ -901,17 +928,23 @@ def main():
             validate_positive_integer(extrsubcon_trimmed_length, 'flanked_sequence_length')
         except ValueError as e:
             logging.error(f"Invalid 'flanked_sequence_length' in [extrsubcon_trimmed_length] section.")
+        except KeyboardInterrupt:
+            logging.info("User terminated the program using Ctrl+C.")
 
         try:      #检查主构型中截取序列长度参数是否合法
             validate_positive_integer(extrmaincon_trimmed_length, 'flanked_sequence_length')
         except ValueError as e:
             logging.error(f"Invalid 'flanked_sequence_length' in [extrmaincon_trimmed_length] section.")
+        except KeyboardInterrupt:
+            logging.info("User terminated the program using Ctrl+C.")
 
         try:      #检查跨越重复序列的长度参数是否合法
             validate_positive_integer(check_spanning_length, 'check_spanning_length')
         except ValueError as e:
             logging.error(f"Invalid 'check_spanning_length' in [check_spanning_length] section.")
-        
+        except KeyboardInterrupt:
+            logging.info("User terminated the program using Ctrl+C.")
+            
 ################################################################################
         if mode in ['A', 'C', 'R']:
             # Directory and file checks. 删除之前运行的痕迹
@@ -1007,7 +1040,6 @@ def main():
                     time.sleep(10)
                 except KeyboardInterrupt:
                     logging.info("Program terminated by the user.")
-                    sys.exit(1)
             elif len(existing_rous_files) > 0 and args.redo:
                 logging.info(f"Delete previous file: {existing_rous_files}")
                 os.remove(existing_rous_files)
@@ -1038,7 +1070,9 @@ def main():
                     time.sleep(10)
                 except KeyboardInterrupt:
                     logging.exception("Program terminated by the user.")
-                    sys.exit(1)
+                except KeyboardInterrupt:
+                    logging.info("User terminated the program using Ctrl+C.")
+                    
             elif len(existing_rous_files) > 0 and args.redo:
                 logging.info(f"Delete previous file: {existing_rous_files}")
                 os.remove(existing_rous_files)
@@ -1286,6 +1320,8 @@ def main():
                 except Exception as e:
                     print(f"An error occurred: {e}\n")
                     exit(1)
+                except KeyboardInterrupt:
+                    logging.info("User terminated the program using Ctrl+C.")
 
 ################################################################################
                         
@@ -1346,8 +1382,7 @@ def main():
                     sys.stdout.flush()  # 确保消息立即打印
                     time.sleep(10)
                 except KeyboardInterrupt:
-                    logging.exception("Program terminated by the user.")
-                    sys.exit(1)
+                    logging.info("User terminated the program using Ctrl+C.")
             elif len(existing_rous_files) > 0 and args.redo:
                 logging.info(f"Delete previous file: {existing_rous_files}")
                 os.remove(existing_rous_files)
@@ -2558,11 +2593,16 @@ def main():
             validate_positive_integer(check_spanning_length_old, 'check_spanning_length')
         except ValueError as e:
             logging.error(f"An error occurred: {e}")
+        except KeyboardInterrupt:
+            logging.info("User terminated the program using Ctrl+C.")
+            
         try:      #检查跨越重复序列的长度参数是否合法
             validate_positive_integer(check_spanning_length_again, 'check_spanning_length')
         except ValueError as e:
             logging.error(f"An error occurred: {e}")
-            
+        except KeyboardInterrupt:
+            logging.info("User terminated the program using Ctrl+C.")
+        
         # 处理线程数
         seqdepth_threads = config['sequencing_depth'].get('threads', '').strip()
         if seqdepth_threads.strip() == '':
@@ -2578,6 +2618,8 @@ def main():
                 total_cores = os.cpu_count() or 1
                 seqdepth_threads = max(1, min(total_cores - 1, int(total_cores * 0.95)))
                 logging.error(f"No thread parameter was provided, default parameter has been used instead: {seqdepth_threads} threads.")
+            except KeyboardInterrupt:
+                logging.info("User terminated the program using Ctrl+C.")
 
         # 当mode为'A'时，检查 inputfasta 是否为空
         if not inputfasta:
@@ -2639,6 +2681,8 @@ def main():
         except ValueError as e:
             logging.error(f"An error occurred: {e}")
             sys.exit(1)
+        except KeyboardInterrupt:
+            logging.info("User terminated the program using Ctrl+C.")  
 
         # read_number 在删除中间结果的模式下要不小于 之前设置的值
         read_number_old = config['check_spanning_reads'].getint('spanning_read_number')
@@ -2712,7 +2756,6 @@ def main():
                     logging.info("Deleted existing directories.")
                 except KeyboardInterrupt:
                     logging.info("Program terminated by the user.\n")
-                    sys.exit(1)
 
         # 调用函数, 处理前一次运行留下来的结果
         check_and_delete_dirs(args, output_dir_again, full_output_dir_again, pseudo_output_dir_again, full_pseudo_output_dir_again)

@@ -31,7 +31,7 @@ def save_complement_sequences(fasta_file, output_file_path):
     # Check if the input file is in FASTA format
     file_format = check_file_format_efficient(fasta_file)
     if file_format != 'FASTA':
-        print(f"The infile {fasta_file} is not in FASTA format.")
+        print(f"ERROR: The infile {fasta_file} is not in FASTA format.")
         sys.exit(1)
         
     # Read the sequences from the FASTA file
@@ -50,10 +50,10 @@ def save_complement_sequences(fasta_file, output_file_path):
             sequences.append(current_sequence)  
   
     if len(sequences) > 1:  
-        print(f"Only one sequence should be in: {fasta_file}.")
+        print(f"ERROR: Only one sequence should be in: {fasta_file}.")
         sys.exit(1) 
     elif len(sequences) == 0:  
-        print(f"No sequence found in: {fasta_file}.")
+        print(f"ERROR: No sequence found in: {fasta_file}.")
         sys.exit(1)  
 
     # Write the reverse complement of the sequence to the output file
@@ -82,7 +82,7 @@ def split_data_by_direct_repeat_line(df, id1):
 
         return first_subset, second_subset
     else:
-        print(f"Direct repeat ID {id1} is not found in the DataFrame.")
+        print(f"ERROR: Direct repeat ID {id1} is not found in the {df}.")
         sys.exit(1)
 
 ##########################################################################################################################################
@@ -206,7 +206,7 @@ def add_ctg(processed_data, genome_length, chr):
         prev_end = adjusted_end
 
     if last_end > genome_length:
-        print(f"ERROR: The position of last repeat {prev_end} in the mapping information 'chrom{chr} file' exceeds the provided 'chrom{chr} fasta' length {genome_length}. Please confirm again.")
+        print(f"ERROR: The position of last repeat exceeds the 'chrom{chr}.fasta' length {genome_length}. Please confirm again.")
         sys.exit(1)
 
     if prev_end < genome_length:
@@ -224,7 +224,7 @@ def check_fasta_sequence_length(fasta_file_path):
     #先检查是不是fasta格式
     file_format = check_file_format_efficient(fasta_file_path)
     if file_format != 'FASTA':
-        print(f"The infile {fasta_file_path} is not in FASTA format.")
+        print(f"ERROR: The infile {fasta_file_path} is not in FASTA format.")
         sys.exit(1)
         
     sequences = []  
@@ -242,10 +242,10 @@ def check_fasta_sequence_length(fasta_file_path):
             sequences.append(current_sequence)  
   
     if len(sequences) > 1:  
-        print(f"Only one sequence should be in: {fasta_file}.")
+        print(f"ERROR: Only one sequence should be in: {fasta_file}.")
         sys.exit(1) 
     elif len(sequences) == 0:  
-        print(f"Only one sequence should be in: {fasta_file}.")
+        print(f"ERROR: Only one sequence should be in: {fasta_file}.")
         sys.exit(1)  
     else:  
         # 返回序列的长度  
@@ -355,7 +355,7 @@ def split_data_and_fasta_by_paired_direct_repeats(paired_ids, unique_ids_with_di
     auto_processed = False
     
     if len(paired_ids) == 0:
-        print("No Direct Repeat pairs found. Please check the repeat type carefully.")
+        print("ATTENTION: No Direct Repeat pairs found. Please check the repeat type carefully.")
         exit(1)
     
     while True:
@@ -368,7 +368,7 @@ def split_data_and_fasta_by_paired_direct_repeats(paired_ids, unique_ids_with_di
             break
         else:
     
-            user_input = input("Enter a pair of Direct Repeat IDs (e.g., RP1a RP1c, case sensitive), 'a/all' to process all, or press 'Enter Button' to exit:").strip()
+            user_input = input("Enter paired Direct Repeat IDs (e.g., RP1a RP1c, case sensitive), 'a/all' to process all, or press 'Enter' to exit:").strip()
     
             if user_input == '':
                 if not selected_pairs:
@@ -395,6 +395,11 @@ def split_data_and_fasta_by_paired_direct_repeats(paired_ids, unique_ids_with_di
                         if prefix1 == prefix2 and input_ids[0] != input_ids[1]:
                             direction1 = unique_ids_with_direction_1.loc[unique_ids_with_direction_1['fragment_id'] == input_ids[0], 'direction'].values
                             direction2 = unique_ids_with_direction_2.loc[unique_ids_with_direction_2['fragment_id'] == input_ids[1], 'direction'].values
+                            if not direction1.size and not direction2.size:
+                                direction1 = unique_ids_with_direction_1.loc[unique_ids_with_direction_1['fragment_id'] == input_ids[1], 'direction'].values
+                                direction2 = unique_ids_with_direction_2.loc[unique_ids_with_direction_2['fragment_id'] == input_ids[0], 'direction'].values
+                                input_ids[0],input_ids[1] = input_ids[1],input_ids[0]       # 调整位置，以使后面在数据集中能找到id
+                                
                             if direction1.size > 0 and direction2.size > 0 and direction1[0] == direction2[0]:
                                 selected_pairs.append(input_ids)
                                 if input_ids in paired_ids:
@@ -406,7 +411,7 @@ def split_data_and_fasta_by_paired_direct_repeats(paired_ids, unique_ids_with_di
                                    print("All possible pairs have been added.")
                                    break 
                             else:
-                                print("Invalid input. The two IDs may be from different DNA strand, in the same chromosome or not found.")
+                                print("Invalid input. The two IDsshould be from different chromosomes.")
                                 error_count += 1
                         else:
                             lprint("Invalid input. Please enter two IDs with the same prefix and different suffixes, or press 'Enter' to skip.")
@@ -419,7 +424,7 @@ def split_data_and_fasta_by_paired_direct_repeats(paired_ids, unique_ids_with_di
                     error_count += 1
     
             if error_count >= 3:
-                print("Too many incorrect attempts. Program will now exit.")
+                print("ERROR: Too many incorrect attempts. Program will now exit.")
                 sys.exit(1)
     
 ################################################################################
@@ -601,14 +606,14 @@ if __name__ == "__main__":
         chrom1_file = pd.read_csv(args.chrom1_file, sep='\t', header=0)
         chrom1_file = drop_duplicates_in_8CT(chrom1_file)
     else:
-        print(f"{args.chrom1_file} non-exist.")
+        print(f"ERROR: {args.chrom1_file} non-exist.")
         sys.exit(1)
 
     if os.path.isfile(f"{args.chrom2_file}"):
         chrom2_file = pd.read_csv(args.chrom2_file, sep='\t', header=0)
         chrom2_file = drop_duplicates_in_8CT(chrom2_file)
     else:
-        print(f"{args.chrom2_file} non-exist.")
+        print(f"ERROR: {args.chrom2_file} non-exist.")
         sys.exit(1)
 
     # Create a new DataFrame with the first four columns
@@ -682,7 +687,7 @@ if __name__ == "__main__":
     duplicates = new_data2['fragment_id'].isin(new_data1['fragment_id'])  
     # 检查是否存在重复值  
     if duplicates.any():  
-        print("There are duplicate fragment_ids in two datasets, please confirm.")  
+        print("ERROR: There are duplicate fragment_ids in two datasets, please confirm.")  
         sys.exit(1)  # 如果存在重复值，则停止程序运行  
 
     # 根据 new_data1 的 'fragment_id' , 'length'和 'direction' 列，去除重复的行

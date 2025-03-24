@@ -26,7 +26,6 @@ def reverse_complement_dna(dna_sequence):
         for base in dna_sequence_upper:
             if base not in complement:
                 raise ValueError("Fasta file contains illegal base characters.")
-                sys.exit(0)
         
         # 生成互补序列
         return ''.join(complement[base] for base in reversed(dna_sequence_upper))
@@ -635,7 +634,7 @@ def find_all_inverted_repeat_pairs(new_data):
                 inverted_repeat_count += 1
 
     if inverted_repeat_count % 2 != 0:
-        print(f"Inverted Repeat {inverted_repeat_pairs} are odd and not paired. ")
+        print(f"ERROR: Inverted Repeat {inverted_repeat_pairs} are odd and not paired. ")
         sys.exit(1)
 
     # 7. Sort the list of tuples based on the first element (fragment_id)
@@ -651,7 +650,7 @@ def find_all_inverted_repeat_pairs(new_data):
     sorted_pairs_count = len(inverted_repeat_pairs)
     
     if sorted_pairs_count != original_pairs_count/2:
-        print(f"Not all repetitive sequences have two repeat units. Check {inverted_repeat_pairs}.")
+        print(f"ERROR: Not all repetitive sequences have two repeat units. Check {inverted_repeat_pairs}.")
         sys.exit(1)  # Terminate the programme and return status code 1. 
 
     return inverted_repeat_pairs
@@ -683,7 +682,7 @@ def find_all_direct_repeat_pairs(new_data):
                         direct_repeat_count += 1  # Increment the count
 
             if direct_repeat_count % 2 != 0:
-                print(f"Direct Repeat {direct_repeat_pairs} are odd and not paired.")
+                print(f"ERROR: Direct Repeat {direct_repeat_pairs} are odd and not paired.")
                 sys.exit(1)  # Terminate the program with an error code
 
             # 7. Sort the list of tuples based on the first element (fragment_id)
@@ -699,7 +698,7 @@ def find_all_direct_repeat_pairs(new_data):
             sorted_pairs_count = len(direct_repeat_pairs)
             # Check if the number of pairs after sorting is twice the number of original pairs
             if sorted_pairs_count != original_pairs_count / 2:
-                print("IDs may be written incorrectly and the number of paired Direct Repeats does not match.")
+                print("ERROR: IDs may be written incorrectly and the number of paired Direct Repeats does not match.")
                 sys.exit(1)  # Terminate the program and return a status code of 1.
 
             # 10. Iterate through the found ID pairs
@@ -824,7 +823,7 @@ if __name__ == "__main__":
             end = int(float(columns[2]))    # 转换 end 值
             max_value = max(start, end)     # 找到最大值
             if not max_value == genome_length:
-                print(f"The genome length is {genome_length}, which is different the length ({max_value}) in the five-colume table.")
+                print(f"ERROR: The genome length is {genome_length}, which is different from the length ({max_value}) in the five-colume table.")
                 sys.exit(1)
     except OSError as e:
         print(f"Error reading file: {e}")
@@ -846,7 +845,7 @@ if __name__ == "__main__":
     data, unique_repeats = filter_unique_repeats(data)
     
     if unique_repeats:
-        print(f"Group {unique_repeats} does not have enough items for pairing. Each group must have at least 2 items.")
+        print(f"ERROR: Group {unique_repeats} does not have enough items for pairing. Each group must have at least 2 items.")
         sys.exit(1)
     
     inverted_repeat_pairs_ID = find_all_inverted_repeat_pairs(data)

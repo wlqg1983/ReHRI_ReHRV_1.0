@@ -123,8 +123,8 @@ def preprocess_input_file(infile):
     
     # Check for NaN or missing values
     if df.isnull().values.any():
-        print("The input file contains NaN or missing values.")
-        print(df[df.isnull().any(axis=1)])  # sys.stderr.write rows with NaN
+        print(f"ERROR: The input file {infile} contains NaN or missing values.")
+        #print(df[df.isnull().any(axis=1)])  # sys.stderr.write rows with NaN
         sys.exit(1)
         
     """Check for unique occurrence of fragment_id."""
@@ -251,7 +251,7 @@ def main():
     # 检查文件格式是否为5CT
     is_valid_format = check_tsv_format(args.input_file)
     if not is_valid_format:
-        print(f"Please check if the file format of {args.input_file} is TSV and should be 5 columns.")
+        print(f"ERROR: Please check if the file format of {args.input_file} is TSV and should be 5 columns.")
         sys.exit(1)
 
     # 读取TSV文件
