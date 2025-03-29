@@ -110,19 +110,17 @@ Provide the information of each repeat pair (.tsv).
 
 ⑤ direction: The postion in plus or minus strand of DNA.
 
-⑥ chromosome: The ID of chromosome in genome.
+⑥ chromosome: The name of chromosome in genome.
 
-⑦ plus_ratio(s/m): The number of reads that spans repeats in subconfiguration(s) and mainconfiguration(m) in the plus strand of DNA.
+⑦ plus_ratio(s/m): The probability of repeat-mediated genome recombination on the plus strand of DNA.
 
-⑧ minus_ratio(s/m): The number of reads that spans repeats in subconfiguration(s) and mainconfiguration(m) in the minus strand of DNA.
+⑧ minus_ratio(s/m): The probability of repeat-mediated genome recombination on the minus strand of DNA.
 
 ⑨ combined_ratio: The overall ratio of repeat-mediated genome recombination on the two strands of DNA.
 
 ⑩ type: The type of repeat (direct or inverse repeat).
 
-⑪ spanning_read_mcfg: Whether the number of reads across repeats in the mainconfiguration meets the user's set quantity.
-
-Note: "paired" represents the other repeat unit in a pair of repeat units that mediate genome recombination.
+○11 paired: Represents the other repeat unit in a pair of repeat units that mediate genome recombination.
 
     (2) Results of MiRIV
 
