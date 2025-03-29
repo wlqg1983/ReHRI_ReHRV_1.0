@@ -279,12 +279,12 @@ def check_rp_ids_in_color_library(file_path, color_library):
         
         # Report missing RP IDs
         if missing_rp_ids:
-            error_message = f"The following repeat sequence IDs are missing in the color library: {', '.join(missing_rp_ids)}"
+            error_message = f"The following Repeat IDs are missing in the '[color_library]' section: {', '.join(missing_rp_ids)}"
             logging.error(error_message)
             print()
             sys.exit(1)
         else:
-            logging.info("All RP-prefixed repeat sequence IDs are present in the color library.")
+            logging.info("All Repeat IDs are present in the '[color_library]' section.")
 
     except FileNotFoundError:
         logging.error(f"File '{file_path}' not found.")
