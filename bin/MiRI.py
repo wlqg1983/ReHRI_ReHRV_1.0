@@ -769,7 +769,7 @@ def main():
         
         #检查重复序列单元的长度不小于5bp
         if rous_repeat_minlength < 5:
-            logging.error("The repeat length must be NOT less than 5 bp.")
+            logging.error("The repeat length must be NOT LESS than 5 bp.")
             sys.exit(1)
                 
         # Check if manually_calibrate is empty when mode is 'C'
@@ -816,18 +816,18 @@ def main():
         seqdepth_type = config['sequencing_depth'].get('TGS_type', '').lower().strip()
         filter_reads = config['sequencing_depth'].get('filter_reads', 'Y').upper().strip() or 'Y'
 
-        if seqdepth_alignment_software not in ['minimap2', 'bwa', 'blast']:
+        if seqdepth_alignment_software not in ['minimap2', 'bwa', 'blast'] and mode != 'R':
             logging.error("The mapping software must be selected 'blast', 'minimap2' or 'bwa'.")
             exit(1)
              
-        if filter_reads not in ['YES','Y','NO','N']:
+        if filter_reads not in ['YES','Y','NO','N'] and mode != 'R':
             logging.error(f"Error: Invalid 'filter_reads' '{filter_reads}' parameter in the [sequencing_depth] section. It must be one of 'Yes', 'Y', 'No' or 'N'.")
             sys.exit(1)
 
         # Initialize counter for provided data types
         provided_data_count = 0
         # Check sequencing read data and count provided types
-        if seqdepth_single:
+        if seqdepth_single and mode != 'R':
             provided_data_count += 1
             provided_data_type = 'NGS_single_end'
             provided_data = seqdepth_single
@@ -844,7 +844,7 @@ def main():
                 logging.error(f"The infile {provided_data} does not exist.")
                 sys.exit(1)
 
-        if seqdepth_pair:
+        if seqdepth_pair and mode != 'R':
             provided_data_count += 1
             provided_data_type = 'NGS_pair_ends'
             provided_data_paths = seqdepth_pair.split()    # 拆分为两个文件路径 
@@ -862,7 +862,7 @@ def main():
                     logging.error(f"The infile {provided_data} does not exist.")
                     sys.exit(1)
 
-        if seqdepth_third:
+        if seqdepth_third and mode != 'R':
             provided_data_count += 1
             provided_data_type = 'TGS'
             provided_data = seqdepth_third
@@ -891,7 +891,7 @@ def main():
                 seqdepth_type = ''
      
         # Check if exactly one data type is provided
-        if provided_data_count != 1:
+        if provided_data_count != 1 and mode != 'R':
             logging.error("Exactly one of 'NGS_single_end', 'NGS_pair_ends', or 'TGS' must be provided in the [seqdepth] section.")
             exit(1)
 
