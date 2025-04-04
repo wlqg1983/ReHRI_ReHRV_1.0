@@ -234,21 +234,24 @@ def write_ini_to_log(ini_file_path):
 
 #######################################################################################################################################################################
 def check_file_format_efficient(file_path):
-    with open(file_path, 'r') as file:
-        first_line = file.readline().strip()
-
-        # 删除空行和去除行首尾的空格
-        while not first_line:
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
             first_line = file.readline().strip()
 
-        # 去除行首尾的空格后再进行格式检查
-        first_line = first_line.strip()
-        if first_line.startswith('>'):
-            return 'FASTA'
-        elif first_line.startswith('@'):
-            return 'FASTQ'
-        else:
-            return 'Unknown'
+            # 删除空行和去除行首尾的空格
+            while not first_line:
+                first_line = file.readline().strip()
+
+            # 去除行首尾的空格后再进行格式检查
+            first_line = first_line.strip()
+            if first_line.startswith('>'):
+                return 'FASTA'
+            elif first_line.startswith('@'):
+                return 'FASTQ'
+            else:
+                return 'Unknown'
+    except UnicodeDecodeError:
+        return "This file may be a compressed document. Please provide a FASTA or FASTQ text file (UTF-8 encoding)."
 
 #######################################################################################################################################################################
 def check_fasta_sequence(fasta_file_path):  
