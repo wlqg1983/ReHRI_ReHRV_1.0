@@ -223,7 +223,7 @@ def update_inputfasta(data_5CT, id1, id2, inputfasta, output_file, genome_type):
         # 交换repeat1和repeat2的所有信息
         repeat1_start, repeat2_start = repeat2_start, repeat1_start
         repeat1_end, repeat2_end = repeat2_end, repeat1_end
-        repeat1_rev, repeat2_rev = repeat2_rev, repeat1_rev
+        # repeat1_rev, repeat2_rev = repeat2_rev, repeat1_rev
         
     #检查重复单元是否重合
     if repeat1_end >= repeat2_start:
