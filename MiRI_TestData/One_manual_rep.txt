@@ -1,0 +1,6 @@
+fragment_id	length	start	end	direction
+Repeat_10	16	63176	63161	minus
+Repeat_10	16	66320	66305	minus
+Repeat_2	17	4690	4706	plus
+Repeat_2	17	50595	50611	plus
+
