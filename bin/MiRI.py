@@ -1327,85 +1327,194 @@ def main():
                     logging.info("User terminated the program using Ctrl+C.")
 
 ################################################################################
-                        
-            # 检测 人工输入的列表与fasta序列是否一致，通过序列的条数进行检测，count=1,必须是5列，count>2，必须是6列
-            validate_columns_in_manually_calibrate(manually_calibrate, count)
+            # 对用户输入的列表进行检测，列表可以接受两种形式，一种是将用户输入的重复序列所有的配对组合全部检测一遍，另一种是用户限定重复序列对，仅对用户指定的重复序列对进行检测
+            # 先进行输入列表类型的检测，采用检测表头的方式进行
+            # 如果 表头为 fragment_id	length	start	end	direction	chromosome	paired_id	paired_length	paired_start	paired_end	paired_direction	paired_chromosome
+            # 将表重置为表头为fragment_id	length	start	end	direction	chromosome，先将前五列去掉表头连接到重置的表头下，后五列去掉表头连接到前五列的下方，然后按行排序去重，将文件保存至当前目录下
+            # 保存的文件路径赋值给manually_calibrate这个参数里
 
-            # 对手工矫正的重复序列信息进行检测，使其符合一系列规则，产生的结果存放在 adjusted_manual_calibrated_list.tsv 中
-            # count =1 或者 > 1，都产生这个文件
-            run_command(["python", os.path.join(dir_path, "check_manual_calibrated_repeats.py"), "-c", str(count), "-l", manually_calibrate, "-f", inputfasta])    # 检查手工修正重复序列信息列表
+            # 如果 表头为 fragment_id	length	start	end	direction	chromosome	paired_id	paired_length	paired_start	paired_end	paired_direction	paired_chromosome
+            # 将表重置为表头为fragment_id	length	start	end	direction	chromosome，先将前五列去掉表头连接到重置的表头下，后五列去掉表头连接到前五列的下方，然后按行排序去重，将文件保存至当前目录下
+            # 保存的文件路径赋值给 manually_calibrate 这个参数里 
             
-            # 为手工修改的校正结果，放进ROUSFinder_results
-            # 定义源文件路径和目标目录
-            source_file = "adjusted_manual_calibrated_list.tsv"
-            target_dir = f"ROUSFinder_results_{project_id}"
+            def process_input_file(input_file_path, prefix_manual, project_id, dir_path, inputfasta, count):
+                # 读取文件，假设是TSV格式
+                df = pd.read_csv(input_file_path, sep='\t')
+                
+                # 定义预期的表头格式
+                expected_header_full = ['fragment_id', 'length', 'start', 'end', 'direction', 'chromosome', 'paired_id', 'paired_length', 'paired_start', 'paired_end', 'paired_direction', 'paired_chromosome']
+                expected_header_paitial = ['fragment_id', 'length', 'start', 'end', 'direction', 'paired_id', 'paired_length', 'paired_start', 'paired_end', 'paired_direction']
 
-            # 确保目标目录存在，如果不存在则创建
-            os.makedirs(target_dir, exist_ok=True)
-            # 移动文件
-            shutil.move(source_file, os.path.join(target_dir, os.path.basename(source_file)))
-            
-            manually_calibrate_adj = f"ROUSFinder_results_{project_id}/adjusted_manual_calibrated_list.tsv"     # 更改手工校准文件的名字
+                expected_header_basic = ['fragment_id', 'length', 'start', 'end', 'direction', 'chromosome']
+                expected_header_minimal = ['fragment_id', 'length', 'start', 'end', 'direction']
+                
+                # 获取实际表头
+                actual_header = df.columns.tolist()
+                
+                # 处理第一种情况：完整12列表头
+                if actual_header == expected_header_full:
+                    # 对于多条染色体的情况，重新调整 start 和 end，产生 adjusted_manual_calibrated_list.tsv 的结果文件，同时检查输入的数据是否存在不合理的地方
+                    run_command(["python", os.path.join(dir_path, "check_manual_calibrated_corr_repeats.py"), "-f", inputfasta, "-l", input_file_path, "-c", count])
+                    df = pd.read_csv("adjusted_manual_calibrated_list.tsv", sep='\t')    # 重新读取修正后的数据
 
-            # 提取输入文件的前缀
-            dir_path_manual, file_name_manual = os.path.split(manually_calibrate_adj)       # 拆解为路径和文件名
-            prefix_manual = os.path.splitext(file_name_manual)[0]    # 将文件名拆解为前缀和后缀
+                    # 提取前6列和后6列
+                    df1 = df.loc[:, ['fragment_id', 'length', 'start', 'end', 'direction', 'chromosome']]  # 按照表头提取各列
+                    df2 = df.loc[:, ['paired_id', 'paired_length', 'paired_start', 'paired_end', 'paired_direction', 'paired_chromosome']]  # 按照表头提取各列
+                    
+                    # 重命名后6列与前6列相同
+                    df2.columns = expected_header_basic
+                    
+                    # 合并两个DataFrame
+                    combined_df = pd.concat([df1, df2], ignore_index=True)
+                    
+                    # 按行排序并去重
+                    combined_df = combined_df.sort_values(by=expected_header_basic).drop_duplicates()
+                    
+                    # 保存文件, 用于后续结果的 start 和 end 的后处理
+                    output_file = os.path.join(os.getcwd(), f"ROUSFinder_results_{project_id}/{prefix_manual}_{project_id}_rep_calibration_table.txt")
+                    combined_df.to_csv(output_file, sep='\t', index=False)
+                    
+                    return True
+                
+                # 处理第二种情况：基本10列表头
+                elif actual_header == expected_header_paitial:
+                    # 检查输入的数据是否存在不合理的地方，检查后保存结果于 adjusted_manual_calibrated_list.tsv 文件内
+                    run_command(["python", os.path.join(dir_path, "check_manual_calibrated_corr_repeats.py"), "-f", inputfasta, "-l", input_file_path, "-c", count])
+                    df = pd.read_csv("adjusted_manual_calibrated_list.tsv", sep='\t')    # 重新读取修正后的数据
+                    
+                    # 提取前6列和后6列
+                    df1 = df.loc[:, ['fragment_id', 'length', 'start', 'end', 'direction']]  # 按照表头提取各列
+                    df2 = df.loc[:, ['paired_id', 'paired_length', 'paired_start', 'paired_end', 'paired_direction']]  # 按照表头提取各列
+                    
+                    # 重命名后5列与前5列相同
+                    df2.columns = expected_header_minimal
+                    
+                    # 合并两个DataFrame
+                    combined_df = pd.concat([df1, df2], ignore_index=True)
+                    
+                    # 按行排序并去重
+                    combined_df = combined_df.sort_values(by=expected_header_minimal).drop_duplicates()
+                    
+                    # 保存文件, 用于后续结果的start和end的后处理
+                    output_file = os.path.join(os.getcwd(), f"ROUSFinder_results_{project_id}/{prefix_manual}_{project_id}_rep_calibration_table.txt")
+                    combined_df.to_csv(output_file, sep='\t', index=False)
+                    
+                    return True
+                
+                # 处理第三种情况：最小5列表头或6列表头
+                elif (actual_header == expected_header_minimal) or (actual_header == expected_header_basic):
+                    return False
+                
+                else:
+                    help_msg = """
+                    The header of the input file does not match any expected format!
+                    
+                    Please use one of the following three formats:
+                    
+​​                    12-column format​​:
+                    fragment_id length start end direction chromosome paired_id paired_length paired_start paired_end paired_direction paired_chromosome
+​​                    Purpose​​: Used to detect repeat pairs across multiple chromosomes specified by the user.
+                    
+​​                    10-column format​​:
+                    fragment_id length start end direction paired_id paired_length paired_start paired_end paired_direction
+​​                    Purpose​​: Used to detect repeat pairs within a single chromosome specified by the user.
+                    
+​​                    6-column format​​:
+                    fragment_id length start end direction chromosome
+​​                    Purpose​​: Used to detect all repeat pairs across multiple chromosomes.
+                    
+​​                    5-column format​​:
+                    fragment_id length start end direction
+​​                    Purpose​​: Used to detect all repeat pairs within a single chromosome.
+
+                    Note​​: All formats must be in TSV (tab-separated values) format.
+                    """
+                    raise ValueError(help_msg)
+
+            reshap_log = process_input_file(manually_calibrate, prefix_manual, project_id, dir_path, inputfasta, str(count))          # 通过表头检测用户的输入列表, reshap_log用于判断是哪种数据类型
             
-            # Read the file，更改表头
-            with open(manually_calibrate_adj, 'r') as file:
-                lines = file.readlines()
-                if len(lines) <= 1:              ## 检查输入的repeat信息文件是否为空
-                    raise ValueError("The file is empty, only contains the header, or is missing the header. Please provide a valid file with data.")
+            if not reshap_log:
+                # 检测 人工输入的列表与fasta序列是否一致，通过序列的条数进行检测，count=1,必须是5列，count>2，必须是6列
+                validate_columns_in_manually_calibrate(manually_calibrate, count) 
+
+                # 对手工矫正的重复序列信息进行检测，使其符合一系列规则，产生的结果存放在 adjusted_manual_calibrated_list.tsv 中  adjusted_manual_calibrated_list.tsv 中  adjusted_manual_calibrated_list.tsv 中
+                # count =1 或者 > 1，都产生这个文件。当count>1，则基于伪基因组序列，产生一个5CT，这个5CT需要加上间区ctg，才能用于截取序列，即和ROUSFinder产生的结果一致。
+                run_command(["python", os.path.join(dir_path, "check_manual_calibrated_repeats.py"), "-c", str(count), "-l", manually_calibrate, "-f", inputfasta])    # 检查手工修正重复序列信息列表
+            
+                # 为手工修改的校正结果，放进ROUSFinder_results
+                # 定义源文件路径和目标目录
+                source_file = "adjusted_manual_calibrated_list.tsv"
+                target_dir = f"ROUSFinder_results_{project_id}"
+
+                # 确保目标目录存在，如果不存在则创建
+                os.makedirs(target_dir, exist_ok=True)
+                # 移动文件
+                shutil.move(source_file, os.path.join(target_dir, os.path.basename(source_file)))
+            
+                manually_calibrate_adj = f"ROUSFinder_results_{project_id}/adjusted_manual_calibrated_list.tsv"     # 更改手工校准文件的名字 
+                # adjusted_manual_calibrated_list.tsv 表头为  fragment_id     length  start   end     direction
+
+                # 提取输入文件的前缀
+                dir_path_manual, file_name_manual = os.path.split(manually_calibrate_adj)       # 拆解为路径和文件名
+                prefix_manual = os.path.splitext(file_name_manual)[0]    # 将文件名拆解为前缀和后缀
+            
+                # Read the file，更改表头
+                with open(manually_calibrate_adj, 'r') as file:
+                    lines = file.readlines()
+                    if len(lines) <= 1:              ## 检查输入的repeat信息文件是否为空
+                        raise ValueError("The file is empty, only contains the header, or is missing the header. Please provide a valid file with data.")
+                        exit(1)
+            
+                manually_calibrate_reset = f"ROUSFinder_results_{project_id}/{prefix_manual}_{project_id}_rep_calibration_table.txt"          ##更换表头之后，保存为calibration_table.txt
+                # 将修改后的lines写入新的文件路径，达到更改表头的目的
+                with open(manually_calibrate_reset, 'w') as file:
+                    file.writelines(lines)               # 完成由 manually_calibrate_adj 向 manually_calibrate_reset 的转变
+                # 以上 manually_calibrate_adj 对应的文件 adjusted_manual_calibrated_list.tsv
+                # 以上 manually_calibrate_reset 对应的文件 adjusted_manual_calibrated_list_rep_calibration_table.txt
+            
+                # 检查前一次运行的痕迹
+                rous_output_files = glob.glob(f"ROUSFinder_results_{project_id}/{prefix_manual}*")
+                # 创建一个要检查的文件名列表
+                check_files = [
+                    f"ROUSFinder_results_{project_id}/{prefix_manual}_{project_id}_rep_5CT.tsv",     # 此处是手工校准的结果，加上project_id
+                    f"ROUSFinder_results_{project_id}/{prefix_manual}_{project_id}_rep_calibration_table.txt"        # 所以ROUSFinder_results中只应含有rep_5CT.tsv
+                    ]
+                # 筛选出存在的文件
+                existing_rous_files = [file for file in rous_output_files if os.path.isfile(file) and os.path.basename(file) in check_files]
+                if len(existing_rous_files) > 0 and not args.resume:
+                    logging.warning(f"Files {existing_rous_files} in ROUSFinder_results_{project_id} will be OVERWRITTEN.")
+                    print("Press 'Ctrl + C' to STOP the program now. Or it will be OVERWRITTEN after 10s.")
+                    try:
+                        # 等待10秒以给用户取消的机会
+                        logging.info("Waiting for 10 seconds before continuing...\n")
+                        sys.stdout.flush()  # 确保消息立即打印
+                        time.sleep(10)
+                    except KeyboardInterrupt:
+                        logging.info("User terminated the program using Ctrl+C.")
+                elif len(existing_rous_files) > 0 and args.redo:
+                    logging.info(f"Delete previous file: {existing_rous_files}")
+                    os.remove(existing_rous_files)
+      
+                max_start = 0    # 检查输入的手工校准的重复序列文件与fasta序列文件是否一致。通过fasta序列的长度与 manually_calibrate 的位置是否匹配来进行检查
+                max_end = 0
+                for line in lines[1:]:
+                    start, end = map(int, line.strip().split('\t')[2:4])
+                    max_start = max(max_start, start)
+                    max_end = max(max_end, end)
+                max_position = max(max_start, max_end)
+                if max_position > sequence_lengths:
+                    logging.error(f"Some duplicates in the {manually_calibrate} are located outside the genome provided in the sequence {inputfasta}.")
                     exit(1)
-            # Replace the first line with the new header，替换原有表头，以免用户提供的有误
-            #lines[0] = "fragment_id\tlength\tstart\tend\tdirection\n"
+      
+                if count >1:
+                    cat_inputfasta_path, headers, lengths = concatenate_fasta(inputfasta, f"cat_inputfasta_{project_id}.fasta")      # 再次创建pseudo-genome
+      
+                # 将手工校准后的ROUSFinder结果转换为5CT
+                run_command(["python", os.path.join(dir_path, "ROUSFinder_to_5CT.py"), "-i", manually_calibrate_reset, "-l", str(sequence_lengths), "-o", f"ROUSFinder_results_{project_id}/" + prefix_manual + "_" + project_id, "-t", str(seqdepth_threads)])
+                # mode = C 时，adjusted_manual_calibrated_list_ARcnC_rep_5CT.tsv，表头为 fragment_id   start   end    type   paired_id，ctg01   1   4689   inter_region   -   RP1a   4690   4706   direct_repeat   RP1b
             
-            manually_calibrate_reset = f"ROUSFinder_results_{project_id}/{prefix_manual}_{project_id}_rep_calibration_table.txt"          ##更换表头之后，保存为calibration_table.txt
-            # 将修改后的lines写入新的文件路径，达到更改表头的目的
-            with open(manually_calibrate_reset, 'w') as file:
-                file.writelines(lines)               # 完成由 manually_calibrate_adj 向 manually_calibrate_reset 的转变
-            # 以上 manually_calibrate_adj 对应的文件 adjusted_manual_calibrated_list.tsv
-            # 以上 manually_calibrate_reset 对应的文件 adjusted_manual_calibrated_list_rep_calibration_table.txt
-            
-            # 检查前一次运行的痕迹
-            rous_output_files = glob.glob(f"ROUSFinder_results_{project_id}/{prefix_manual}*")
-            # 创建一个要检查的文件名列表
-            check_files = [
-                f"ROUSFinder_results_{project_id}/{prefix_manual}_{project_id}_rep_5CT.tsv",     # 此处是手工校准的结果，加上project_id
-                f"ROUSFinder_results_{project_id}/{prefix_manual}_{project_id}_rep_calibration_table.txt"        # 所以ROUSFinder_results中只应含有rep_5CT.tsv
-                ]
-            # 筛选出存在的文件
-            existing_rous_files = [file for file in rous_output_files if os.path.isfile(file) and os.path.basename(file) in check_files]
-            if len(existing_rous_files) > 0 and not args.resume:
-                logging.warning(f"Files {existing_rous_files} in ROUSFinder_results_{project_id} will be OVERWRITTEN.")
-                print("Press 'Ctrl + C' to STOP the program now. Or it will be OVERWRITTEN after 10s.")
-                try:
-                    # 等待10秒以给用户取消的机会
-                    logging.info("Waiting for 10 seconds before continuing...\n")
-                    sys.stdout.flush()  # 确保消息立即打印
-                    time.sleep(10)
-                except KeyboardInterrupt:
-                    logging.info("User terminated the program using Ctrl+C.")
-            elif len(existing_rous_files) > 0 and args.redo:
-                logging.info(f"Delete previous file: {existing_rous_files}")
-                os.remove(existing_rous_files)
-
-            max_start = 0    # 检查输入的手工校准的重复序列文件与fasta序列文件是否一致。通过fasta序列的长度与 manually_calibrate 的位置是否匹配来进行检查
-            max_end = 0
-            for line in lines[1:]:
-                start, end = map(int, line.strip().split('\t')[2:4])
-                max_start = max(max_start, start)
-                max_end = max(max_end, end)
-            max_position = max(max_start, max_end)
-            if max_position > sequence_lengths:
-                logging.error(f"Some duplicates in the {manually_calibrate} are located outside the genome provided in the sequence {inputfasta}.")
-                exit(1)
-
-            if count >1:
-                cat_inputfasta_path, headers, lengths = concatenate_fasta(inputfasta, f"cat_inputfasta_{project_id}.fasta")      # 再次创建pseudo-genome
-
-            # 将手工校准后的ROUSFinder结果转换为5CT
-            run_command(["python", os.path.join(dir_path, "ROUSFinder_to_5CT.py"), "-i", manually_calibrate_reset, "-l", str(sequence_lengths), "-o", f"ROUSFinder_results_{project_id}/" + prefix_manual + "_" + project_id, "-t", str(seqdepth_threads)])
+            if reshap_log:
+                run_command(["python", os.path.join(dir_path, "paired_info_to_5CT.py"), "-i", os.path.abspath("adjusted_manual_calibrated_list.tsv"), "-o", os.path.join(f"ROUSFinder_results_{project_id}", f"{prefix_manual}_{project_id}_rep_5CT.tsv"), "-l", str(sequence_lengths)])
 
 ################################################################################
         if mode == 'A' and not resume_logic:
@@ -1427,6 +1536,7 @@ def main():
             if count > 1:
                 run_command(["python", os.path.join(dir_path, "extrsubcon.py"), "-r", cat_inputfasta_path, "-rf", f"ROUSFinder_results_{project_id}/" + prefix_manual + "_" + project_id + "_rep_5CT.tsv", "-tl", str(extrsubcon_trimmed_length), "-o", extrsubcon_output_dir_prefix + "_" + project_id, "-rc", complementary_chain, "-gt", genome_type])
                 run_command(["python", os.path.join(dir_path, "extrmaincon.py"), "-r", cat_inputfasta_path, "-rf", f"ROUSFinder_results_{project_id}/" + prefix_manual + "_" + project_id + "_rep_5CT.tsv", "-tl", str(extrmaincon_trimmed_length), "-o", extrmaincon_output_dir_prefix + "_" + project_id, "-rc", complementary_chain, "-gt", genome_type])
+                # f"ROUSFinder_results_{project_id}/" + prefix_manual + "_" + project_id + "_rep_5CT.tsv" 为 "ROUSFinder_to_5CT.py"产生的结果，考虑了多条序列的情况
 
         # 用于输出的结果更好看
         if mode in ['A', 'C']:
@@ -1550,12 +1660,82 @@ def main():
                         fastq2 = fasta_pair2
                     
 ################################################################################
+        def process_manually_calibrate(manually_calibrate):
+            # Read the manually_calibrate file
+            df = pd.read_csv(manually_calibrate, sep='\t')
+            
+            # Determine columns to read based on number of columns
+            if len(df.columns) == 12:
+                # Read first and seventh columns for 12-column format
+                col1 = df.columns[0]  # fragment_id
+                col2 = df.columns[6]  # paired_id
+                pairs = set(zip(df[col1], df[col2]))
+            elif len(df.columns) == 10:
+                # Read first and sixth columns for 10-column format
+                col1 = df.columns[0]  # fragment_id
+                col2 = df.columns[5]  # paired_id
+                pairs = set(zip(df[col1], df[col2]))
+            else:
+                raise ValueError("manually_calibrate file must have either 12 or 10 columns")
+            
+            # Sort the pairs
+            sorted_pairs = sorted(pairs)
+            return sorted_pairs
+
+        def process_fasta_files(extrcon_output_dir_prefix, project_id):
+            # Get all fasta files
+            fasta_files = glob.glob(f"{extrcon_output_dir_prefix}_{project_id}/*.fasta")
+            
+            # Extract pairs from filenames
+            filename_pairs = []
+            for fasta_file in fasta_files:
+                basename = os.path.basename(fasta_file)
+                parts = basename.split('_')
+                if len(parts) >= 4:
+                    pair = (parts[2], parts[3])  # Third and fourth columns
+                    filename_pairs.append((pair, fasta_file))
+            
+            # Sort the pairs
+            sorted_filename_pairs = sorted([p[0] for p in filename_pairs])
+            return sorted_filename_pairs, dict(filename_pairs)
+        
+        def compare_and_clean(manually_calibrate, extrcon_output_dir_prefix, project_id):
+            # Process both inputs
+            manual_pairs = process_manually_calibrate(manually_calibrate)
+            fasta_pairs, fasta_file_map = process_fasta_files(extrcon_output_dir_prefix, project_id)
+            
+            # Convert to sets for comparison
+            manual_set = set(manual_pairs)
+            fasta_set = set(fasta_pairs)
+            
+            # Find common pairs
+            common_pairs = manual_set & fasta_set
+            
+            # Find files to keep and delete
+            files_to_keep = [fasta_file_map[p] for p in common_pairs if p in fasta_file_map]
+            files_to_delete = [fasta_file_map[p] for p in fasta_set - common_pairs if p in fasta_file_map]
+            
+            # Delete files not in common
+            for file_to_delete in files_to_delete:
+                try:
+                    os.remove(file_to_delete)
+                    print(f"Deleted: {file_to_delete}")
+                except OSError as e:
+                    print(f"Error deleting {file_to_delete}: {e}")
+            
+            return files_to_keep
+        
+################################################################################
+################################################################################
         if mode in ['A', 'C']:
             # 初始化colorama  
             init(autoreset=True)  
 
             #### subconfiguration - Process each FASTA file sequentially
             subcon_fasta_files = glob.glob(f"{extrsubcon_output_dir_prefix}_{project_id}/*.fasta")
+            
+            if mode == 'C' and reshap_log:                     # reshap_log 表示用户输入的数据类型，为True时，表示用户设定了重复序列的配对信息，用户输入的文件为 manually_calibrate，以此删除用户为指定的重复序列对
+                subcon_fasta_files = compare_and_clean(manually_calibrate, extrsubcon_output_dir_prefix, project_id)        # 根据用户听的重复序列对应关系，重新定义subcon_fasta_files
 
             subcon_fasta_total = len(subcon_fasta_files)    # 次要构型中需要检测的重复单元个数
             if not args.resume:
@@ -1732,11 +1912,16 @@ def main():
                 f.writelines(unique_lines)
 
 ################################################################################
+################################################################################
         if mode in ['A', 'C']:
             # 初始化colorama  
             init(autoreset=True)  
 
             maincon_fasta_files = glob.glob(f"{extrmaincon_output_dir_prefix}_{project_id}/*.fasta")
+            
+            if mode == 'C' and reshap_log:                     # reshap_log 表示用户输入的数据类型，为True时，表示用户设定了重复序列的配对信息，用户输入的文件为 manually_calibrate，以此删除用户为指定的重复序列对
+                maincon_fasta_files = compare_and_clean(manually_calibrate, extrmaincon_output_dir_prefix, project_id)        # 根据用户听的重复序列对应关系，重新定义 maincon_fasta_files
+            
             maincon_fasta_total = len(maincon_fasta_files)    # 次要构型中需要检测的重复单元个数
             
             #### subconfiguration - Process each FASTA file sequentially
@@ -2446,6 +2631,9 @@ def main():
             # 删除重复序列单元的对应关系  final_repeat-spanning_results
             if os.path.isfile(f"{project_id}/{output_dir_prefix}_{project_id}/recomb-supporting_paired_repeat_correspondence.tsv"):
                 os.remove(f"{project_id}/{output_dir_prefix}_{project_id}/recomb-supporting_paired_repeat_correspondence.tsv") 
+                
+            if os.path.isfile("adjusted_manual_calibrated_list.tsv"):           # 当 mode = C, 且用户指定重复序列单元间的对应关系时，产生的中间结果，在此删除
+                os.remove("adjusted_manual_calibrated_list.tsv")
          
         if mode == 'R':
             os.remove(f"cat_inputfasta_{project_id}.fasta") if os.path.isfile(f"cat_inputfasta_{project_id}.fasta") else None
@@ -2799,7 +2987,6 @@ def main():
             # 手工矫正的结果，修改了表头，通过检查格式，输出结果文件名为 adjusted_manual_calibrated_list_{project_id}.tsv
             # 并复制到 ROUSFinder_results 文件夹内，重新过滤结果时，ROUSFinder_results 被转移到了文件夹 project_id 内。
             manually_calibrate_adj = f"ROUSFinder_results_{project_id}/adjusted_manual_calibrated_list.tsv"
-            # manually_calibrate = config['manually_calibrated_repeat_info'].get('calibrated_repeat_file', '').strip()
             # 以上 manually_calibrate_adj 对应的文件 adjusted_manual_calibrated_list.tsv
             # 以上 manually_calibrate_reset 对应的文件 adjusted_manual_calibrated_list_{project_id}_rep_calibration_table.txt
             

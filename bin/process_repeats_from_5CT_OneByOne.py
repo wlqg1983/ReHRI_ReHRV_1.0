@@ -7,6 +7,7 @@ import pandas as pd
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 
+################################################################################################################################################################
 def main():
     # 创建解析器
     parser = argparse.ArgumentParser(description="Process repeat sequences from 5CT and extract relevant sequences.")
@@ -108,7 +109,7 @@ def main():
         output_fasta_file = os.path.join(current_path, f"repeat_sequences_{args.project_id}.fasta")
         SeqIO.write(extracted_sequences, output_fasta_file, "fasta")
 
-
+################################################################################################################################################################
 if __name__ == "__main__":
     main()
 

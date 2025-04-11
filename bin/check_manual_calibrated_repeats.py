@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import argparse
 import pandas as pd
 from Bio import SeqIO
@@ -118,23 +120,25 @@ def main():
         parser.error("The number of chromosomes must be a positive integer greater than or equal to 1.")
         exit(1)
 
-    # 读取manual_calibrated_list文件
+    # 读取 manual_calibrated_list 文件
     manual_calibrated_list = pd.read_csv(args.list_file, sep=r'\s+|,', engine='python')
     
-    # 调用 check_direction 函数进行检查
+    # 调用 check_direction 函数进行检查 start 与 end 的大小 进而确定 plus 与 minus标注的是否正确
     check_direction(manual_calibrated_list)
 
     # 计算染色体长度及连加矩阵
     cumulative_lengths = calculate_chromosome_lengths(args.fasta_file, args.count)
 
     if args.count > 1: 
-        # 验证染色体编号
+        # 验证染色体编号，编号有自己的规则，要求写死
         validate_chromosome_headers(args.fasta_file, manual_calibrated_list['chromosome'].unique())
-        # 检查列数是否和染色体的条数相符合
+        
+        # 检查列数是否和染色体的条数相符合，多条染色体时，需要有一列表示染色体的编号
         sorted_chromosomes = validate_manual_calibrated_list(manual_calibrated_list, args.count)
          
         # 使用 pd.Categorical() 将 manual_calibrated_list 中的 chromosome 列设为分类变量，并指定其排序顺序为 sorted_chromosomes。
         manual_calibrated_list["chromosome"] = pd.Categorical(manual_calibrated_list["chromosome"], categories=sorted_chromosomes, ordered=True)
+        
         # 使用 sort_values() 按照 chromosome 列的顺序进行排序，这样 manual_calibrated_list 中的染色体顺序将与 sorted_chromosomes 一致。
         manual_calibrated_list = manual_calibrated_list.sort_values(by="chromosome")
         

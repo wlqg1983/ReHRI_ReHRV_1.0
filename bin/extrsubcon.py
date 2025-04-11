@@ -810,7 +810,21 @@ def read_last_line(filename):
         while file.read(1) != b'\n':  # 向后查找第一个换行符
             file.seek(-2, os.SEEK_CUR)
         return file.readline().decode()
-        
+
+########################################################################################################################################################################
+def split_paired_ids(data):
+    """拆分 paired_id 列（如果包含逗号分隔的多个 ID）"""
+    new_data = []
+    for row in data:
+        fragment_id = row[0]
+        paired_ids = row[4].split(',')  # 按逗号分隔 paired_id
+        for pid in paired_ids:
+            # 对每个拆分的 paired_id 创建新行（去除首尾空格）
+            new_row = row.copy()
+            new_row[4] = pid.strip()
+            new_data.append(new_row)
+    return new_data
+    
 ########################################################################################################################################################################
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process repeats and extract flanking sequences in subconfiguration.")
@@ -863,7 +877,10 @@ if __name__ == "__main__":
     data = [lines[0].strip().lower().split('\t')]  # Process the header
     data += [line.strip().split('\t') for line in lines[1:]]  # Process the data rows
     
-    # 现在 new_data 是更新后的数据集，unique_repeats 包含重复单元仅出现一次的重复序列
+    # 3. 拆分 paired_id（如果包含逗号分隔的多个 ID）
+    data = split_paired_ids(data)
+
+    # 4. 现在 new_data 是更新后的数据集，unique_repeats 包含重复单元仅出现一次的重复序列
     data, unique_repeats = filter_unique_repeats(data)
     
     if unique_repeats:

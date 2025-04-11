@@ -10,6 +10,7 @@ def main():
     parser = argparse.ArgumentParser(description="Split TSV file by chromosome")
     parser.add_argument('-i', '--input', required=True, help="Path to the input TSV file")
     parser.add_argument('-o', '--output', default='.', help="Path to the output directory (default is the current directory)")
+    
     args = parser.parse_args()
 
     # 读取 TSV 文件，保持所有列为字符串类型

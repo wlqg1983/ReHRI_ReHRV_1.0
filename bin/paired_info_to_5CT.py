@@ -112,13 +112,12 @@ def create_ctg_final_tsv(processed_data, args):
 
 #####################################################################################################################################################################
 def create_combined_dataframe(data):
-    # 创建原始DataFrame，提取前八列
-    df = pd.DataFrame(data).iloc[:, :8]
-    df.columns = ["fragment_id", "start", "end", "direction", "paired_id", "paired_start", "paired_end", "paired_direction"]
-
+    # 创建原始DataFrame，读取指定的8列
+    df = pd.DataFrame(data)[["fragment_id", "start", "end", "direction", "paired_id", "paired_start", "paired_end", "paired_direction"]]
+    
     # 创建翻转后的DataFrame，对调前四列和后四列的位置
     swapped_df = df.copy()
-    swapped_df.columns = ["paired_id", "paired_start", "paired_end", "paired_direction", "fragment_id", "start", "end", "direction"]
+    swapped_df.columns =  ["paired_id", "paired_start", "paired_end", "paired_direction", "fragment_id", "start", "end", "direction"]
 
     # 合并原始DataFrame和翻转后的DataFrame
     combined_df = pd.concat([df, swapped_df], ignore_index=True)
@@ -128,7 +127,7 @@ def create_combined_dataframe(data):
 #####################################################################################################################################################################
 def main():
     parser = argparse.ArgumentParser(description="Process paired information and generate 5-column table.")
-    parser.add_argument('-i', '--input', type=str, required=True, help='Input aggregate results with 17CT.')
+    parser.add_argument('-i', '--input', type=str, required=True, help='Input aggregate results with at least 8 CT table, including ["fragment_id", "start", "end", "direction", "paired_id", "paired_start", "paired_end", "paired_direction"].')
     parser.add_argument('-o', '--output', type=str, required=True, help='Output file prefix.')
     parser.add_argument('-l', '--genome_length', type=int, required=True, help='Mitogenome length.')
 
@@ -143,6 +142,9 @@ def main():
 
     try:
         data = pd.read_csv(file_path, sep='\t')
+        # Select only the required columns
+        required_columns = ["fragment_id", "start", "end", "direction", "paired_id", "paired_start", "paired_end", "paired_direction"]
+        data = data[required_columns]
 
         data = create_combined_dataframe(data)
 
@@ -160,3 +162,5 @@ def main():
 #####################################################################################################################################################################
 if __name__ == "__main__":
     main()
+
+

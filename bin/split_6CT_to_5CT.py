@@ -54,3 +54,5 @@ if __name__ == "__main__":
 
     input_file = sys.argv[1]
     split_tsv_by_chromosome(input_file)
+
+
