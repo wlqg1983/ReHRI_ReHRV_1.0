@@ -805,11 +805,14 @@ def parse_extramaincon_compl_chain(value):
 
 ########################################################################################################################################################################
 def read_last_line(filename):
-    with open(filename, 'r', encoding='utf-8') as file:
-        file.seek(-2, os.SEEK_END)  # 跳到文件的倒数第二个字节
-        while file.read(1) != b'\n':  # 向后查找第一个换行符
-            file.seek(-2, os.SEEK_CUR)
-        return file.readline().decode()
+    with open(filename, 'rb') as file:
+        try:
+            file.seek(-2, os.SEEK_END)
+            while file.read(1) != b'\n':
+                file.seek(-2, os.SEEK_CUR)
+        except OSError:
+            file.seek(0)
+        return file.readline().decode('utf-8')
 
 ########################################################################################################################################################################
 def split_paired_ids(data):
