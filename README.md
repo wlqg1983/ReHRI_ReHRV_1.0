@@ -1,14 +1,14 @@
-    In organelle genomes, especially mitochondrial genomes, there is a widespread phenomenon of genome recombination mediated by repetitive sequences (direct repeats and inverted repeats), which leads to the emergence of subconfigurations in the genomes. The MiRI software can utilize second- and third-generation sequencing data (reads) to explore the potentially existing subconfigurations within the main configuration of the genome. Meanwhile, it calculates the probabilities of genome recombination mediated by different repetitive sequences based on the number of reads. The MiRIV software can draw genome maps before and after genome recombination to display the genomic structural variations.
-    MiRI and MiRIV need to run in an environment with at least Ubuntu (v20.04) and conda (v23.5.2). The tutorials for software installation and usage are as follows:
+    In organelle genomes, especially mitochondrial genomes, there is a widespread phenomenon of genome recombination mediated by repetitive sequences (direct repeats and inverted repeats), which leads to the emergence of subconfigurations in the genomes. The ReHRI software can utilize second- and third-generation sequencing data (reads) to explore the potentially existing subconfigurations within the main configuration of the genome. Meanwhile, it calculates the probabilities of genome recombination mediated by different repetitive sequences based on the number of reads. The ReHRV software can draw genome maps before and after genome recombination to display the genomic structural variations.
+    ReHRI and ReHRV need to run in an environment with at least Ubuntu (v20.04) and conda (v23.5.2). The tutorials for software installation and usage are as follows:
 
 **1. Install the software**
 
-    (1) Download and install the software from https://github.com/wlqg1983/MiRI_MiRIV_1.0/archive/refs/heads/main.zip
+    (1) Download and install the software from https://github.com/wlqg1983/ReHRI_ReHRV_1.0/archive/refs/heads/main.zip
 
-    unzip MiRI_MiRIV_1.0-main.zip
-    cd  MiRI_MiRIV_1.0-main
-    conda env create -f  MiRI_MiRIV_1.0.yml
-    conda activate MiRI_MiRIV_1.0
+    unzip ReHRI_ReHRV_1.0-main.zip
+    cd  ReHRI_ReHRV_1.0-main
+    conda env create -f  ReHRI_ReHRV_1.0.yml
+    conda activate ReHRI_ReHRV_1.0
     sh Install.sh
     rm Install.sh
     
@@ -16,32 +16,32 @@
 
     (3) Validate install
 
-    python bin/MiRI.py -v
-    MiRI 1.0
+    python bin/ReHRI.py -v
+    ReHRI 1.0
 
-    python bin/MiRIV.py -v
-    MiRIV 1.0
+    python bin/ReHRV.py -v
+    ReHRV 1.0
 
 
 **2. Script of searching subconfigurations**
 
-    python bin/MiRI.py -c MiRI.config.ini
+    python bin/ReHRI.py -c ReHRI.config.ini
     
-    MiRI.py: The main program for subconfiguration search.    
-    MiRI.config.ini: The configuration file for subconfiguration search.
+    ReHRI.py: The main program for subconfiguration search.    
+    ReHRI.config.ini: The configuration file for subconfiguration search.
 
 
 **3. Draw the map of recombination organelle genome**
 
-    python bin/MiRIV.py -c MiRIV.config.ini
+    python bin/ReHRV.py -c ReHRV.config.ini
     
-    MiRIV.py: The main program for drawing genome recombination maps.
-    MiRIV.config.ini: The configuration file for drawing genome recombination maps.
+    ReHRV.py: The main program for drawing genome recombination maps.
+    ReHRV.config.ini: The configuration file for drawing genome recombination maps.
     
 
 **4. Core configuration parameters in the configuration file**
   
-    (1) Core configuration file of MiRI
+    (1) Core configuration file of ReHRI
 ![1 2 3](https://github.com/user-attachments/assets/1b8531bb-2afd-4f75-ae68-b9abf7bbb8d2)
 ![4](https://github.com/user-attachments/assets/cbee84a6-757f-40c1-8be3-319695dff202)
 ![5 6 7](https://github.com/user-attachments/assets/1c3031b7-8d18-486c-8c2d-259a46075ae9)
@@ -55,7 +55,7 @@
 ⑦ The type of sequencing platform (pacbio or ont) of TGS reads.
 
 
-    (2) Core configuration file of MiRIV
+    (2) Core configuration file of ReHRV
     
 ① Set the project ID.
 
@@ -86,7 +86,7 @@
 ![7](https://github.com/user-attachments/assets/a4d6e947-4562-431c-a993-13268a3d1b97)
 
 
-**5. The core input tsv file of MiRIV**
+**5. The core input tsv file of ReHRV**
 
 Provide the information of each repeat pair (.tsv).
 
@@ -97,7 +97,7 @@ Provide the information of each repeat pair (.tsv).
 
     The results of genome recombination mediated by different repeat units are stored in a folder named after the project_id.
     
-(1) Core results of MiRI (final_repeat-spanning_results_AR/paired_repeats_recomb-supporting_ratio.tsv)
+(1) Core results of ReHRI (final_repeat-spanning_results_AR/paired_repeats_recomb-supporting_ratio.tsv)
 ![10](https://github.com/user-attachments/assets/3e620ae4-5afd-47bc-91b2-6398874ddc0f)
 
 ① fragment_id: The ID of repeat unit.
@@ -122,7 +122,7 @@ Provide the information of each repeat pair (.tsv).
 
 ○11 paired: Represents the other repeat unit in a pair of repeat units that mediate genome recombination.
 
-    (2) Results of MiRIV
+    (2) Results of ReHRV
 
 ![13](https://github.com/user-attachments/assets/06688f10-42a7-4e49-8e91-6d97ed34acce)
 ![14](https://github.com/user-attachments/assets/7c131b36-61fd-4fbc-a7a7-4100dd7dcc81)
@@ -136,7 +136,7 @@ The grid of nine squares.
 ![nine_squares_VV](https://github.com/user-attachments/assets/b12e443b-68a5-4512-b64b-a00874525c67)
 
 
-**7. Advanced features of MiRI**
+**7. Advanced features of ReHRI**
 
 (1) Detect custom repeats for genome recombination
 ![Snipaste_2025-02-14_23-37-59](https://github.com/user-attachments/assets/30bea6e6-e8c8-4692-83f5-1b05909f2f58)

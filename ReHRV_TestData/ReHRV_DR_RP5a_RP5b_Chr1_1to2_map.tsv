@@ -1,0 +1,9 @@
+fragment_id	start	end	direction	paired_id	paired_start	paired_end	paired_direction
+RP1a	153164	152647	minus	RP1b	231395	231912	plus
+RP2a	193682	193809	plus	RP2b	231329	231202	minus
+RP3a	196488	196753	plus				
+RP4a	288982	296441	plus	RP4c	322009	327009	plus
+RP4a	288982	296441	plus	RP4b	317468	310009	minus
+RP4b	317468	310009	minus	RP4a	288982	296441	plus
+RP3b	343152	343280	plus				
+RP5a	359772	363702	plus				
