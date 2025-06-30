@@ -1,4 +1,0 @@
-fragment_id	length	start	end	direction	chromosome	paired_id	paired_length	paired_start	paired_end	paired_direction	paired_chromosome
-RP1a	17	4690	4706	plus	chr1	RP1b	17	50595	50611	plus	chr1
-RP2a	16	63176	63161	minus	chr1	RP2b	16	66320	66305	minus	chr1
-RP3a	87	332788	332874	plus	chr2	RP3b	87	359155	359069	minus	chr2
