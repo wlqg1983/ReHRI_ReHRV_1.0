@@ -1,0 +1,3 @@
+fragment_id	length	start	end	direction	paired_id	paired_length	paired_start	paired_end	paired_direction
+RU1a	17	4690	4706	plus	RU1b	17	50595	50611	plus
+RU2a	16	63176	63161	minus	RU2b	16	66320	66305	minus
