@@ -1,8 +1,0 @@
-fragment_id	length	start	end	direction	chromosome
-Repeat_10	16	63176	63161	minus	chr1
-Repeat_10	16	66320	66305	minus	chr1
-Repeat_2	17	4690	4706	plus	chr1
-Repeat_2	17	50595	50611	plus	chr1
-Repeat_15	87	332788	332874	plus	chr2
-Repeat_15	87	359155	359069	minus	chr2
-
