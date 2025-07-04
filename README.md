@@ -9,18 +9,18 @@
     cd  ReHRI_ReHRV_1.0-main
     conda env create -f  ReHRI_ReHRV_1.0.yml
     conda activate ReHRI_ReHRV_1.0
-    sh Install.sh
-    rm Install.sh
+    cp -r bin/plasmidrender $(conda info --base)/envs/ReHRI_ReHRV_1.0/lib/python3.12/site-packages/
+    chmod +x bin/*
     
     (2) To speed up the installation process, you can modify the mirror URLs with a trusted source in the "channels" section of the .yml file. 
 
     (3) Validate install
 
     python bin/ReHRI.py -v
-    ReHRI 1.0
+    ReHRI version=1.0
 
     python bin/ReHRV.py -v
-    ReHRV 1.0
+    ReHRV version=1.0
 
 
 **2. Script of searching subconfigurations**
