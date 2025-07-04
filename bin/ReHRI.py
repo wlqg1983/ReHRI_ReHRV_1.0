@@ -11,9 +11,9 @@ from itertools import accumulate
 import pandas as pd 
 from colorama import Fore, Style, init  
 import numpy as np
-from multiprocessing import Pool, cpu_count
+from multiprocessing import Pool, cpu_count, Manager
 import chardet
-import codecs
+import codecs, gzip
 
 #######################################################################################################################################################################
 def convert_file_to_utf8(file_path):
@@ -28,12 +28,21 @@ def convert_file_to_utf8(file_path):
         UnicodeDecodeError: When the file cannot be decoded with any encoding
         IOError: When file read/write errors occur
     """
+    # Check if file exists before proceeding
+    if not os.path.exists(file_path):
+        print(f"\nError: The specified file does not exist at path: {os.path.abspath(file_path)}")
+        print("Please verify:")
+        print("  1.The file name is correct")
+        print("  2.The file is in the expected directory")
+        print("  3.You have proper read permissions for the file")
+        sys.exit(1)  # Exit with error code 1
+        
     # Phase 1: Detect file encoding
     with open(file_path, 'rb') as f:
         raw_data = f.read(10000)
         result = chardet.detect(raw_data)
         original_encoding = result['encoding']
-        print(f"\nDetected original encoding: {original_encoding} (confidence: {result['confidence']:.2f})")
+        #print(f"\nDetected original encoding: {original_encoding} (confidence: {result['confidence']:.2f})")
 
     # Phase 2: Read file content (try multiple encodings)
     content = None
@@ -48,7 +57,7 @@ def convert_file_to_utf8(file_path):
         try:
             with open(file_path, 'r', encoding=enc) as f:
                 content = f.read()
-            print(f"Successfully read file with encoding [{enc}]")
+            #print(f"Successfully read file with encoding [{enc}]")
             original_encoding = enc
             break
         except UnicodeDecodeError:
@@ -95,8 +104,8 @@ def convert_file_to_utf8(file_path):
             if os.path.exists(temp_file):
                 os.remove(temp_file)
             raise IOError(f"File conversion failed: {str(e)}")
-    else:
-        print(f"File {file_path} is already UTF-8 encoded.\n")
+    #else:
+    #    print(f"File {file_path} is already UTF-8 encoded.\n")
         
 #######################################################################################################################################################################
 def read_ini_file(ini_file_path):
@@ -424,6 +433,253 @@ def fastq_to_fasta_multiprocess(fastq_file, fasta_file, num_processes=None):
 
     print(f"Conversion completed, FASTA file has been saved to {fasta_file}")
     return fasta_file  # 返回生成的FASTA文件路径
+    
+##############################################################################################################################################################
+def process_fasta_chunk(args):
+    """
+    处理FASTA数据块并转换为FASTQ格式
+    :param args: 元组，包含 (chunk, quality_char)
+    :return: FASTQ格式字符串
+    """
+    chunk, quality_char = args
+    fastq_records = []
+    seq_id = None
+    sequence = []
+    
+    for line in chunk:
+        line = line.strip()
+        if line.startswith('>'):
+            if seq_id is not None:
+                # 将前一个记录转换为FASTQ
+                qual = quality_char * len(''.join(sequence))
+                fastq_records.append(f"@{seq_id}\n{''.join(sequence)}\n+\n{qual}")
+            seq_id = line[1:]  # 去掉'>'符号
+            sequence = []
+        else:
+            sequence.append(line)
+    
+    # 添加最后一个记录
+    if seq_id is not None:
+        qual = quality_char * len(''.join(sequence))
+        fastq_records.append(f"@{seq_id}\n{''.join(sequence)}\n+\n{qual}")
+    
+    return "\n".join(fastq_records)
+###############################################################################
+def fasta_to_fastq_multiprocess(fasta_file, fastq_file, num_processes=None, quality_char='I'):
+    """
+    使用多进程将FASTA文件转换为FASTQ文件
+    :param fasta_file: 输入的FASTA文件路径
+    :param fastq_file: 输出的FASTQ文件路径
+    :param num_processes: 使用的进程数，默认为CPU核心数
+    :param quality_char: 质量分数字符，默认为'I'(表示高质量)
+    """
+    if num_processes is None:
+        num_processes = cpu_count()  # 默认使用所有CPU核心
+
+    # 读取FASTA文件
+    with open(fasta_file, 'r', encoding='utf-8') as fa:
+        lines = fa.readlines()
+
+    # 检查文件是否为空
+    if not lines:
+        raise ValueError("FASTA file is empty!")
+
+    # 计算每个进程处理的行数
+    total_lines = len(lines)
+    chunk_size = total_lines // num_processes
+    if chunk_size == 0:
+        chunk_size = 1
+
+    # 确保块边界在记录边界上(即'>'开头的行)
+    chunks = []
+    current_chunk = []
+    for i, line in enumerate(lines):
+        current_chunk.append(line)
+        if line.startswith('>') and len(current_chunk) > 1 and i != 0:
+            chunks.append(current_chunk[:-1])
+            current_chunk = [line]
+    
+    # 添加最后一个块
+    if current_chunk:
+        chunks.append(current_chunk)
+
+    # 调整块数以匹配进程数
+    if len(chunks) > num_processes:
+        # 合并小块
+        while len(chunks) > num_processes:
+            chunks[0].extend(chunks.pop(1))
+    else:
+        # 减少进程数以匹配块数
+        num_processes = min(num_processes, len(chunks))
+
+    # 创建进程池，传递quality_char参数
+    with Pool(processes=num_processes) as pool:
+        # 将quality_char与每个chunk一起传递
+        results = pool.map(process_fasta_chunk, [(chunk, quality_char) for chunk in chunks])
+
+    # 将所有结果合并并写入FASTQ文件
+    with open(fastq_file, 'w', encoding='utf-8') as fq:
+        fq.write("\n".join(results))
+
+    print(f"Since BWA cannot read fasta files, the fasta file here is forcibly converted to fastq file {fastq_file}, and the quality values of all bases are set to {quality_char}.\n ")
+    return fastq_file  # 返回生成的FASTQ文件路径
+
+#######################################################################################################################################################################
+# 将fasta文件根据header从原始的fastq中将fasta转化为fastq
+def read_fasta_headers(fasta_file):
+    """读取fasta文件的headers"""
+    with open(fasta_file, "r") as f:
+        return {record.id for record in SeqIO.parse(f, "fasta")}
+
+def find_safe_split_points(fastq_file, num_chunks):
+    """找到FASTQ文件的安全分割点（确保在记录边界）"""
+    file_size = os.path.getsize(fastq_file)
+    chunk_size = file_size // num_chunks
+    split_points = []
+    
+    with gzip.open(fastq_file, 'rt') if fastq_file.endswith('.gz') else open(fastq_file, 'r') as f:
+        for i in range(1, num_chunks):
+            target_pos = i * chunk_size
+            f.seek(target_pos)
+            # 找到下一个记录起始位置（以@开头的行）
+            while True:
+                line = f.readline()
+                if not line:
+                    break
+                if line.startswith('@'):
+                    split_points.append(f.tell() - len(line))
+                    break
+    return split_points
+
+def process_fastq_segment(args):
+    """Process a segment of FASTQ file without relying on tell()"""
+    fastq_file, start_pos, end_pos, fasta_headers, output_dict = args
+    opener = gzip.open if fastq_file.endswith('.gz') else open
+    
+    with opener(fastq_file, "rt") as f:
+        # Skip to start position if needed
+        if start_pos > 0:
+            f.seek(start_pos)
+            # Find next record start
+            while True:
+                pos = f.tell()  # Get position before reading
+                line = f.readline()
+                if not line:
+                    break
+                if line.startswith('@'):
+                    f.seek(pos)  # Rewind to start of record
+                    break
+        
+        # Process records until end_pos
+        while True:
+            # Read 4 lines (complete FASTQ record)
+            lines = []
+            for _ in range(4):
+                line = f.readline()
+                if not line:
+                    break
+                lines.append(line)
+            
+            # Check if we got a complete record
+            if len(lines) != 4:
+                break
+                
+            # Check if we've passed the end position
+            current_pos = f.tell()
+            if end_pos > 0 and current_pos >= end_pos:
+                break
+                
+            # Process record
+            header = lines[0].strip()
+            sequence = lines[1].strip()
+            plus_line = lines[2].strip()
+            quality = lines[3].strip()
+
+            # Check format
+            if not header.startswith('@'):
+                raise ValueError(f"Invalid FASTQ format: record doesn't start with '@'")
+            if not plus_line.startswith('+'):
+                raise ValueError(f"Invalid FASTQ format: missing '+' line")
+            if len(sequence) != len(quality):
+                raise ValueError(f"Sequence and quality lengths don't match")
+
+            # Check if this record is in our FASTA headers
+            seq_id = header[1:].split()[0]  # Get just the ID part
+            if seq_id in fasta_headers:
+                output_dict[seq_id] = (
+                    header[1:].strip(),  # Full description
+                    sequence,
+                    [ord(q)-33 for q in quality]  # Convert quality to phred scores
+                )
+
+def parallel_process_fastq(fastq_file, fasta_headers, num_processes=4):
+    """使用多进程并行处理fastq文件（真正分块）"""
+    # Get file size
+    file_size = os.path.getsize(fastq_file)
+    
+    # Calculate chunk sizes
+    chunk_size = file_size // num_processes
+    if chunk_size == 0:
+        chunk_size = file_size
+    
+    # Find record boundaries for splitting
+    split_points = []
+    with (gzip.open(fastq_file, 'rt') if fastq_file.endswith('.gz') 
+          else open(fastq_file, 'r')) as f:
+        for i in range(1, num_processes):
+            target_pos = i * chunk_size
+            f.seek(target_pos)
+            # Find next record start
+            while True:
+                line = f.readline()
+                if not line:
+                    break
+                if line.startswith('@'):
+                    split_points.append(f.tell() - len(line))
+                    break
+    
+    # Add start and end points
+    segments = []
+    start_pos = 0
+    for split_pos in split_points + [file_size]:
+        segments.append((fastq_file, start_pos, split_pos, fasta_headers))
+        start_pos = split_pos
+    
+    with Manager() as manager:
+        shared_dict = manager.dict()
+        # Update segments to include shared dict
+        segments = [(f, s, e, h, shared_dict) for f, s, e, h in segments]
+        
+        with Pool(processes=num_processes) as pool:
+            pool.map(process_fastq_segment, segments)
+        
+        return dict(shared_dict)
+
+def write_output_fastq(fasta_file, fastq_records, output_file):
+    """按fasta顺序写入fastq文件"""
+    with open(output_file, "w") as out:
+        with open(fasta_file, "r") as f:
+            for record in SeqIO.parse(f, "fasta"):
+                if record.id in fastq_records:
+                    desc, seq, qual = fastq_records[record.id]
+                    out.write(f"@{desc}\n{seq}\n+\n{''.join(map(lambda x: chr(x+33), qual))}\n")
+
+def convert_fasta_to_fastq_mp(fasta_file, fastq_file, output_file, num_processes=None):
+    """主函数：使用多进程转换fasta到fastq"""
+    if num_processes is None:
+        num_processes = os.cpu_count()
+    
+    # 读取fasta headers
+    fasta_headers = read_fasta_headers(fasta_file)
+    #print(f"Found {len(fasta_headers)} headers in FASTA file")
+    
+    # 并行处理fastq文件
+    fastq_records = parallel_process_fastq(fastq_file, fasta_headers, num_processes)
+    #print(f"Found {len(fastq_records)} matching records in FASTQ file")
+    
+    # 写入输出文件
+    write_output_fastq(fasta_file, fastq_records, output_file)
+    return output_file
 
 #######################################################################################################################################################################
 def concatenate_fasta(input_fasta, output_fasta):
@@ -630,11 +886,11 @@ def config_has_required_sections(config_path: str) -> bool:
 #######################################################################################################################################################################
 def main():
     # Parse command line arguments
-    parser = argparse.ArgumentParser(description="MiRI: A tool to check spanning reads for supporting subconfig of your organelle genome.")
+    parser = argparse.ArgumentParser(description="ReHRI: A tool to check spanning reads for supporting subconfig of your organelle genome.")
     parser.add_argument("-c", dest="config", help="Path to external configuration file.", required=True)
     parser.add_argument("-redo", help="Delete all previous results and start calculation anew.", action="store_true")
     parser.add_argument("-resume", action="store_true", help="Resume from a previous project.")
-    parser.add_argument("-v", "--version", action="version", version="MiRI 1.0", help="Show the version number and exit.")
+    parser.add_argument("-v", "--version", action="version", version="ReHRI version=1.0", help="Show the version number and exit.")
 
     try:
         args = parser.parse_args()
@@ -1687,7 +1943,7 @@ def main():
 #### blast 只能接受fasta格式，minimap2 和 bwa 可以接受 fastq 和 fasta 两种格式，所以，不管是否进行过滤，均将序列文件转为 fasta 格式
 #### 利用blast过滤reads 二代 三代 均要筛选 即使后面使用blast寻找跨越 repeat 的reads, 也同样进行reads的筛选
         if mode in ['A', 'C']:
-            fastq2fasta = False       # 用于删除 fastq 转化来的 fasta
+            fastq2fasta = False        # 用于删除 fastq 转化来的 fasta
             if provided_data_type in ['NGS_single_end', 'TGS']:
                 fastq_prefix = os.path.splitext(os.path.basename(seq_data_value))[0]           # 提取测序数据文件的前缀
                 file_format = check_file_format_efficient(seq_data_value)                      # 检查输入文件的数据格式
@@ -1706,8 +1962,14 @@ def main():
                         # 过滤reads
                         subprocess.run(["bash", os.path.join(dir_path, "blast.filter.sh"), inputfasta, fasta_one, f"{fasta_prefix}_{project_id}", str(seqdepth_threads), str(blast_evalue)], check=True)     
                         seq_data_value_filter = f"{fasta_prefix}_{project_id}_filtered.fasta"         # 重新定义用于比对的reads文件，为以上的"blast.filter.sh"产生的文件名
-                
-                if filter_reads in ['N','NO']:
+                        
+                        if seqdepth_alignment_software == 'bwa':                # 比对软件采用bwa时，需要将fasta转换为fastq格式
+                            if file_format == 'FASTQ':         # 当输入文件为fastq格式，将过滤后的fasta文件再转成fastq，质量值来自未过滤的fastq文件
+                                seq_data_value_filter = convert_fasta_to_fastq_mp(seq_data_value_filter, seq_data_value, f"{fasta_prefix}_{project_id}_filtered.fastq", num_processes=seqdepth_threads)
+                            if file_format == 'FASTA':         # 当输入文件为fasta格式，则采用强制的方法将其转换为fastq格式
+                                seq_data_value_filter = fasta_to_fastq_multiprocess(seq_data_value_filter, f"{fasta_prefix}_{project_id}_filtered.fastq", num_processes=seqdepth_threads)
+
+                if filter_reads in ['N','NO'] and seqdepth_alignment_software != 'bwa':
                     fasta_one = os.path.join(os.getcwd(), fastq_prefix + ".fasta")
                     if not os.path.exists(fasta_one) or not os.path.exists(record_file):
                         if file_format == 'FASTQ':                         # 当输入文件为fastq格式，进行格式转换
@@ -1716,7 +1978,16 @@ def main():
                             fastq2fasta = True
                         elif file_format == 'FASTA':
                             fasta_one = seq_data_value   
-                        
+                
+                if filter_reads in ['N','NO'] and seqdepth_alignment_software == 'bwa':
+                    fasta_one = os.path.join(os.getcwd(), fastq_prefix + ".fasta")
+                    if not os.path.exists(fasta_one) or not os.path.exists(record_file):                 # record_file 用于记录处理过的序列
+                        if file_format == 'FASTA':                         # 当输入文件为fastq格式，进行格式转换
+                            logging.info("Converting fasta to fastq ...") 
+                            fasta_one = fasta_to_fastq_multiprocess(seq_data_value, fastq_prefix + ".fastq", num_processes=seqdepth_threads)
+                        elif file_format == 'FASTQ':                       # bwa 不能接受fasta格式的文件，所以需要将fasta转换成fastq
+                            fasta_one = seq_data_value 
+
             if provided_data_type == 'NGS_pair_ends':
                 fastq1, fastq2 = seq_data_value 
                 if fastq1 == fastq2:              # 检测两个测序文件是不是同名,防止提供了相同的数据
@@ -1741,8 +2012,15 @@ def main():
                         # 过滤reads
                         subprocess.run(["bash", os.path.join(dir_path, "blast.filter.sh"), inputfasta, fasta_pair1, f"{fasta1_prefix}_{project_id}", str(seqdepth_threads), str(blast_evalue)], check=True)     
                         fasta_pair1_filter = f"{fasta1_prefix}_{project_id}_filtered.fasta"    # 重新定义用于比对的reads文件，为以上的"blast.filter.sh"产生的文件名
-                
-                if filter_reads in ['N','NO']:
+
+                        if seqdepth_alignment_software == 'bwa':                # 比对软件采用bwa时，需要将fasta转换为fastq格式
+                            if file_format == 'FASTQ':         # 当输入文件为fastq格式，将过滤后的fasta文件再转成fastq，质量值来自未过滤的fastq文件
+                                fasta_pair1_filter = convert_fasta_to_fastq_mp(fasta_pair1_filter, fastq1, f"{fasta1_prefix}_{project_id}_filtered.fastq", num_processes=seqdepth_threads)
+                                
+                            if file_format == 'FASTA':         # 当输入文件为fasta格式，则采用强制的方法将其转换为fastq格式
+                                fasta_pair1_filter = fasta_to_fastq_multiprocess(fasta_pair1_filter, f"{fasta1_prefix}_{project_id}_filtered.fastq", num_processes=seqdepth_threads)
+
+                if filter_reads in ['N','NO'] and seqdepth_alignment_software != 'bwa':
                     fasta1 = os.path.join(os.getcwd(), fastq1_prefix + ".fasta")
                     if not os.path.exists(fasta1) or not os.path.exists(record_file):
                         if file_format == 'FASTQ':                                   # 当输入文件为fastq格式，进行格式转换
@@ -1753,9 +2031,19 @@ def main():
                             fasta_pair1 = fastq1    
                         fastq1 = fasta_pair1
                     
+                if filter_reads in ['N','NO'] and seqdepth_alignment_software == 'bwa':
+                    fasta1 = os.path.join(os.getcwd(), fastq1_prefix + ".fasta")
+                    if not os.path.exists(fasta1) or not os.path.exists(record_file):
+                        if file_format == 'FASTA':                                     # 当输入文件为fastq格式，进行格式转换
+                            logging.info("Converting fasta (5'-end) to fastq ...")     # bwa 不能接受fasta格式的文件，所以需要将fasta转换成fastq
+                            fasta_pair1 = fasta_to_fastq_multiprocess(fastq1, fastq1_prefix + ".fastq", num_processes=seqdepth_threads)
+                        elif file_format == 'FASTQ':
+                            fasta_pair1 = fastq1    
+                        fastq1 = fasta_pair1
+
                 fastq2_prefix = os.path.splitext(os.path.basename(fastq2))[0]         # 提取前缀
                 file_format = check_file_format_efficient(fastq2)          # 检查输入文件的数据格式
-                fasta_pair2_filter = f"{fasta1_prefix}_{project_id}_filtered.fasta"
+                #fasta_pair2_filter = f"{fasta2_prefix}_{project_id}_filtered.fasta"
                 if filter_reads in ['Y','YES']:
                     fasta_pair2 = os.path.join(os.getcwd(), fastq2_prefix + ".fasta")
                     fasta2_prefix = os.path.splitext(os.path.basename(fasta_pair2))[0]           # 提取前缀
@@ -1770,8 +2058,15 @@ def main():
 
                         subprocess.run(["bash", os.path.join(dir_path, "blast.filter.sh"), inputfasta, fasta_pair2, f"{fastq2_prefix}_{project_id}", str(seqdepth_threads), str(blast_evalue)], check=True)     # 过滤reads
                         fasta_pair2_filter = f"{fasta2_prefix}_{project_id}_filtered.fasta"             # 重新定义用于比对的reads文件，为以上的"blast.filter.sh"产生的文件名
-                
-                if  filter_reads in ['N','NO']:
+
+                        if seqdepth_alignment_software == 'bwa':                # 比对软件采用bwa时，需要将fasta转换为fastq格式
+                            if file_format == 'FASTQ':         # 当输入文件为fastq格式，将过滤后的fasta文件再转成fastq，质量值来自未过滤的fastq文件
+                                fasta_pair2_filter = convert_fasta_to_fastq_mp(fasta_pair2_filter, fastq2, f"{fasta2_prefix}_{project_id}_filtered.fastq", num_processes=seqdepth_threads)
+                                
+                            if file_format == 'FASTA':         # 当输入文件为fasta格式，则采用强制的方法将其转换为fastq格式
+                                fasta_pair2_filter = fasta_to_fastq_multiprocess(fasta_pair2_filter, f"{fasta2_prefix}_{project_id}_filtered.fastq", num_processes=seqdepth_threads)
+
+                if  filter_reads in ['N','NO'] and seqdepth_alignment_software != 'bwa':
                     fasta2 = os.path.join(os.getcwd(), fastq2_prefix + ".fasta")
                     if not os.path.exists(fasta2) or not os.path.exists(record_file):
                         if file_format == 'FASTQ':                                      # 当输入文件为fastq格式，进行格式转换
@@ -1781,7 +2076,17 @@ def main():
                         elif file_format == 'FASTA':
                             fasta_pair2 = fastq2    
                         fastq2 = fasta_pair2
-                    
+
+                if  filter_reads in ['N','NO'] and seqdepth_alignment_software == 'bwa':
+                    fasta2 = os.path.join(os.getcwd(), fastq2_prefix + ".fasta")
+                    if not os.path.exists(fasta2) or not os.path.exists(record_file):
+                        if file_format == 'FASTA':                                      # 当输入文件为fastq格式，进行格式转换
+                            logging.info("Converting fasta (3'-end) to fastq ...")
+                            fasta_pair2 = fasta_to_fastq_multiprocess(fastq2, fastq2_prefix + ".fastq", num_processes=seqdepth_threads)
+                        elif file_format == 'FASTQ':
+                            fasta_pair2 = fastq2    
+                        fastq2 = fasta_pair2
+
 ################################################################################
         def process_manually_calibrate(manually_calibrate):
             # Read the manually_calibrate file
@@ -1945,14 +2250,14 @@ def main():
                             # 使用过滤后的reads seq_data_value，
                             command = ["python", os.path.join(dir_path, "seqdepth.py"), "-alignment", seqdepth_alignment_software, "-reference", fasta_file, "-third", seq_data_value_filter, "-output", map_output, "-threads", str(seqdepth_threads), "-seqdepth_type", "ont"] 
                         else:
-                            command = ["python", os.path.join(dir_path, "seqdepth.py"), "-alignment", seqdepth_alignment_software, "-reference", fasta_file, "-third", seq_data_value, "-output", map_output, "-threads", str(seqdepth_threads), "-seqdepth_type", "ont"]
+                            command = ["python", os.path.join(dir_path, "seqdepth.py"), "-alignment", seqdepth_alignment_software, "-reference", fasta_file, "-third", fasta_one, "-output", map_output, "-threads", str(seqdepth_threads), "-seqdepth_type", "ont"]
 
                     if provided_data_type == 'TGS' and seqdepth_type == 'pacbio':           # 处理 pacbio 三代数据
                         if filter_reads in ['Y','YES']:        ############################################## 采用过滤后的reads，提高后面比对的速度。
                             # 使用过滤后的reads seq_data_value，
                             command = ["python", os.path.join(dir_path, "seqdepth.py"), "-alignment", seqdepth_alignment_software, "-reference", fasta_file, "-third", seq_data_value_filter, "-output", map_output, "-threads", str(seqdepth_threads), "-seqdepth_type", "pacbio"] 
                         else:
-                            command = ["python", os.path.join(dir_path, "seqdepth.py"), "-alignment", seqdepth_alignment_software, "-reference", fasta_file, "-third", seq_data_value, "-output", map_output, "-threads", str(seqdepth_threads), "-seqdepth_type", "pacbio"]
+                            command = ["python", os.path.join(dir_path, "seqdepth.py"), "-alignment", seqdepth_alignment_software, "-reference", fasta_file, "-third", fasta_one, "-output", map_output, "-threads", str(seqdepth_threads), "-seqdepth_type", "pacbio"]
                         
                 ####### 采用 blast 软件 计算测序深度
                 if seqdepth_alignment_software == 'blast':
@@ -2003,10 +2308,9 @@ def main():
         # 如果要求删除中间冗余结果，则可以根据剩下的 subconfiguration 提前删除一些 mainconfiguration，减少一部分比对运算
         # 预设文件名  
         output_filename = f"repeat_supp_subconfig_recomb_{project_id}.txt"  
-        # 如果文件不存在，则创建文件并写入表头  
-        if not os.path.isfile(output_filename):  
-            with open(output_filename, 'w', encoding='utf-8') as f:  
-                f.write("fragment_id\tpaired_id\n")  # 写入表头，使用制表符分隔列  
+        # 1. 如果文件不存在，创建空文件（不写表头）
+        if not os.path.isfile(output_filename):
+            open(output_filename, 'w').close()  # 创建空文件
         
         if mode in ['A', 'C'] and redundant_intermediate_results == "D":  
             # 初始化集合用于存储唯一行
@@ -2032,6 +2336,7 @@ def main():
 
             # 将去重后的内容写回到文件中
             with open(output_filename, 'w', encoding='utf-8') as f:
+                f.write("fragment_id\tpaired_id\n")  # 强制写入表头
                 f.writelines(unique_lines)
 
 ################################################################################
@@ -2117,7 +2422,7 @@ def main():
                 extrmaincon_trimmed_length_reset = extract_trimmed_length_from_filename(fasta_file)
                 if not extrmaincon_trimmed_length_reset:
                     logging.warning(f"Couldn't determine flanked length from file name {fasta_file}. Skipping.")
-                    os.remove(fasta_file) if os.path.isfile(fasta_file) and redundant_intermediate_results == "D" else None      # 截取TSS时，trimmed seq length < 设定的 spanning length，则删除该TSS
+                    os.remove(fasta_file) if os.path.isfile(fasta_file) and redundant_intermediate_results == "D" else None      # 截取TRS时，trimmed seq length < 设定的 spanning length，则删除该TRS
                     continue
                 else:
                     extrmaincon_trimmed_length = extrmaincon_trimmed_length_reset
@@ -2199,35 +2504,39 @@ def main():
                 time.sleep(2)
                     
             ############################
-            # mapping 之后，删除 由fastq转化来的 中间结果 fasta文件，或者是过滤后的reads，直接删掉 
-            if fastq2fasta and provided_data_type == 'NGS_single_end':    
-                os.remove(f"{fasta_one}") if os.path.isfile(f"{fasta_one}") else None
-            if fastq2fasta and provided_data_type == 'TGS': 
-                os.remove(f"{fasta_one}") if os.path.isfile(f"{fasta_one}") else None
-            if fastq2fasta and provided_data_type == 'NGS_pair_ends':
-                os.remove(f"{fasta_pair1}") if os.path.isfile(f"{fasta_pair1}") else None
-                os.remove(f"{fasta_pair2}") if os.path.isfile(f"{fasta_pair2}") else None
-                
             #对于过滤出来的reads，保存下来。
+            ############################
             # 确保目标目录存在
             if not os.path.exists(project_id):
                 os.makedirs(project_id, exist_ok=True)
                 
-            # 获取当前目录下所有以 _filtered.fasta 结尾的文件
+            # 获取当前目录下所有以 _filtered.fasta 结尾的文件，该文件肯定存在
             filtered_files = [f for f in os.listdir('.') if f.endswith(f'_{project_id}_filtered.fasta')]
             # 遍历文件列表并移动文件
-            for file_name in filtered_files:
-                # 构造源文件路径和目标文件路径
-                source_path = os.path.join('.', file_name)  # 当前目录下的文件路径
-                destination_path = os.path.join(project_id, file_name)  # 目标目录下的文件路径
-                # 移动文件
-                shutil.move(source_path, destination_path)
+            if filtered_files:
+                for file_name in filtered_files:
+                    # 构造源文件路径和目标文件路径
+                    source_path = os.path.join('.', file_name)  # 当前目录下的文件路径
+                    destination_path = os.path.join(project_id, file_name)  # 目标目录下的文件路径
+                    # 移动文件
+                    shutil.move(source_path, destination_path)
+            # 获取当前目录下所有以 _filtered.fastq 结尾的文件，当必读及软件是bwa时，该文件存在,将其保留
+            filtered_files = [f for f in os.listdir('.') if f.endswith(f'_{project_id}_filtered.fastq')]
+            
+            # 遍历文件列表并移动文件
+            if filtered_files:
+                for file_name in filtered_files:
+                    # 构造源文件路径和目标文件路径
+                    source_path = os.path.join('.', file_name)  # 当前目录下的文件路径
+                    destination_path = os.path.join(project_id, file_name)  # 目标目录下的文件路径
+                    # 移动文件
+                    shutil.move(source_path, destination_path)
 
             #### mainconfiguration - Process each FASTA file sequentially
             logging.info(f"The {maincon_fasta_total} repeat units in the mainconfiguration have been processed completely! \n")
             time.sleep(2)
             
-            if redundant_intermediate_results == "D":    # 将不支持 subconfiguration 的 repeat 对应的 mainconfiguration 的 fasta 序列删除
+            if redundant_intermediate_results == "D":    # 对 mainconfiguration 的 fasta 做完mapping后，截取的fasta序列删除
                 maincon_fasta_files = glob.glob(f"{extrmaincon_output_dir_prefix}_{project_id}/*.fasta")
                 for fasta_file in maincon_fasta_files:
                     os.remove(fasta_file) if os.path.isfile(fasta_file) else None
@@ -2720,36 +3029,29 @@ def main():
 
 ################################################################################
         if mode in ['A', 'C']: 
-            # 删除形成的fasta文件，释放空间，这是为blast运行产生的fasta格式 
-            if 'fasta_prefix' in locals() and os.path.isfile(f"{fasta_prefix}.fasta") and redundant_intermediate_results == "D":
-                os.remove(f"{fasta_prefix}.fasta")
-            if 'fasta1_prefix' in locals() and os.path.isfile(f"{fasta1_prefix}.fasta") and redundant_intermediate_results == "D":
-                os.remove(f"{fasta1_prefix}.fasta")
-            if 'fasta2_prefix' in locals() and os.path.isfile(f"{fasta2_prefix}.fasta") and redundant_intermediate_results == "D":
-                os.remove(f"{fasta2_prefix}.fasta")
-                
+            # 删除形成的fasta文件，释放空间，这是为blast运行过滤之前，由用户提供的fastq产生的fasta格式 
+            if fastq2fasta and provided_data_type == 'NGS_single_end' and redundant_intermediate_results == "D":    
+                os.remove(f"{fasta_one}") if os.path.isfile(f"{fasta_one}") else None
+            if fastq2fasta and provided_data_type == 'TGS' and redundant_intermediate_results == "D": 
+                os.remove(f"{fasta_one}") if os.path.isfile(f"{fasta_one}") else None
+            if fastq2fasta and provided_data_type == 'NGS_pair_ends' and redundant_intermediate_results == "D":
+                os.remove(f"{fasta_pair1}") if os.path.isfile(f"{fasta_pair1}") else None
+                os.remove(f"{fasta_pair2}") if os.path.isfile(f"{fasta_pair2}") else None
+
+            if fastq2fasta and provided_data_type == 'NGS_single_end' and redundant_intermediate_results == "K":    
+                shutil.move(f"{fasta_one}", f"{project_id}") if os.path.isfile(f"{fasta_one}") else None
+            if fastq2fasta and provided_data_type == 'TGS' and redundant_intermediate_results == "K": 
+                shutil.move(f"{fasta_one}", f"{project_id}") if os.path.isfile(f"{fasta_one}") else None
+            if fastq2fasta and provided_data_type == 'NGS_pair_ends' and redundant_intermediate_results == "K":
+                shutil.move(f"{fasta_pair1}", f"{project_id}") if os.path.isfile(f"{fasta_pair1}") else None
+                shutil.move(f"{fasta_pair2}", f"{project_id}") if os.path.isfile(f"{fasta_pair2}") else None
+
             # 重新归档 多条序列合并后的pseudo-genome
             shutil.move(f"cat_inputfasta_{project_id}.fasta", f"{project_id}") if os.path.isfile(f"cat_inputfasta_{project_id}.fasta") else None
             # 重新归档 支持基因组重组的重复序列单元
             shutil.move(f"repeat_supp_subconfig_recomb_{project_id}.txt", f"{project_id}") if os.path.isfile(f"repeat_supp_subconfig_recomb_{project_id}.txt") else None
             # 重新归档 断点继续计算的支持文件
             shutil.move(f"record_for_resume_{project_id}.txt", f"{project_id}") if os.path.isfile(f"record_for_resume_{project_id}.txt") else None
-            
-            if filter_reads in ['Y','YES']:        # 当过滤的时候，判断是否保留过滤的中间结果 
-                # 重新归档筛选出来的fasta序列，由read_filter = YES 时过滤出来的reads，为fasta格式，文件名含有project_id
-                if provided_data_type in ['NGS_single_end', 'TGS'] and redundant_intermediate_results == 'K':
-                    shutil.move(f"{seq_data_value_filter}", f"{project_id}") if os.path.isfile(f"{seq_data_value_filter}") else None
-                if fastq2fasta and provided_data_type in ['NGS_single_end', 'TGS'] and redundant_intermediate_results == 'D':
-                    os.remove(f"{seq_data_value_filter}") if os.path.isfile(f"{seq_data_value_filter}") else None
-                    
-                # 以上筛选的fasta序列一定存在，单端和三代均能产生，但是双端数据必须是用的双端数据时才会产生
-                if provided_data_type == 'NGS_pair_ends' and redundant_intermediate_results == 'K': 
-                    shutil.move(f"{fasta_pair1_filter}", f"{project_id}") if os.path.isfile(f"{fasta_pair1_filter}") else None
-                    shutil.move(f"{fasta_pair2_filter}", f"{project_id}") if os.path.isfile(f"{fasta_pair2_filter}") else None
-                    
-                if provided_data_type == 'NGS_pair_ends' and redundant_intermediate_results == 'D': 
-                    os.remove(f"{fasta_pair1_filter}") if os.path.isfile(f"{fasta_pair1_filter}") else None
-                    os.remove(f"{fasta_pair2_filter}") if os.path.isfile(f"{fasta_pair2_filter}") else None
 
             # 删除重复序列单元的对应关系  final_repeat-spanning_results
             if os.path.isfile(f"{project_id}/{output_dir_prefix}_{project_id}/recomb-supporting_paired_repeat_correspondence.tsv"):

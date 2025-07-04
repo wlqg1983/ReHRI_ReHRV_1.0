@@ -182,7 +182,7 @@ if __name__ == "__main__":
     parser.add_argument("-third", metavar="FASTQ", help="Specifies third-generation sequencing data.")
     parser.add_argument("-output", type=str, help="Specify the output prefix for the image file.")
     parser.add_argument("-threads", type=str, help="threads for the mapping softwares.")
-    parser.add_argument("-seqdepth_type", type=str, choices=['ont', 'pacbio', None], help="Type for third-generation sequencing data. Choices: 'ont', 'pacbio'.")
+    parser.add_argument("-seqdepth_type", type=str, choices=['ont', 'pacbio', ''], help="Type for third-generation sequencing data. Choices: 'ont', 'pacbio'.")
     parser.add_argument("-spanning_length", default=1, type=int, help="Spanning length of reads supporting mitogenome recombination.")
     parser.add_argument("-evalue", default="1e-5", type=str, help="Spanning length of reads supporting mitogenome recombination.")
 

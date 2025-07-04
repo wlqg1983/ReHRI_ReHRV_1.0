@@ -9,6 +9,26 @@ import chardet
 import codecs
 
 #######################################################################################################################################################################
+def check_file_exists(file_path):
+    """
+    Check if a file exists at the specified path.
+    
+    Args:
+        file_path (str): Path to the file to be checked
+        
+    Returns:
+        None: Exits program with error code 1 if file doesn't exist
+    """
+    # Check if file exists before proceeding
+    if not os.path.exists(file_path):
+        print(f"\nError: The specified file does not exist at path: {os.path.abspath(file_path)}")
+        print("Please verify:")
+        print("  1. The file name is correct")
+        print("  2. The file is in the expected directory")
+        print("  3. You have proper read permissions for the file")
+        sys.exit(1)  # Exit with error code 1
+
+################################################################################
 def convert_file_to_utf8(file_path):
     """
     Convert file encoding to UTF-8 (no return value, directly modifies the source file)
@@ -26,7 +46,7 @@ def convert_file_to_utf8(file_path):
         raw_data = f.read(10000)
         result = chardet.detect(raw_data)
         original_encoding = result['encoding']
-        print(f"Detected original encoding: {original_encoding} (confidence: {result['confidence']:.2f})")
+        #print(f"Detected original encoding: {original_encoding} (confidence: {result['confidence']:.2f})")
 
     # Phase 2: Read file content (try multiple encodings)
     content = None
@@ -41,7 +61,7 @@ def convert_file_to_utf8(file_path):
         try:
             with open(file_path, 'r', encoding=enc) as f:
                 content = f.read()
-            print(f"Successfully read file with encoding [{enc}]")
+            #print(f"Successfully read file with encoding [{enc}]")
             original_encoding = enc
             break
         except UnicodeDecodeError:
@@ -65,7 +85,7 @@ def convert_file_to_utf8(file_path):
             for i in range(10, 0, -1):
                 print(f"\rAuto-proceeding in {i} seconds... (Press Ctrl+C to cancel)", end='')
                 sys.stdout.flush()
-                time.sleep(1)
+                time.sleep(10)
             print("\nStarting conversion...")
         except KeyboardInterrupt:
             print("\nOperation cancelled by user")
@@ -88,8 +108,8 @@ def convert_file_to_utf8(file_path):
             if os.path.exists(temp_file):
                 os.remove(temp_file)
             raise IOError(f"File conversion failed: {str(e)}")
-    else:
-        print(f"File {file_path} is already UTF-8 encoded, no conversion needed")
+    #else:
+    #    print(f"File {file_path} is already UTF-8 encoded.")
 
 #######################################################################################################################################################
 def is_valid_project_id(project_id):
@@ -316,7 +336,7 @@ def validate_file_format(file_path):
         
         
 ################################################################################
-def check_rp_ids_in_color_library(file_path, color_library):
+def check_RU_ids_in_color_library(file_path, color_library):
     """
     Check if RU-prefixed repeat sequence IDs in the file exist in the color library.
 
@@ -332,18 +352,18 @@ def check_rp_ids_in_color_library(file_path, color_library):
         FileNotFoundError: If the file does not exist.
     """
     # Convert color_library to a set of RU IDs for faster lookup
-    color_library_ids = {rp_id for rp_id, _ in color_library}
+    color_library_ids = {RU_id for RU_id, _ in color_library}
 
     # Function to extract the base RU ID (e.g., 'RU61a' -> 'RU61')
-    def extract_base_rp_id(fragment_id):
+    def extract_base_RU_id(fragment_id):
         if fragment_id.startswith('RU'):
             # Remove the suffix (e.g., 'a', 'b', 'aa', etc.)
-            base_rp_id = ''.join([char for char in fragment_id if char.isdigit() or (char in ['R', 'P'])])
-            return base_rp_id
+            base_RU_id = ''.join([char for char in fragment_id if char.isdigit() or (char in ['R', 'U'])])
+            return base_RU_id
         return None
 
     # Read the file and check for missing RU IDs
-    missing_rp_ids = set()
+    missing_RU_ids = set()
 
     try:
         with open(file_path, 'r', encoding='utf-8') as file:
@@ -356,15 +376,15 @@ def check_rp_ids_in_color_library(file_path, color_library):
                 fragment_id = columns[0]
                 
                 # Extract the base RU ID
-                base_rp_id = extract_base_rp_id(fragment_id)
+                base_RU_id = extract_base_RU_id(fragment_id)
                 
                 # Check if the base RU ID is in the color_library
-                if base_rp_id and base_rp_id not in color_library_ids:
-                    missing_rp_ids.add(base_rp_id)
+                if base_RU_id and base_RU_id not in color_library_ids:
+                    missing_RU_ids.add(base_RU_id)
         
         # Report missing RU IDs
-        if missing_rp_ids:
-            error_message = f"The following Repeat IDs are missing in the '[color_library]' section: {', '.join(missing_rp_ids)}"
+        if missing_RU_ids:
+            error_message = f"The following Repeat IDs are missing in the '[color_library]' section: {', '.join(missing_RU_ids)}"
             logging.error(error_message)
             print()
             sys.exit(1)
@@ -403,10 +423,10 @@ def config_has_required_sections(config_path: str) -> bool:
     
 ##########################################################################################################################################
 def main():
-    parser = argparse.ArgumentParser(description="MiRIV: A tool to map the confgiure of your organelle genome.")
+    parser = argparse.ArgumentParser(description="ReHRV: A tool to map the confgiure of your organelle genome.")
     parser.add_argument("-c", dest="config", help="Path to external configuration file.", required=True)
     parser.add_argument("-redo", help="Delete all previous results and start calculation anew.", action="store_true")
-    parser.add_argument("-v", "--version", action="version", version="MiRIV 1.0", help="Show the version number and exit.")
+    parser.add_argument("-v", "--version", action="version", version="ReHRV version=1.0", help="Show the version number and exit.")
 
     try:
         args = parser.parse_args()
@@ -460,6 +480,7 @@ def main():
     auto_map_main = config['mainconfiguration'].get('auto_map', 'Y').upper()
     if auto_map_main in ["Y","YES"]:
         inputfile_main = config['mainconfiguration']['inputfile']
+        check_file_exists(inputfile_main)                 # 检查文件是否存在
         convert_file_to_utf8(inputfile_main)         # 文本格式的转换，防止Win/Mac下的文档在linux下读取出问题，统一转换为utf-8
         
         genome_length_main = int(config['mainconfiguration']['genome_length'])
@@ -486,6 +507,8 @@ def main():
     if auto_map_inv in ["Y","YES","M"]:
         inputfile_inv = config['IR_mediated_reverse_recomb']['inputfile']
         inputfasta_inv = config['IR_mediated_reverse_recomb']['inputfasta']
+        check_file_exists(inputfile_inv)                 # 检查文件是否存在
+        check_file_exists(inputfasta_inv)                 # 检查文件是否存在
         convert_file_to_utf8(inputfile_inv)         # 文本格式的转换，防止Win/Mac下的文档在linux下读取出问题，统一转换为utf-8
         convert_file_to_utf8(inputfasta_inv)         # 文本格式的转换，防止Win/Mac下的文档在linux下读取出问题，统一转换为utf-8
         
@@ -516,6 +539,8 @@ def main():
     if auto_map_dr_1to2 in ["Y","YES","M"]:
         inputfile_1to2 = config['DR_mediated_recomb_1to2']['inputfile']
         inputfasta_1to2 = config['DR_mediated_recomb_1to2']['inputfasta']
+        check_file_exists(inputfile_1to2)                 # 检查文件是否存在
+        check_file_exists(inputfasta_1to2)                 # 检查文件是否存在
         convert_file_to_utf8(inputfile_1to2)         # 文本格式的转换，防止Win/Mac下的文档在linux下读取出问题，统一转换为utf-8
         convert_file_to_utf8(inputfasta_1to2)         # 文本格式的转换，防止Win/Mac下的文档在linux下读取出问题，统一转换为utf-8
         
@@ -551,6 +576,10 @@ def main():
         chr2_fasta_2to1 = config['DR_mediated_recomb_2to1'].get('chr2_fasta', '')
         chr1_type_2to1 = config['DR_mediated_recomb_2to1'].get('chr1_type', 'C').upper()
         chr2_type_2to1 = config['DR_mediated_recomb_2to1'].get('chr2_type', 'C').upper()
+        check_file_exists(chr1_file_2to1)                 # 检查文件是否存在
+        check_file_exists(chr2_file_2to1)                 # 检查文件是否存在
+        check_file_exists(chr1_fasta_2to1)                 # 检查文件是否存在
+        check_file_exists(chr2_fasta_2to1)                 # 检查文件是否存在
         convert_file_to_utf8(chr1_file_2to1)         # 文本格式的转换，防止Win/Mac下的文档在linux下读取出问题，统一转换为utf-8
         convert_file_to_utf8(chr2_file_2to1)         # 文本格式的转换，防止Win/Mac下的文档在linux下读取出问题，统一转换为utf-8
         convert_file_to_utf8(chr1_fasta_2to1)         # 文本格式的转换，防止Win/Mac下的文档在linux下读取出问题，统一转换为utf-8
@@ -595,6 +624,10 @@ def main():
         chr2_file_2to2 = config['DR_mediated_recomb_2to2'].get('chr2_file', '')
         chr1_fasta_2to2 = config['DR_mediated_recomb_2to2'].get('chr1_fasta', '')
         chr2_fasta_2to2 = config['DR_mediated_recomb_2to2'].get('chr2_fasta', '')
+        check_file_exists(chr1_file_2to2)                 # 检查文件是否存在
+        check_file_exists(chr2_file_2to2)                 # 检查文件是否存在
+        check_file_exists(chr1_fasta_2to2)                 # 检查文件是否存在
+        check_file_exists(chr2_fasta_2to2)                 # 检查文件是否存在
         convert_file_to_utf8(chr1_file_2to2)         # 文本格式的转换，防止Win/Mac下的文档在linux下读取出问题，统一转换为utf-8
         convert_file_to_utf8(chr2_file_2to2)         # 文本格式的转换，防止Win/Mac下的文档在linux下读取出问题，统一转换为utf-8
         convert_file_to_utf8(chr1_fasta_2to2)         # 文本格式的转换，防止Win/Mac下的文档在linux下读取出问题，统一转换为utf-8
@@ -740,7 +773,7 @@ def main():
         logging.info(f"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
         
         validate_file_format(inputfile_main)            # 检验读入的8CT是否符合程序要求的格式
-        check_rp_ids_in_color_library(inputfile_main, color_library)           # 检验重复序列有没有被设置颜色
+        check_RU_ids_in_color_library(inputfile_main, color_library)           # 检验重复序列有没有被设置颜色
         
         prefix = os.path.splitext(os.path.basename(inputfile_main))[0]
         os.system(f"python {current_dir}/paired_info_to_5CT.py -i {inputfile_main} -o {prefix}_{project_id}_5CT.tsv -l {genome_length_main}")
@@ -790,7 +823,7 @@ def main():
         logging.info(f"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
         
         validate_file_format(inputfile_inv)       # 检验读入的8CT是否符合程序要求的格式
-        check_rp_ids_in_color_library(inputfile_inv, color_library)           # 检验重复序列有没有被设置颜色
+        check_RU_ids_in_color_library(inputfile_inv, color_library)           # 检验重复序列有没有被设置颜色
         
         prefix = os.path.splitext(os.path.basename(inputfile_inv))[0]
         os.system(f"python {current_dir}/paired_info_to_5CT.py -i {inputfile_inv} -o {prefix}_{project_id}_5CT.tsv -l {genome_length_inv}")
@@ -897,7 +930,7 @@ def main():
         logging.info(f"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
 
         validate_file_format(inputfile_1to2)       # 检验读入的8CT是否符合程序要求的格式
-        check_rp_ids_in_color_library(inputfile_1to2, color_library)           # 检验重复序列有没有被设置颜色
+        check_RU_ids_in_color_library(inputfile_1to2, color_library)           # 检验重复序列有没有被设置颜色
 
         prefix = os.path.splitext(os.path.basename(inputfile_1to2))[0]
         os.system(f"python {current_dir}/paired_info_to_5CT.py -i {inputfile_1to2} -o {prefix}_{project_id}_5CT.tsv -l {genome_length_1to2}")
@@ -1016,8 +1049,8 @@ def main():
 
         validate_file_format(chr1_file_2to1)       # 检验读入的8CT是否符合程序要求的格式
         validate_file_format(chr2_file_2to1)       # 检验读入的8CT是否符合程序要求的格式
-        check_rp_ids_in_color_library(chr1_file_2to1, color_library)           # 检验重复序列有没有被设置颜色
-        check_rp_ids_in_color_library(chr2_file_2to1, color_library)           # 检验重复序列有没有被设置颜色
+        check_RU_ids_in_color_library(chr1_file_2to1, color_library)           # 检验重复序列有没有被设置颜色
+        check_RU_ids_in_color_library(chr2_file_2to1, color_library)           # 检验重复序列有没有被设置颜色
 
         prefix_chr1 = os.path.splitext(os.path.basename(chr1_file_2to1))[0]
         os.system(f"python {current_dir}/paired_info_to_5CT.py -i {chr1_file_2to1} -o {prefix_chr1}_{project_id}_5CT.tsv -l {chr1_len_2to1}")
@@ -1146,8 +1179,8 @@ def main():
 
         validate_file_format(chr1_file_2to2)       # 检验读入的8CT是否符合程序要求的格式
         validate_file_format(chr2_file_2to2)       # 检验读入的8CT是否符合程序要求的格式
-        check_rp_ids_in_color_library(chr1_file_2to2, color_library)           # 检验重复序列有没有被设置颜色
-        check_rp_ids_in_color_library(chr2_file_2to2, color_library)           # 检验重复序列有没有被设置颜色
+        check_RU_ids_in_color_library(chr1_file_2to2, color_library)           # 检验重复序列有没有被设置颜色
+        check_RU_ids_in_color_library(chr2_file_2to2, color_library)           # 检验重复序列有没有被设置颜色
 
         prefix_chr1 = os.path.splitext(os.path.basename(chr1_file_2to2))[0]
         os.system(f"python {current_dir}/paired_info_to_5CT.py -i {chr1_file_2to2} -o {prefix_chr1}_{project_id}_5CT.tsv -l {chr1_len_2to2}")

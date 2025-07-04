@@ -31,9 +31,6 @@ seqdepth_type="$5"
 # Create output directory if it does not exist
 mkdir -p "$output_dir"
 
-# Index reference genome
-#bwa index "$reference"
-
 # Determine the correct preset for the sequencing depth type
 preset_option=""
 if [ "$seqdepth_type" == "ont" ]; then
@@ -69,11 +66,4 @@ if [ "$files_exist" = false ]; then
     [ -f "${reference}.pac" ] && rm "${reference}.pac"
     [ -f "${reference}.sa" ] && rm "${reference}.sa"
 fi
-
-
-
-
-
-
-
 
