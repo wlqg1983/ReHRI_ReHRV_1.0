@@ -9,8 +9,7 @@
     cd  ReHRI_ReHRV_1.0-main
     conda env create -f  ReHRI_ReHRV_1.0.yml
     conda activate ReHRI_ReHRV_1.0
-    sh Install.sh
-    rm Install.sh
+
     
     (2) To speed up the installation process, you can modify the mirror URLs with a trusted source in the "channels" section of the .yml file. 
 
