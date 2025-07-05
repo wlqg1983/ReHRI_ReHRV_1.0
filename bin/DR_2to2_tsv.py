@@ -442,14 +442,14 @@ def split_data_and_fasta_by_paired_direct_repeats(paired_ids, unique_ids_with_di
         new_fasta1 = seq_before_end1 + seq_after_end2
         new_fasta2 = seq_before_end2 + seq_after_end1
         
-        filename1 = f"{args.output_file}_DR_{id1}_{id2}_c1_2to2.fasta" 
-        with open(filename1, 'w', encoding='utf-8') as fasta_file:                      # 根据从两个8CT形成的一个5CT，产生5CT对应的fasta  f"{id1}_{id2}_c1",
+        filename1 = f"{args.output_file}_DR_{id1}_{id2}_chr1_2to2.fasta" 
+        with open(filename1, 'w', encoding='utf-8') as fasta_file:                      # 根据从两个8CT形成的一个5CT，产生5CT对应的fasta  f"{id1}_{id2}_chr1",
             fasta_file.write(f">DR_{id1}_{start1}_{end1}_Linear_{seq_before_end_length1 + seq_after_end_length2}_2to2\n")  
             # Split the sequence into lines of 100 characters for readability  
             for i in range(0, len(new_fasta1), 100):  
                 fasta_file.write(str(new_fasta1[i : i+100]) + "\n") 
                 
-        filename2 = f"{args.output_file}_DR_{id1}_{id2}_c2_2to2.fasta"
+        filename2 = f"{args.output_file}_DR_{id1}_{id2}_chr2_2to2.fasta"
         with open(filename2, 'w', encoding='utf-8') as fasta_file:                      # 根据从两个8CT形成的一个5CT，产生5CT对应的fasta
             fasta_file.write(f">DR_{id2}_{start2}_{end2}_Linear_{seq_before_end_length2 + seq_after_end_length1}_2to2\n")  
             # Split the sequence into lines of 100 characters for readability  
@@ -463,16 +463,16 @@ def split_data_and_fasta_by_paired_direct_repeats(paired_ids, unique_ids_with_di
         combined_new_data2 = convert_length_to_start_end(combined_new_data2)
         
         # 将combined_new_data保存为5列表，用于绘图
-        save_5CT_for_mapping(combined_new_data1, f"{id1}_{id2}_c1", args)
-        save_5CT_for_mapping(combined_new_data2, f"{id1}_{id2}_c2", args)
+        save_5CT_for_mapping(combined_new_data1, f"{id1}_{id2}_chr1", args)
+        save_5CT_for_mapping(combined_new_data2, f"{id1}_{id2}_chr2", args)
         
         # 从拆开的5CT出发，产生8CT，即绘制的图谱对应的8CT。
         eight_column_table1 =  form_8CT_from_5CT(combined_new_data1, chrom1_file, args)
         eight_column_table2 =  form_8CT_from_5CT(combined_new_data2, chrom2_file, args)
         
         # 去重产生的8CT，并保存
-        drop_duplicates_and_save_8CT(eight_column_table1, f"{id1}_{id2}_c1", args)
-        drop_duplicates_and_save_8CT(eight_column_table2, f"{id1}_{id2}_c2", args)
+        drop_duplicates_and_save_8CT(eight_column_table1, f"{id1}_{id2}_chr1", args)
+        drop_duplicates_and_save_8CT(eight_column_table2, f"{id1}_{id2}_chr2", args)
         
 ################################################################################
 def drop_duplicates_and_save_8CT(merged_file, label, args):
