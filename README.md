@@ -38,6 +38,6 @@
     ReHRV.config.ini: The configuration file for drawing genome recombination maps.
     
 
-**4. Core configuration parameters in the configuration file**
+**For more detailed usage instructions, please refer to the tutorial document！！**
   
    
