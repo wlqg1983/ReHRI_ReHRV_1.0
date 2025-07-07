@@ -386,11 +386,11 @@ def process_fastq_chunk(chunk):
 
         # 检查格式
         if not header.startswith('@'):
-            raise ValueError(f"FASTQ文件格式错误：第{i + 1}行不是以'@'开头")
+            raise ValueError(f"FASTQ file format error: Line {i+1} does not start with '@'!")
         if not plus_line.startswith('+'):
-            raise ValueError(f"FASTQ文件格式错误：第{i + 3}行不是以'+'开头")
+            raise ValueError(f"FASTQ file format error: Line {i+3} does not start with '+'!")
         if len(sequence) != len(quality):
-            raise ValueError(f"FASTQ文件格式错误：第{i + 2}行的序列长度与第{i + 4}行的质量信息长度不一致")
+            raise ValueError(f"FASTQ file format error: The sequence length on line {i+2} is inconsistent with the quality information length on line {i+4}!")
 
         # 转换为FASTA格式
         fasta_lines.append(f">{header[1:]}\n{sequence}\n")
@@ -414,7 +414,15 @@ def fastq_to_fasta_multiprocess(fastq_file, fasta_file, num_processes=None):
 
     # 检查文件是否完整
     if len(lines) % 4 != 0:
-        raise ValueError("FASTQ文件格式错误：文件不完整，记录数不是4的倍数")
+        raise ValueError(
+        "FASTQ file format error: Incomplete records detected (total lines = {}, not divisible by 4).\n"
+        "Possible solutions:\n"
+        "1. Manually inspect and repair the file using a text editor\n"
+        "2. Use bioinformatics tools like:\n"
+        "   - fastp: 'fastp -i corrupted.fastq -o repaired.fastq'\n"
+        "   - seqtk: 'seqtk seq -L0 input.fastq > output.fastq'\n"
+        "3. Re-download the original file if possible".format(len(lines))
+    )
 
     # 每个进程处理的记录数
     chunk_size = len(lines) // (4 * num_processes)
@@ -597,11 +605,11 @@ def process_fastq_segment(args):
 
             # Check format
             if not header.startswith('@'):
-                raise ValueError(f"Invalid FASTQ format: record doesn't start with '@'")
+                raise ValueError(f"Invalid FASTQ format: record doesn't start with '@'!")
             if not plus_line.startswith('+'):
-                raise ValueError(f"Invalid FASTQ format: missing '+' line")
+                raise ValueError(f"Invalid FASTQ format: missing '+' line!")
             if len(sequence) != len(quality):
-                raise ValueError(f"Sequence and quality lengths don't match")
+                raise ValueError(f"Sequence and quality lengths don't match!")
 
             # Check if this record is in our FASTA headers
             seq_id = header[1:].split()[0]  # Get just the ID part
@@ -671,11 +679,11 @@ def convert_fasta_to_fastq_mp(fasta_file, fastq_file, output_file, num_processes
     
     # 读取fasta headers
     fasta_headers = read_fasta_headers(fasta_file)
-    #print(f"Found {len(fasta_headers)} headers in FASTA file")
+    #print(f"Found {len(fasta_headers)} headers in FASTA file!")
     
     # 并行处理fastq文件
     fastq_records = parallel_process_fastq(fastq_file, fasta_headers, num_processes)
-    #print(f"Found {len(fastq_records)} matching records in FASTQ file")
+    #print(f"Found {len(fastq_records)} matching records in FASTQ file!")
     
     # 写入输出文件
     write_output_fastq(fasta_file, fastq_records, output_file)
@@ -720,7 +728,7 @@ def parse_repeat_lengths(repeat_length_str, sequence_lengths):
                     start = int(start) if start else min_value
                     validate_positive_integer(start, 'start')
                 except ValueError as e:
-                    logging.error(f"Validation error for start: {e}")
+                    logging.error(f"Validation error for start: {e}.")
                     sys.exit(1)
                 except KeyboardInterrupt:
                     logging.info("User terminated the program using Ctrl+C.")
@@ -729,7 +737,7 @@ def parse_repeat_lengths(repeat_length_str, sequence_lengths):
                     end = int(end) if end else sequence_lengths
                     validate_positive_integer(end, 'end')
                 except ValueError as e:
-                    logging.error(f"Validation error for end: {e}")
+                    logging.error(f"Validation error for end: {e}.")
                     sys.exit(1)
                 except KeyboardInterrupt:
                     logging.info("User terminated the program using Ctrl+C.")
@@ -744,7 +752,7 @@ def parse_repeat_lengths(repeat_length_str, sequence_lengths):
                     length = int(part)
                     validate_positive_integer(length, 'length')
                 except ValueError as e:
-                    logging.error(f"Validation error for length: {e}")
+                    logging.error(f"Validation error for length: {e}.")
                     sys.exit(1)
                 except KeyboardInterrupt:
                     logging.info("User terminated the program using Ctrl+C.")
