@@ -39,7 +39,7 @@ def convert_file_to_utf8(file_path):
         
     # Phase 1: Detect file encoding
     with open(file_path, 'rb') as f:
-        raw_data = f.read(10000)
+        raw_data = f.read(20480)
         result = chardet.detect(raw_data)
         original_encoding = result['encoding']
         #print(f"\nDetected original encoding: {original_encoding} (confidence: {result['confidence']:.2f})")

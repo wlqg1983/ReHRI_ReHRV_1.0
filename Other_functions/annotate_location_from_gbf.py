@@ -28,6 +28,7 @@ from datetime import datetime  # 用于生成时间戳
 import logging
 import traceback 
 
+################################################################################
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -35,6 +36,108 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+################################################################################################################################################################
+def check_file_exists(file_path):
+    """
+    Check if a file exists at the specified path.
+    
+    Args:
+        file_path (str): Path to the file to be checked
+        
+    Returns:
+        None: Exits program with error code 1 if file doesn't exist
+    """
+    # Check if file exists before proceeding
+    if not os.path.exists(file_path):
+        print(f"\nError: The specified file does not exist at path: {os.path.abspath(file_path)}")
+        print("Please verify:")
+        print("  1. The file name is correct")
+        print("  2. The file is in the expected directory")
+        print("  3. You have proper read permissions for the file")
+        sys.exit(1)  # Exit with error code 1
+
+################################################################################
+def convert_file_to_utf8(file_path):
+    """
+    Convert file encoding to UTF-8 (no return value, directly modifies the source file)
+    Automatically handles BOM headers, line endings, and encoding exceptions
+    
+    Args:
+        file_path (str): Path to the file to be converted
+        
+    Raises:
+        UnicodeDecodeError: When the file cannot be decoded with any encoding
+        IOError: When file read/write errors occur
+    """
+    # Phase 1: Detect file encoding
+    with open(file_path, 'rb') as f:
+        raw_data = f.read(20480)
+        result = chardet.detect(raw_data)
+        original_encoding = result['encoding']
+        #print(f"Detected original encoding: {original_encoding} (confidence: {result['confidence']:.2f})")
+
+    # Phase 2: Read file content (try multiple encodings)
+    content = None
+    encodings_to_try = [
+        'utf-8-sig',  # Try UTF-8 with BOM first
+        original_encoding,  # Then try the detected encoding
+        'gb18030',     # Common encoding in Chinese environments
+        'latin-1'      # Final fallback
+    ]
+    
+    for enc in encodings_to_try:
+        try:
+            with open(file_path, 'r', encoding=enc) as f:
+                content = f.read()
+            #print(f"Successfully read file with encoding [{enc}]")
+            original_encoding = enc
+            break
+        except UnicodeDecodeError:
+            continue
+    
+    if content is None:
+        raise UnicodeDecodeError(f"Unable to decode file: {file_path}")
+
+    # Phase 3: Convert non-UTF-8 files
+    if original_encoding.lower() not in ['utf-8', 'utf8', 'utf-8-sig']:
+        print("\nWarning: Detected non-UTF-8 encoded file!")
+        print(f"File path: {os.path.abspath(file_path)}")
+        print(f"Current encoding: {original_encoding}")
+        print("This operation will:")
+        print("1. Permanently convert the file encoding to UTF-8")
+        print("2. Overwrite the original file")
+        print("\nPlease ensure you have backed up the original file!")
+        
+        # 10-second countdown confirmation
+        try:
+            for i in range(10, 0, -1):
+                print(f"\rAuto-proceeding in {i} seconds... (Press Ctrl+C to cancel)", end='')
+                sys.stdout.flush()
+                time.sleep(10)
+            print("\nStarting conversion...")
+        except KeyboardInterrupt:
+            print("\nOperation cancelled by user")
+            return
+
+        # Phase 4: Safely write to a temporary file
+        temp_file = file_path + '.tmp'
+        try:
+            # Normalize line endings to Linux format (\n)
+            normalized_content = content.replace('\r\n', '\n').replace('\r', '\n')
+            
+            with open(temp_file, 'w', encoding='utf-8', newline='\n') as f:
+                f.write(normalized_content)
+                
+            # Atomically replace the original file
+            os.replace(temp_file, file_path)
+            print(f"File successfully converted to UTF-8 encoding (no BOM)")
+            
+        except Exception as e:
+            if os.path.exists(temp_file):
+                os.remove(temp_file)
+            raise IOError(f"File conversion failed: {str(e)}")
+
+################################################################################
 def parse_location(location_str):
     """Parse GenBank location string with strand awareness"""
     try:
@@ -56,6 +159,7 @@ def parse_location(location_str):
         logger.warning(f"Location parsing error: {str(e)}")
         return [(None, None, 1)]
 
+################################################################################
 def load_genes_and_exons(genome_record):
     """Load genes and exons with strand information"""
     genes = []
@@ -110,6 +214,7 @@ def load_genes_and_exons(genome_record):
     
     return genes, exons
 
+################################################################################
 def annotate_segment(segment, genes, exons, min_intergenic=50):
     seg_start, seg_end = sorted(segment)
     detailed_annotations = []
@@ -230,7 +335,8 @@ def annotate_segment(segment, genes, exons, min_intergenic=50):
             current_pos = inter_end + 1
     
     return detailed_annotations, sorted(overlapping_genes)
-    
+
+################################################################################################################################################################
 def main():
     parser = argparse.ArgumentParser(
         description='DNA Segment Annotation Tool (version=1.0)',
@@ -249,6 +355,9 @@ def main():
 
     try:
         args = parser.parse_args()
+        
+        check_file_exists(args.input)          # 检测文件是否存在
+        convert_file_to_utf8(args.input)       # 检测是否是utf-8格式，如果不是则进行格式转换，并替换源文件
         
         # 配置日志级别
         if args.debug:
@@ -292,27 +401,30 @@ def main():
                     continue
                 
                 try:
-                    # 支持多种分隔符：空格、逗号、分号、横线、下划线
-                    if '\t' in line:
-                        parts = line.split('\t')
-                    elif '-' in line:
-                        parts = line.split('-')
-                    elif '_' in line:
-                        parts = line.split('_')
-                    else:
-                        parts = re.split(r'[\s,;./\\]+', line)
-                    
-                    if len(parts) < 2:
-                        logger.warning(f"Line {line_num}: Insufficient columns, skipping")
+                    # 支持多种分隔符：空格、逗号、分号、横线、下划线（排除句号避免干扰小数）
+                    pattern = r'[ \t!@#$%^&*()_+=,<>?/\|;:~-]+'
+                    parts = re.split(pattern, line.strip())
+    
+                    # 验证列数
+                    if len(parts) != 2:
+                        logger.warning(f"Line {line_num}: Invalid column number. Skip!")
                         continue
-                    
-                    # 提取并转换位置信息（支持科学计数法）
-                    start = int(float(parts[0]))
+    
+                    # 预校验非数字字符（支持科学计数法如1e5）
+                    def is_valid_number(s):
+                        return re.fullmatch(r'^-?\d+\.?\d*([eE][-+]?\d+)?$', s.strip()) is not None
+    
+                    if not (is_valid_number(parts[0]) and is_valid_number(parts[1])):
+                        logger.warning(f"Line {line_num}: Location information contains non numeric characters, (start={parts[0]}, end={parts[1]}). Skip!")
+                        continue
+    
+                    # 转换为整数并确保升序
+                    start = int(float(parts[0]))  # 处理科学计数法
                     end = int(float(parts[1]))
                     segments.append((min(start, end), max(start, end)))
-                    
+
                 except ValueError as e:
-                    logger.warning(f"Line {line_num}: Invalid number format - {str(e)}")
+                    logger.warning(f"Line {line_num}: Invalid numerical format - {str(e)}")
                     continue
 
         if not segments:
@@ -373,6 +485,7 @@ def main():
             logger.error(traceback.format_exc())
         return 1
 
+################################################################################################################################################################
 if __name__ == "__main__":
     import sys
     sys.exit(main())
