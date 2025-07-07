@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-DNA Segment Annotation Tool (version=1.2)
+DNA Segment Annotation Tool (version=1.0)
 
 Description:
 Annotates DNA segments using clinical genetics classification standards:
@@ -233,7 +233,7 @@ def annotate_segment(segment, genes, exons, min_intergenic=50):
     
 def main():
     parser = argparse.ArgumentParser(
-        description='DNA Segment Annotation Tool (version=1.3)',
+        description='DNA Segment Annotation Tool (version=1.0)',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument('-g', '--genbank', required=True,
