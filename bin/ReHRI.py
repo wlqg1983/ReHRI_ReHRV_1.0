@@ -14,6 +14,7 @@ import numpy as np
 from multiprocessing import Pool, cpu_count, Manager
 import chardet
 import codecs, gzip
+from collections import defaultdict
 
 #######################################################################################################################################################################
 def convert_file_to_utf8(file_path):
@@ -1551,7 +1552,7 @@ def main():
 
                 # 根据重复序列的名字，清除多余的重复序列单元。分三步完成。
                 repeat_file_path = f"ROUSFinder_results_{project_id}/{rous_output_file_prefix}_{project_id}_rep.fasta"
-                # 步骤1: 读取_rep_table.txt文件中的fragment_id列，并去除重复项 fasta_file_path
+                # 步骤1: 读取 _rep_table.txt文件中的fragment_id列，并去除重复项 fasta_file_path
                 df = pd.read_csv(file_path, sep='\t')
                 unique_fragment_ids = df['fragment_id'].drop_duplicates()
 
@@ -2097,68 +2098,89 @@ def main():
 
 ################################################################################
         def process_manually_calibrate(manually_calibrate):
-            # Read the manually_calibrate file
+            """Process manually calibrated pairs from TSV file.
+            
+            Args:
+                manually_calibrate (str): Path to TSV file with manual calibration data
+        
+            Returns:
+                list: Sorted list of unique fragment pairs (tuple of two IDs)
+            """
             df = pd.read_csv(manually_calibrate, sep='\t')
-            
-            # Determine columns to read based on number of columns
+    
+            # Determine columns based on file format
             if len(df.columns) == 12:
-                # Read first and seventh columns for 12-column format
-                col1 = df.columns[0]  # fragment_id
-                col2 = df.columns[6]  # paired_id
-                pairs = set(zip(df[col1], df[col2]))
+                id_col, pair_col = df.columns[0], df.columns[6]  # 12-column format
             elif len(df.columns) == 10:
-                # Read first and sixth columns for 10-column format
-                col1 = df.columns[0]  # fragment_id
-                col2 = df.columns[5]  # paired_id
-                pairs = set(zip(df[col1], df[col2]))
+                id_col, pair_col = df.columns[0], df.columns[5]  # 10-column format
             else:
-                raise ValueError("manually_calibrate file must have either 12 or 10 columns")
-            
-            # Sort the pairs
-            sorted_pairs = sorted(pairs)
-            return sorted_pairs
+                raise ValueError("Manually_calibrate file must have either 12 or 10 columns")
+    
+            # Create unique pairs and sort
+            unique_pairs = set(zip(df[id_col], df[pair_col]))
+            return sorted(unique_pairs)
 
         def process_fasta_files(extrcon_output_dir_prefix, project_id):
-            # Get all fasta files
+            """Process all FASTA files in directory and group by fragment pairs.
+    
+            Args:
+                extrcon_output_dir_prefix (str): Directory prefix for FASTA files
+                project_id (str): Project identifier
+        
+            Returns:
+                tuple: (sorted unique pairs, dict mapping pairs to all matching files)
+            """
             fasta_files = glob.glob(f"{extrcon_output_dir_prefix}_{project_id}/*.fasta")
-            
-            # Extract pairs from filenames
-            filename_pairs = []
+            pair_to_files = defaultdict(list)
+            unique_pairs = set()
+
             for fasta_file in fasta_files:
                 basename = os.path.basename(fasta_file)
                 parts = basename.split('_')
-                if len(parts) >= 4:
-                    pair = (parts[2], parts[3])  # Third and fourth columns
-                    filename_pairs.append((pair, fasta_file))
-            
-            # Sort the pairs
-            sorted_filename_pairs = sorted([p[0] for p in filename_pairs])
-            return sorted_filename_pairs, dict(filename_pairs)
         
+                if len(parts) >= 4:
+                    pair = (parts[2], parts[3])  # Extract fragment IDs
+                    pair_to_files[pair].append(fasta_file)
+                    unique_pairs.add(pair)
+    
+            return sorted(unique_pairs), pair_to_files
+
         def compare_and_clean(manually_calibrate, extrcon_output_dir_prefix, project_id):
-            # Process both inputs
-            manual_pairs = process_manually_calibrate(manually_calibrate)
-            fasta_pairs, fasta_file_map = process_fasta_files(extrcon_output_dir_prefix, project_id)
-            
-            # Convert to sets for comparison
-            manual_set = set(manual_pairs)
-            fasta_set = set(fasta_pairs)
-            
+            """Compare manual calibration with existing files and clean non-matching files.
+    
+            Args:
+               manually_calibrate (str): Path to manual calibration file
+                extrcon_output_dir_prefix (str): Directory prefix for FASTA files
+                project_id (str): Project identifier
+        
+            Returns:
+                list: Files that were kept (matching manual calibration)
+            """
+            # Process inputs
+            manual_pairs = set(process_manually_calibrate(manually_calibrate))
+            fasta_pairs, fasta_file_groups = process_fasta_files(extrcon_output_dir_prefix, project_id)
+    
             # Find common pairs
-            common_pairs = manual_set & fasta_set
-            
-            # Find files to keep and delete
-            files_to_keep = [fasta_file_map[p] for p in common_pairs if p in fasta_file_map]
-            files_to_delete = [fasta_file_map[p] for p in fasta_set - common_pairs if p in fasta_file_map]
-            
-            # Delete files not in common
-            for file_to_delete in files_to_delete:
+            common_pairs = manual_pairs & set(fasta_pairs)
+    
+            # Process files to keep/delete
+            files_to_keep = []
+            files_to_delete = []
+    
+            for pair, files in fasta_file_groups.items():
+                if pair in common_pairs:
+                    files_to_keep.extend(files)  # Keep ALL files for valid pairs
+                else:
+                    files_to_delete.extend(files)  # Delete ALL files for invalid pairs
+    
+            # Delete non-matching files
+            for file_path in files_to_delete:
                 try:
-                    os.remove(file_to_delete)
-                    print(f"Deleted: {file_to_delete}")
+                    os.remove(file_path)
+                    print(f"Deleted: {file_path}")
                 except OSError as e:
-                    print(f"Error deleting {file_to_delete}: {e}")
-            
+                    print(f"Error deleting {file_path}: {e}")
+    
             return files_to_keep
         
 ################################################################################
@@ -2170,13 +2192,16 @@ def main():
             #### subconfiguration - Process each FASTA file sequentially
             subcon_fasta_files = glob.glob(f"{extrsubcon_output_dir_prefix}_{project_id}/*.fasta")
             
-            if mode == 'C' and reshap_log:                     # reshap_log 表示用户输入的数据类型，为True时，表示用户设定了重复序列的配对信息，用户输入的文件为 manually_calibrate，以此删除用户为指定的重复序列对
-                subcon_fasta_files = compare_and_clean(manually_calibrate, extrsubcon_output_dir_prefix, project_id)        # 根据用户听的重复序列对应关系，重新定义subcon_fasta_files
+            if mode == 'C' and reshap_log:                     # reshap_log 表示用户输入的数据类型，为True时，表示用户设定了重复序列的配对信息，用户输入的文件为 manually_calibrate，以此删除用户未指定的重复序列对
+                subcon_fasta_files = compare_and_clean(manually_calibrate, extrsubcon_output_dir_prefix, project_id)        # 根据用户给的重复序列对应关系，重新定义subcon_fasta_files
 
             subcon_fasta_total = len(subcon_fasta_files)    # 次要构型中需要检测的重复单元个数
             if not args.resume:
                 print()
-                logging.info(f"@@@@@@@@@@ Found {subcon_fasta_total} repeat pairs that may mediate genomic recombination! @@@@@@@@@@")
+                if complementary_chain in ['YES','Y']:
+                    logging.info(f"@@@@@@@@@@ Found {int(subcon_fasta_total/4)} repeat pairs that may mediate genomic recombination! @@@@@@@@@@")
+                if complementary_chain in ['NO','N']:
+                    logging.info(f"@@@@@@@@@@ Found {int(subcon_fasta_total/2)} repeat pairs that may mediate genomic recombination! @@@@@@@@@@")
                 time.sleep(5)
 
             print()
