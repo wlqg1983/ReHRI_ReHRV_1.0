@@ -1902,7 +1902,7 @@ def main():
                 # mode = C 时，adjusted_manual_calibrated_list_ARcnC_rep_5CT.tsv，表头为 fragment_id   start   end    type   paired_id，ctg01   1   4689   inter_region   -   RU1a   4690   4706   direct_repeat   RU1b
             
             if reshap_log:
-                run_command(["python", os.path.join(dir_path, "paired_info_to_5CT.py"), "-i", os.path.abspath("adjusted_manual_calibrated_list.tsv"), "-o", os.path.join(f"ROUSFinder_results_{project_id}", f"{prefix_manual}_{project_id}_rep_5CT.tsv"), "-l", str(sequence_lengths)])
+                run_command(["python", os.path.join(dir_path, "paired_info_to_5CT_i.py"), "-i", os.path.abspath("adjusted_manual_calibrated_list.tsv"), "-o", os.path.join(f"ROUSFinder_results_{project_id}", f"{prefix_manual}_{project_id}_rep_5CT.tsv"), "-l", str(sequence_lengths)])
 
 ################################################################################
         if mode == 'A' and not resume_logic:
