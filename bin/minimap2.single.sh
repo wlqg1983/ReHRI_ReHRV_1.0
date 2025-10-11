@@ -45,8 +45,16 @@ for file in coverage.txt repeat-spanning_read.txt spanning_reads_sorted.bam span
     fi
 done
 
-# 如果文件不存在，则运行 minimap2 命令
+# 运行 minimap2 命令
 if [ "$files_exist" = false ]; then
-    echo "Running minimap2."
-    minimap2 -ax sr -t "$thread" "$reference" "$reads" > "$output_dir/output.sam"
+    # echo "Running minimap2."
+    # minimap2 -ax sr -t "$thread" "$reference" "$reads" > "$output_dir/output.sam"
+    
+    echo "Running minimap2 and filtering out reverse strand alignments."
+    
+    # 输出BAM格式（更节省空间）
+    minimap2 -ax sr -t "$thread" "$reference" "$reads" | \
+    samtools view -F 16 -b - | \
+    samtools sort -@ "$thread" -o "$output_dir/output.bam" -
+    
 fi

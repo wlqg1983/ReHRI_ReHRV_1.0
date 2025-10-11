@@ -43,10 +43,6 @@ fi
 mkdir -p "$output_prefix"
 echo "Storing results in directory '$output_prefix'."
 
-# Run minimap2 to perform mapping
-#echo "Running minimap2 with $seqdepth_type sequencing..."
-#minimap2 -ax "$minimap2_option" -t "$threads" "$reference" "$long_reads" > "$output_prefix/output.sam"
-
 
 # 检查输出目录中是否存在任何指定文件
 # 初始化变量  
@@ -60,10 +56,17 @@ for file in coverage.txt repeat-spanning_read.txt spanning_reads_sorted.bam span
     fi  
 done  
   
-# 如果有任何文件不存在，则运行 minimap2 命令  
+# 运行 minimap2 命令  
 if [ "$all_files_exist" = false ]; then  
-    echo "At least one file is missing, running minimap2."  
-    minimap2 -ax "$minimap2_option" -t "$threads" "$reference" "$long_reads" > "$output_prefix/output.sam"  
+    # echo "At least one file is missing, running minimap2."  
+    # minimap2 -ax "$minimap2_option" -t "$threads" "$reference" "$long_reads" > "$output_prefix/output.sam"  
+    
+    echo "Running minimap2 and filtering out reverse strand alignments."  
+    
+    # 使用minimap2进行比对，然后过滤掉反向比对（互补链）的reads
+    minimap2 -ax "$minimap2_option" -t "$threads" "$reference" "$long_reads" | \
+    samtools view -F 16 -h - | \
+    samtools sort -@ "$threads" -o "$output_prefix/output.sam" -
+    
 fi
-
 

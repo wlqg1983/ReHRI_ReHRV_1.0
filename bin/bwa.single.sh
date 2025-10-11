@@ -47,15 +47,21 @@ for file in coverage.txt repeat-spanning_read.txt spanning_reads_sorted.bam span
     fi
 done
 
-# 如果文件不存在，则运行 minimap2 命令
+# 运行 bwa 命令
 if [ "$files_exist" = false ]; then
     echo "Aligning reads to reference genome..."
     echo "Running bwa."
     # Index reference genome
     echo "Indexing reference genome..."
     bwa index "$reference"
-    bwa mem -t "$threads" "$reference" "$input_fastq" > "$output_dir/output.sam"
-
+    #bwa mem -t "$threads" "$reference" "$input_fastq" > "$output_dir/output.sam"
+    
+    # 使用管道过滤掉反向比对（互补链）的reads
+    echo "Running bwa mem and filtering out reverse strand alignments..."
+    bwa mem -t "$threads" "$reference" "$input_fastq" | \
+    samtools view -F 16 -b - | \
+    samtools sort -@ "$threads" -o "$output_dir/output.sam" -
+    
     # Remove BWA index files
     [ -f "${reference}.amb" ] && rm "${reference}.amb"
     [ -f "${reference}.ann" ] && rm "${reference}.ann"

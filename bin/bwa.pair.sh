@@ -43,12 +43,22 @@ for file in coverage.txt repeat-spanning_read.txt spanning_reads_sorted.bam span
     fi
 done
 
-# 如果文件不存在，则运行 minimap2 命令
+# 运行 bwa 命令
+#if [ "$files_exist" = false ]; then
+#    echo "Running bwa."
+#    bwa index "$reference"
+#    bwa mem -t "$threads" "$reference" "$reads1" "$reads2" > "$output_dir/output.sam"
+
+# 运行 bwa 命令
 if [ "$files_exist" = false ]; then
     echo "Running bwa."
     bwa index "$reference"
-    bwa mem -t "$threads" "$reference" "$reads1" "$reads2" > "$output_dir/output.sam"
-
+    
+    # 使用管道直接生成排序后的BAM文件，只保留正向比对（非互补链）
+    bwa mem -t "$threads" "$reference" "$reads1" "$reads2" | \
+    samtools view -F 16 -b - | \
+    samtools sort -@ "$threads" -o "$output_dir/output.sam" -
+    
     # Remove BWA index files
     [ -f "${reference}.amb" ] && rm "${reference}.amb"
     [ -f "${reference}.ann" ] && rm "${reference}.ann"

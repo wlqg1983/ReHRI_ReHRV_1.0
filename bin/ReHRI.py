@@ -895,7 +895,7 @@ def config_has_required_sections(config_path: str) -> bool:
 #######################################################################################################################################################################
 def main():
     # Parse command line arguments
-    parser = argparse.ArgumentParser(description="ReHRI: A tool to check spanning reads for supporting subconfig of your organelle genome.")
+    parser = argparse.ArgumentParser(description="ReHRI: A tool to check spanning reads for supporting subconfiguration of your plant mitogenome.")
     parser.add_argument("-c", dest="config", help="Path to external configuration file.", required=True)
     parser.add_argument("-redo", help="Delete all previous results and start calculation anew.", action="store_true")
     parser.add_argument("-resume", action="store_true", help="Resume from a previous project.")
@@ -1223,14 +1223,14 @@ def main():
             if os.path.isfile(provided_data):
                 file_format = check_file_format_efficient(provided_data)      # 检查输入文件的数据格式
                 if file_format == 'FASTA':
-                    logging.info(f"The infile {provided_data} is in FASTA format.")
+                    logging.info(f"The inputfile {provided_data} is in FASTA format.")
                 elif file_format == 'FASTQ':
-                    logging.info(f"The infile {provided_data} is in FASTQ format.")
+                    logging.info(f"The inputfile {provided_data} is in FASTQ format.")
                 else:
-                        logging.error(f"The infile {provided_data} format is unknown, empty or invalid.")
+                        logging.error(f"The inputfile {provided_data} format is unknown, empty or invalid.")
                         sys.exit(1)
             else:
-                logging.error(f"The infile {provided_data} does not exist.")
+                logging.error(f"The inputfile {provided_data} does not exist.")
                 sys.exit(1)
 
         if seqdepth_pair and mode != 'R':
@@ -1242,14 +1242,14 @@ def main():
                     convert_file_to_utf8(provided_data)         # 文本格式的转换，防止Win/Mac下的文档在linux下读取出问题，统一转换为utf-8
                     file_format = check_file_format_efficient(provided_data)
                     if file_format == 'FASTA':
-                        logging.info(f"The infile {provided_data} is in FASTA format.")
+                        logging.info(f"The inputfile {provided_data} is in FASTA format.")
                     elif file_format == 'FASTQ':
-                        logging.info(f"The infile {provided_data} is in FASTQ format.")
+                        logging.info(f"The inputfile {provided_data} is in FASTQ format.")
                     else:
-                        logging.error(f"The infile {provided_data} format is unknown, empty or invalid.")
+                        logging.error(f"The inputfile {provided_data} format is unknown, empty or invalid.")
                         sys.exit(1)
                 else:
-                    logging.error(f"The infile {provided_data} does not exist.")
+                    logging.error(f"The inputfile {provided_data} does not exist.")
                     sys.exit(1)
 
         if seqdepth_third and mode != 'R':
@@ -1264,14 +1264,14 @@ def main():
             if os.path.isfile(provided_data):
                 file_format = check_file_format_efficient(provided_data)
                 if file_format == 'FASTA':
-                    logging.info(f"The infile {provided_data} is in FASTA format.")
+                    logging.info(f"The inputfile {provided_data} is in FASTA format.")
                 elif file_format == 'FASTQ':
-                    logging.info(f"The infile {provided_data} is in FASTQ format.")
+                    logging.info(f"The inputfile {provided_data} is in FASTQ format.")
                 elif file_format == 'Unknown': 
-                        logging.error(f"The infile {provided_data} format is Unknown, empty or invalid.")
+                        logging.error(f"The inputfile {provided_data} format is Unknown, empty or invalid.")
                         sys.exit(1)
             else:
-                logging.error(f"The infile {provided_data} does not exist.")
+                logging.error(f"The inputfile {provided_data} does not exist.")
                 sys.exit(1)
                 
         if not seqdepth_third:                # 当提供的不是三代数据的时候，但是又提供了三代数据的类型，则给出提示，将类型设置为 None

@@ -15,7 +15,7 @@ def split_and_rename_columns(df):
     return df
 
 #######################################################################################################################################################################
-# Generate new columns based on the specified rules. 考虑正负链
+# Generate new columns based on the specified rules. 考虑正负链 
 def generate_new_columns(row):
     # Generate new columns based on specified rules, considering the chain direction.
     new_col1, new_col3, new_col4, new_col5 = row['split_1'], row['split_3'], row['split_4'], row['direction']   # Initialize with existing values as default

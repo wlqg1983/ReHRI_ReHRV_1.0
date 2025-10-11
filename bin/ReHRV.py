@@ -423,7 +423,7 @@ def config_has_required_sections(config_path: str) -> bool:
     
 ##########################################################################################################################################
 def main():
-    parser = argparse.ArgumentParser(description="ReHRV: A tool to map the confgiure of your organelle genome.")
+    parser = argparse.ArgumentParser(description="ReHRV: A tool to map the confgiure of your plant mitogenome.")
     parser.add_argument("-c", dest="config", help="Path to external configuration file.", required=True)
     parser.add_argument("-redo", help="Delete all previous results and start calculation anew.", action="store_true")
     parser.add_argument("-v", "--version", action="version", version="ReHRV version=1.0", help="Show the version number and exit.")

@@ -31,6 +31,9 @@ seqdepth_type="$5"
 # Create output directory if it does not exist
 mkdir -p "$output_dir"
 
+# Index reference genome
+#bwa index "$reference"
+
 # Determine the correct preset for the sequencing depth type
 preset_option=""
 if [ "$seqdepth_type" == "ont" ]; then
@@ -52,12 +55,22 @@ for file in coverage.txt repeat-spanning_read.txt spanning_reads_sorted.bam span
     fi
 done
 
-# 如果文件不存在，则运行 minimap2 命令
+# 运行 bwa 命令
 if [ "$files_exist" = false ]; then
-    echo "Running bwa."
+    echo "========================================================================"
+    echo "WARNING: BWA is not recommended for third-generation sequencing data!"
+    echo "For better results with $seqdepth_type data, please use minimap2 instead."
+    echo "========================================================================"
+    echo "Running bwa (not recommended for long reads)..."
+    
     # Index reference genome
     bwa index "$reference"
-    bwa mem -t "$thread" -x "$preset_option" "$reference" "$input_fastq" > "$output_dir/output.sam"
+    # bwa mem -t "$thread" -x "$preset_option" "$reference" "$input_fastq" > "$output_dir/output.sam"
+
+    # 使用管道过滤掉反向比对（互补链）的reads
+    bwa mem -t "$thread" -x "$preset_option" "$reference" "$input_fastq" | \
+    samtools view -F 16 -b - | \
+    samtools sort -@ "$thread" -o "$output_dir/output.sam" -
 
     # Remove BWA index files
     [ -f "${reference}.amb" ] && rm "${reference}.amb"

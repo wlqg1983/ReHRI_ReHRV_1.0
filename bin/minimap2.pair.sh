@@ -51,10 +51,13 @@ for file in coverage.txt repeat-spanning_read.txt spanning_reads_sorted.bam span
     fi
 done
 
-# 如果文件不存在，则运行 minimap2 命令
+# 运行 minimap2 命令
 if [ "$files_exist" = false ]; then
     echo "Running minimap2."
-    minimap2 -ax sr -t "$thread" "$reference" "$reads1" "$reads2" > "$output_prefix/output.sam"
+    # minimap2 -ax sr -t "$thread" "$reference" "$reads1" "$reads2" > "$output_prefix/output.sam"
+    # 过滤掉反向比对的reads
+    minimap2 -ax sr -t "$thread" "$reference" "$reads1" "$reads2" | \
+    samtools view -F 16 -b - | \
+    samtools sort -o "$output_prefix/output.sam" -
 fi
-
 

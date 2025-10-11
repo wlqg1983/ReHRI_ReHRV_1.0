@@ -69,7 +69,8 @@ def draw_seq_depth_blast(reference, sequencing_type, output_prefix, threads, inp
     os.system(command)
 
     # 构建命令,为后面添加不同的参数预留接口。
-    command = f"/usr/bin/blastn -query {input_fasta} -out {output_prefix}_results/{ref_prefix} -db {output_prefix}_results/{ref_prefix} -outfmt 6 -evalue {evalue} -num_alignments 10000 -num_threads {threads}"
+    # blast 比对reads与reference，仅比对reads与正义链，不考虑负链。因为前面截取序列的时候认为控制截取plus 还是 minus 链了
+    command = f'/usr/bin/blastn -query {input_fasta} -out {output_prefix}_results/{ref_prefix} -db {output_prefix}_results/{ref_prefix} -outfmt 6 -evalue {evalue} -num_alignments 10000 -num_threads {threads} -strand "plus"'
 
     # 运行命令
     os.system(command)

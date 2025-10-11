@@ -8,7 +8,7 @@ def preprocess_sub_data(input_file_path, read_number):
     # 读取数据
     df = pd.read_csv(input_file_path, sep='\t', header=0)
     
-    # 添加新列，基于条件设置值
+    # 添加新列，基于条件设置值   AB/LR   CD/UD    AC/LU    BD/RD    AD/LD    CB/UR    BC/RU
     df['spanning_read_scfg'] = df.apply(lambda row: 'sufficient' if row.iloc[2] >= int(read_number) else 'insufficient', axis=1)
     
     # 将包含新列的DataFrame写回原始文件，原始文件中添加spanning_read_scfg列
@@ -254,16 +254,16 @@ def calculate_unpair_ratio(sub_unpaired_groups, main_paired_groups, rep_5ct_file
 def calculate_ratio(sub_group, main_group):
     # 初始化各个比例的变量
     ratio_DR_LD_C_LR_C_numerator, ratio_DR_LD_C_LR_C_denominator = 0, 0
-    ratio_DR_LD_LR_numerator, ratio_DR_LD_LR_denominator = 0, 0
+    ratio_DR_LD_LR_numerator,     ratio_DR_LD_LR_denominator = 0, 0
     ratio_DR_UR_C_UD_C_numerator, ratio_DR_UR_C_UD_C_denominator = 0, 0
-    ratio_DR_UR_UD_numerator, ratio_DR_UR_UD_denominator = 0, 0
-    ratio_IR_LU_UD_C_numerator, ratio_IR_LU_UD_C_denominator = 0, 0
-    ratio_IR_LU_C_UD_numerator, ratio_IR_LU_C_UD_denominator = 0, 0
-    ratio_IR_RD_C_LR_numerator, ratio_IR_RD_C_LR_denominator = 0, 0
-    ratio_IR_RD_LR_C_numerator, ratio_IR_RD_LR_C_denominator = 0, 0
-    ratio_DR_LD_LR = ratio_DR_LD_C_LR_C = ratio_DR_LD = ratio_DR_UR_UD = "N/A"
-    ratio_DR_UR_C_UD_C = ratio_DR_UR = ratio_IR_LU_UD_C = ratio_IR_LU_C_UD = "N/A"
-    ratio_IR_LU = ratio_IR_RD_LR_C = ratio_IR_RD_C_LR = ratio_IR_RD = "N/A"
+    ratio_DR_UR_UD_numerator,     ratio_DR_UR_UD_denominator = 0, 0
+    ratio_IR_LU_UD_C_numerator,   ratio_IR_LU_UD_C_denominator = 0, 0
+    ratio_IR_LU_C_UD_numerator,   ratio_IR_LU_C_UD_denominator = 0, 0
+    ratio_IR_RD_C_LR_numerator,   ratio_IR_RD_C_LR_denominator = 0, 0
+    ratio_IR_RD_LR_C_numerator,   ratio_IR_RD_LR_C_denominator = 0, 0
+    ratio_DR_LD_LR     = ratio_DR_LD_C_LR_C = ratio_DR_LD      = ratio_DR_UR_UD = "N/A"
+    ratio_DR_UR_C_UD_C = ratio_DR_UR        = ratio_IR_LU_UD_C = ratio_IR_LU_C_UD = "N/A"
+    ratio_IR_LU        = ratio_IR_RD_LR_C   = ratio_IR_RD_C_LR = ratio_IR_RD = "N/A"
 
     for sub_row in sub_group:
         if sub_row[1] == 'LD' and sub_row[4] == 'minus':
@@ -341,7 +341,7 @@ def calculate_ratio(sub_group, main_group):
 def extract_number(ratio_str):
     try:
         parts = ratio_str.split('/')
-        sub = int(parts[0])  # The first part of the ratio
+        sub = int(parts[0])  # The first part of the ratio IR
         main = int(parts[1])  # The second part of the ratio
         return sub, main
     except (ValueError, IndexError, AttributeError):
